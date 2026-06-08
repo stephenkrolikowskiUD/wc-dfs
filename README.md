@@ -20,6 +20,8 @@ It sends those fixtures and props to Gemini, validates the returned picks, and w
 - Game Entry
 - Method notes
 
+`WCGrader_v1.py` grades completed picks using FotMob match details and writes only the `Result` and `Actual` columns.
+
 ## Sheet
 
 Workbook:
@@ -54,6 +56,12 @@ Write live picks to Sheets:
 
 ```bash
 ODDS_API_KEY=... GEMINI_API_KEY=... GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCEnginev1.py --once
+```
+
+Validate grader aliases without Sheets or FotMob:
+
+```bash
+python3 WCGrader_v1.py --alias-check
 ```
 
 ## Secrets

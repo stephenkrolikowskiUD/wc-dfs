@@ -1,0 +1,26 @@
+name: World Cup Grader
+
+on:
+  schedule:
+    # Hourly during match days. The script no-ops when there are no completed
+    # WC picks to grade or retry.
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-world-cup-grader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests gspread google-auth pytz
+      - name: Run World Cup grader
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python WCGrader_v1.py
