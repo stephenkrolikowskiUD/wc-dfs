@@ -1,25 +1,23 @@
 # World Cup Pick Grader v1
 #
-# FotMob stat mapping chosen for v1:
-# - Shots   -> "Total shots" first, fallback "Shots"
-# - SOT     -> "Shots on target"
-# - Tackles -> "Tackles won" first, fallback "Tackles"
-# - Goal Scorer -> "Goals"; HIT when goals >= 1
-# - Goals   -> "Goals"; milestone alternate, HIT when actual >= line
+# API-Football stat mapping chosen for v1:
+# - Shots       -> statistics.shots.total
+# - SOT         -> statistics.shots.on
+# - Tackles     -> statistics.tackles.total; milestone alternate, HIT when actual >= line
+# - Goal Scorer -> statistics.goals.total; HIT when goals >= 1
+# - Goals       -> statistics.goals.total; milestone alternate, HIT when actual >= line
 #
-# These keys are intentionally auditable because FotMob's unofficial JSON can
-# drift by competition or app release. Verify on the first completed WC match.
-#
-# TODO: fallback to API-Football if FotMob breaks.
+# API-Football returns null when a player recorded no action. For players with
+# minutes > 0, null is treated as 0. Players with 0/no minutes are marked DNP.
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import os
 import re
 import time
-import argparse
 import unicodedata
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -33,27 +31,33 @@ from google.oauth2.service_account import Credentials
 
 SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g"
 SHEET_NAME = "Picks"
-FOTMOB_MATCH_DETAILS = "https://www.fotmob.com/api/matchDetails?matchId={match_id}"
-FOTMOB_MATCHES_BY_DATE = "https://www.fotmob.com/api/matches?date={yyyymmdd}"
-WC_LEAGUE_ID = 77  # FotMob World Cup league ID — verify at runtime; may shift between editions.
+API_BASE = "https://v3.football.api-sports.io"
+API_FOOTBALL_LEAGUE_ID = 1
+API_FOOTBALL_SEASON = 2026
 
 RESULT_COL = "Result"
 ACTUAL_COL = "Actual"
-REQUEST_TIMEOUT = 20
+REQUEST_TIMEOUT = 15
 MAX_RETRIES = 3
-MATCH_TIME_TOLERANCE_HOURS = 8
+MATCH_TIME_TOLERANCE_HOURS = 2
+FIXTURE_CACHE_TTL_SECONDS = 24 * 60 * 60
 EASTERN = pytz.timezone("America/New_York")
 
-PROP_STAT_KEYS = {
-    "SHOTS": ("Total shots", "Shots"),
-    "SOT": ("Shots on target",),
-    "TACKLES": ("Tackles won", "Tackles"),
-    "GOAL_SCORER": ("Goals", "goals"),
-    "GOALS": ("Goals", "goals"),
-}
 
-# Canonical names are deliberately broad. FotMob and Odds API may use country
-# names, abbreviations, or federation-style names.
+def resolve_cache_dir() -> str:
+    for path in (os.path.expanduser("~/.dfs_engines_cache"), os.path.join(os.getcwd(), ".cache")):
+        try:
+            os.makedirs(path, exist_ok=True)
+            return path
+        except OSError:
+            continue
+    return "/tmp"
+
+
+CACHE_DIR = resolve_cache_dir()
+
+# Canonical names are deliberately broad. API-Football and Odds API may use
+# country names, abbreviations, or federation-style names.
 TEAM_NAME_ALIASES = {
     "argentina": "argentina",
     "australia": "australia",
@@ -122,9 +126,41 @@ TEAM_NAME_ALIASES = {
     "wales": "wales",
 }
 
+API_KEY: str | None = None
+
 
 def now_est() -> datetime:
     return datetime.now(EASTERN)
+
+
+def load_secret(name: str, prompt_text: str | None = None, allow_missing: bool = False) -> str | None:
+    env_val = os.environ.get(name)
+    if env_val:
+        print(f"🔐 Loaded {name} from environment")
+        return env_val
+    try:
+        from google.colab import userdata
+
+        colab_val = userdata.get(name)
+        if colab_val:
+            print(f"🔐 Loaded {name} from Colab userdata")
+            return colab_val
+    except Exception:
+        pass
+    if allow_missing:
+        return None
+    import getpass
+
+    return getpass.getpass(prompt_text or f"Paste your {name}: ")
+
+
+def api_headers() -> dict[str, str]:
+    global API_KEY
+    if not API_KEY:
+        API_KEY = load_secret("API_FOOTBALL_KEY", "🔑 Paste your API-Football Key: ")
+    if not API_KEY:
+        raise RuntimeError("API_FOOTBALL_KEY is required for World Cup grading")
+    return {"x-apisports-key": API_KEY}
 
 
 def normalize_text(value: Any) -> str:
@@ -136,13 +172,18 @@ def normalize_text(value: Any) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def normalize_name(name: str) -> str:
+    """Strip diacritics, lowercase, collapse spaces for matching."""
+    return normalize_text(name)
+
+
 def canonical_team_name(name: Any) -> str:
     norm = normalize_text(name)
     return TEAM_NAME_ALIASES.get(norm, norm)
 
 
 def normalize_player_name(name: Any) -> str:
-    return normalize_text(name)
+    return normalize_name(str(name or ""))
 
 
 def normalize_prop(prop: Any) -> str:
@@ -151,14 +192,14 @@ def normalize_prop(prop: Any) -> str:
     if compact in {"SOT", "SHOTSONTARGET", "SHOTS_ON_TARGET"}:
         return "SOT"
     if compact == "SHOTS":
-        return "SHOTS"
+        return "Shots"
     if compact == "TACKLES":
-        return "TACKLES"
+        return "Tackles"
     if compact in {"GOALSCORER", "GOALSCORERANYTIME", "ANYTIMEGOALSCORER"}:
-        return "GOAL_SCORER"
+        return "Goal Scorer"
     if compact == "GOALS":
-        return "GOALS"
-    return compact
+        return "Goals"
+    return str(prop or "").strip()
 
 
 def safe_float(value: Any, default: float | None = None) -> float | None:
@@ -171,8 +212,6 @@ def safe_float(value: Any, default: float | None = None) -> float | None:
     text = str(value).strip().replace(",", "")
     if not text or text.upper() in {"N/A", "NA", "NONE", "NULL", "DNP", "-"}:
         return default
-    # FotMob often formats stat values as "42/50 (84%)". For the selected
-    # pass/tackle markets, the first number is the count we need.
     first_num = re.search(r"[-+]?\d+(?:\.\d+)?", text)
     if not first_num:
         return default
@@ -202,10 +241,6 @@ def parse_datetime_utc(value: Any) -> datetime | None:
     return dt.astimezone(timezone.utc)
 
 
-def format_fotmob_date(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).strftime("%Y%m%d")
-
-
 def get_gspread_client():
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -219,7 +254,6 @@ def get_gspread_client():
     try:
         from google.colab import auth as colab_auth
 
-        print("Authenticating with Google...")
         colab_auth.authenticate_user()
         creds, _ = default(scopes=scopes)
         print("✅ Google auth via Colab")
@@ -228,299 +262,207 @@ def get_gspread_client():
         raise RuntimeError("Google auth unavailable. Set GOOGLE_SERVICE_ACCOUNT_JSON or run in Colab.") from e
 
 
-def request_json(url: str) -> dict:
-    headers = {
-        "User-Agent": "Mozilla/5.0 WCGrader/1.0",
-        "Accept": "application/json,text/plain,*/*",
-        "Referer": "https://www.fotmob.com/",
-    }
-    for attempt in range(MAX_RETRIES):
+def api_get(path: str, params: dict[str, Any] | None = None, max_retries: int = MAX_RETRIES) -> dict:
+    url = f"{API_BASE}{path}"
+    for attempt in range(max_retries):
         try:
-            resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
-            if resp.status_code in {429, 500, 502, 503, 504}:
+            resp = requests.get(url, headers=api_headers(), params=params or {}, timeout=REQUEST_TIMEOUT)
+            if resp.status_code == 429:
+                wait = 10 * (attempt + 1)
+                print(f"   ⏳ API-Football rate limit — waiting {wait}s")
+                time.sleep(wait)
+                continue
+            if resp.status_code >= 500:
                 wait = 5 * (attempt + 1)
-                print(f"   ⏳ FotMob {resp.status_code} — retrying in {wait}s")
+                print(f"   ⏳ API-Football server error {resp.status_code} — waiting {wait}s")
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
             return resp.json()
         except requests.RequestException as e:
-            if attempt == MAX_RETRIES - 1:
+            if attempt == max_retries - 1:
                 raise
             wait = 5 * (attempt + 1)
-            print(f"   ⚠️ FotMob request failed: {e} — retrying in {wait}s")
+            print(f"   ⚠️ API-Football request failed: {e} — retrying in {wait}s")
             time.sleep(wait)
     return {}
 
 
-MATCHES_CACHE: dict[str, dict] = {}
-DETAILS_CACHE: dict[int, dict] = {}
-MATCH_ID_CACHE: dict[tuple[str, str, str], int | None] = {}
+def fixture_cache_path() -> str:
+    return os.path.join(CACHE_DIR, f"WC_api_football_fixtures_{API_FOOTBALL_SEASON}.json")
 
 
-def get_nested(obj: dict, paths: list[tuple[str, ...]], default=None):
-    for path in paths:
-        cur = obj
-        for key in path:
-            if not isinstance(cur, dict) or key not in cur:
-                cur = None
-                break
-            cur = cur[key]
-        if cur not in (None, ""):
-            return cur
-    return default
-
-
-def league_matches_world_cup(match: dict) -> bool:
-    league = match.get("league") or match.get("parentLeague") or match.get("tournament") or {}
-    league_id = (
-        match.get("leagueId")
-        or match.get("primaryLeagueId")
-        or league.get("id")
-        or league.get("primaryId")
-        or league.get("leagueId")
+def fetch_all_fixtures_cached() -> list[dict]:
+    path = fixture_cache_path()
+    if os.path.exists(path) and (time.time() - os.path.getmtime(path)) < FIXTURE_CACHE_TTL_SECONDS:
+        with open(path) as f:
+            data = json.load(f)
+        print(f"💾 API-Football fixtures cache hit ({len(data)} fixtures)")
+        return data
+    payload = api_get(
+        "/fixtures",
+        {"league": API_FOOTBALL_LEAGUE_ID, "season": API_FOOTBALL_SEASON},
     )
-    if str(league_id) == str(WC_LEAGUE_ID):
-        return True
-    league_name = normalize_text(league.get("name") or league.get("localizedName") or match.get("leagueName"))
-    return "world cup" in league_name
+    fixtures = payload.get("response", []) if isinstance(payload, dict) else []
+    with open(path, "w") as f:
+        json.dump(fixtures, f)
+    print(f"✅ Cached {len(fixtures)} API-Football WC fixture(s)")
+    return fixtures
 
 
-def extract_team_names(match: dict) -> tuple[str, str]:
-    home = get_nested(
-        match,
-        [
-            ("home", "name"),
-            ("homeTeam", "name"),
-            ("home", "shortName"),
-            ("homeTeam", "shortName"),
-        ],
-        "",
-    )
-    away = get_nested(
-        match,
-        [
-            ("away", "name"),
-            ("awayTeam", "name"),
-            ("away", "shortName"),
-            ("awayTeam", "shortName"),
-        ],
-        "",
-    )
-    return str(home or ""), str(away or "")
+def fixture_kickoff(fixture: dict) -> datetime | None:
+    date_raw = ((fixture.get("fixture") or {}).get("date") or "")
+    return parse_datetime_utc(date_raw)
 
 
-def extract_match_id(match: dict) -> int | None:
-    raw = match.get("id") or match.get("matchId") or match.get("fixtureId")
-    try:
-        return int(raw)
-    except (TypeError, ValueError):
-        return None
+def fixture_team_names(fixture: dict) -> tuple[str, str]:
+    teams = fixture.get("teams") or {}
+    home = ((teams.get("home") or {}).get("name") or "")
+    away = ((teams.get("away") or {}).get("name") or "")
+    return home, away
 
 
-def extract_match_time(match: dict) -> datetime | None:
-    raw = (
-        match.get("status", {}).get("utcTime")
-        if isinstance(match.get("status"), dict)
-        else None
-    )
-    raw = raw or match.get("utcTime") or match.get("time") or match.get("kickoffTime") or match.get("startTime")
-    return parse_datetime_utc(raw)
-
-
-def fetch_matches_by_date(yyyymmdd: str) -> dict:
-    if yyyymmdd not in MATCHES_CACHE:
-        MATCHES_CACHE[yyyymmdd] = request_json(FOTMOB_MATCHES_BY_DATE.format(yyyymmdd=yyyymmdd))
-    return MATCHES_CACHE[yyyymmdd]
-
-
-def iter_matches(payload: Any):
-    if isinstance(payload, list):
-        for item in payload:
-            yield from iter_matches(item)
-    elif isinstance(payload, dict):
-        if any(k in payload for k in ("home", "homeTeam")) and any(k in payload for k in ("away", "awayTeam")):
-            yield payload
-        for key in ("matches", "fixtures", "events", "allMatches"):
-            if key in payload:
-                yield from iter_matches(payload[key])
-        for league_key in ("leagues", "sections"):
-            for section in payload.get(league_key, []) or []:
-                yield from iter_matches(section)
-
-
-def resolve_fotmob_match_id(team_home: str, team_away: str, kickoff_utc: str) -> int | None:
+def resolve_api_football_fixture_id(team_home: str, team_away: str, kickoff_utc: str) -> int | None:
     """
-    Given Odds API team names + kickoff time, find FotMob match_id.
-    Fetch /matches?date=YYYYMMDD, filter to WC league, fuzzy-match team names
-    (handle 'United States' vs 'USA', 'South Korea' vs 'Korea Republic', etc.)
+    Given Odds API team names + kickoff time, find API-Football fixture_id.
+    Cache fixture list per-day to avoid burning quota.
     """
     kickoff = parse_datetime_utc(kickoff_utc)
     if not kickoff:
-        print(f"   ⚠️ Invalid kickoff time for match resolution: {kickoff_utc}")
+        print(f"   ⚠️ Missing kickoff for fixture resolution: {team_home} vs {team_away}")
         return None
-    home_key = canonical_team_name(team_home)
-    away_key = canonical_team_name(team_away)
-    cache_key = (home_key, away_key, kickoff.isoformat())
-    if cache_key in MATCH_ID_CACHE:
-        return MATCH_ID_CACHE[cache_key]
 
-    payload = fetch_matches_by_date(format_fotmob_date(kickoff))
+    target_teams = {canonical_team_name(team_home), canonical_team_name(team_away)}
     candidates = []
-    for match in iter_matches(payload):
-        if not league_matches_world_cup(match):
+    for fixture in fetch_all_fixtures_cached():
+        start = fixture_kickoff(fixture)
+        if not start or abs((start - kickoff).total_seconds()) > MATCH_TIME_TOLERANCE_HOURS * 3600:
             continue
-        home, away = extract_team_names(match)
-        h_key, a_key = canonical_team_name(home), canonical_team_name(away)
-        teams_match = {home_key, away_key} == {h_key, a_key}
-        if not teams_match:
-            continue
-        match_time = extract_match_time(match)
-        time_score = 999999
-        if match_time:
-            time_score = abs((match_time - kickoff).total_seconds())
-        if time_score <= MATCH_TIME_TOLERANCE_HOURS * 3600:
-            candidates.append((time_score, match, home, away))
+        api_home, api_away = fixture_team_names(fixture)
+        api_teams = {canonical_team_name(api_home), canonical_team_name(api_away)}
+        if target_teams == api_teams:
+            candidates.append(fixture)
 
-    candidates.sort(key=lambda item: item[0])
     if not candidates:
-        print(f"   ⚠️ No FotMob match for {team_home} vs {team_away} at {kickoff_utc}")
-        MATCH_ID_CACHE[cache_key] = None
+        print(f"   ⚠️ No API-Football fixture for {team_home} vs {team_away} at {kickoff_utc}")
         return None
-    match_id = extract_match_id(candidates[0][1])
-    print(f"   🔎 Resolved FotMob match_id={match_id} for {team_home} vs {team_away}")
-    MATCH_ID_CACHE[cache_key] = match_id
-    return match_id
+
+    fixture = candidates[0]
+    fixture_id = int((fixture.get("fixture") or {}).get("id"))
+    api_home, api_away = fixture_team_names(fixture)
+    print(f"   🔎 Resolved API-Football fixture_id={fixture_id} for {api_home} vs {api_away}")
+    return fixture_id
 
 
-def fetch_match_details(match_id: int) -> dict:
-    if match_id not in DETAILS_CACHE:
-        DETAILS_CACHE[match_id] = request_json(FOTMOB_MATCH_DETAILS.format(match_id=match_id))
-    return DETAILS_CACHE[match_id]
+PLAYER_STATS_CACHE: dict[int, dict[str, dict]] = {}
 
 
-def collect_player_names(obj: Any, names: dict[str, str]) -> None:
-    if isinstance(obj, dict):
-        pid = obj.get("id") or obj.get("playerId") or obj.get("participantId")
-        name = obj.get("name") or obj.get("fullName") or obj.get("shortName")
-        if isinstance(name, dict):
-            name = name.get("name") or name.get("default")
-        if pid is not None and name:
-            names[str(pid)] = str(name)
-        for val in obj.values():
-            collect_player_names(val, names)
-    elif isinstance(obj, list):
-        for item in obj:
-            collect_player_names(item, names)
+def fetch_fixture_player_stats(fixture_id: int) -> dict[str, dict]:
+    """
+    Returns {normalized_player_name: stats_dict} for both teams.
+    """
+    if fixture_id in PLAYER_STATS_CACHE:
+        return PLAYER_STATS_CACHE[fixture_id]
+    payload = api_get("/fixtures/players", {"fixture": fixture_id})
+    data = payload.get("response", []) if isinstance(payload, dict) else []
+    result: dict[str, dict] = {}
+    for team in data:
+        for player_entry in team.get("players", []) or []:
+            player_blob = player_entry.get("player") or {}
+            name = player_blob.get("name") or ""
+            if not name:
+                continue
+            stats = (player_entry.get("statistics") or [{}])[0] or {}
+            row = {
+                "PLAYER_ID": player_blob.get("id", ""),
+                "PLAYER_NAME": name,
+                "stats": stats,
+            }
+            result[normalize_player_name(name)] = row
+    PLAYER_STATS_CACHE[fixture_id] = result
+    return result
 
 
-def stat_items_from_blob(blob: Any):
-    if isinstance(blob, dict):
-        if any(k in blob for k in ("key", "title", "name", "stat", "value", "displayValue")):
-            yield blob
-        for key in ("stats", "stat", "items", "data"):
-            if key in blob:
-                yield from stat_items_from_blob(blob[key])
-    elif isinstance(blob, list):
-        for item in blob:
-            yield from stat_items_from_blob(item)
+def extract_stat(stats: dict, prop: str) -> int | None:
+    """
+    Extract numeric stat for a given prop type.
+    Returns 0 when value is None and player played minutes.
+    Returns None only if player didn't play at all.
+    """
+    games = stats.get("games", {}) or {}
+    minutes = safe_float(games.get("minutes"), 0) or 0
+    if minutes == 0:
+        return None
 
-
-def stat_item_name(item: dict) -> str:
-    raw = item.get("key") or item.get("title") or item.get("name") or item.get("stat") or item.get("label")
-    if isinstance(raw, dict):
-        raw = raw.get("key") or raw.get("name") or raw.get("default")
-    return str(raw or "")
-
-
-def stat_item_value(item: dict) -> Any:
-    return (
-        item.get("value")
-        if "value" in item
-        else item.get("displayValue")
-        if "displayValue" in item
-        else item.get("statValue")
-        if "statValue" in item
-        else item.get("val")
-    )
-
-
-def extract_player_actuals(details: dict) -> dict[str, dict]:
-    names_by_id: dict[str, str] = {}
-    collect_player_names(details.get("content", {}), names_by_id)
-    player_stats = ((details.get("content") or {}).get("playerStats") or {})
-    actuals: dict[str, dict] = {}
-    if isinstance(player_stats, list):
-        iterable = [(str(item.get("id") or item.get("playerId") or idx), item) for idx, item in enumerate(player_stats)]
-    elif isinstance(player_stats, dict):
-        iterable = [(str(pid), blob) for pid, blob in player_stats.items()]
-    else:
-        iterable = []
-
-    for pid, blob in iterable:
-        player_name = names_by_id.get(pid, "")
-        if isinstance(blob, dict):
-            raw_name = blob.get("name") or blob.get("playerName") or blob.get("fullName")
-            if isinstance(raw_name, dict):
-                raw_name = raw_name.get("name") or raw_name.get("default")
-            player_name = player_name or str(raw_name or "")
-        if not player_name:
-            continue
-        flat_stats = {}
-        for item in stat_items_from_blob(blob):
-            name = stat_item_name(item)
-            value = stat_item_value(item)
-            if name:
-                flat_stats[normalize_text(name)] = safe_float(value)
-
-        prop_values = {}
-        for prop, key_options in PROP_STAT_KEYS.items():
-            actual = None
-            for key in key_options:
-                actual = flat_stats.get(normalize_text(key))
-                if actual is not None:
-                    break
-            if actual is not None:
-                prop_values[prop] = actual
-        if prop_values:
-            prop_values["PLAYER_ID"] = pid
-            prop_values["PLAYER_NAME"] = player_name
-            actuals[normalize_player_name(player_name)] = prop_values
-    return actuals
+    prop_norm = normalize_prop(prop)
+    if prop_norm == "Shots":
+        return int((stats.get("shots", {}) or {}).get("total") or 0)
+    if prop_norm == "SOT":
+        return int((stats.get("shots", {}) or {}).get("on") or 0)
+    if prop_norm == "Tackles":
+        return int((stats.get("tackles", {}) or {}).get("total") or 0)
+    if prop_norm == "Goal Scorer":
+        goals = int((stats.get("goals", {}) or {}).get("total") or 0)
+        return 1 if goals >= 1 else 0
+    if prop_norm == "Goals":
+        return int((stats.get("goals", {}) or {}).get("total") or 0)
+    raise ValueError(f"Unknown prop: {prop}")
 
 
 def fetch_actuals(picks: list[dict]) -> dict[str, dict]:
     actuals_by_pick_key: dict[str, dict] = {}
-    match_groups: dict[int, list[dict]] = {}
+    fixture_groups: dict[int, list[dict]] = {}
     for pick in picks:
-        match_id = resolve_fotmob_match_id(
+        fixture_id = resolve_api_football_fixture_id(
             pick.get("Team", ""),
             pick.get("Opponent", ""),
             pick.get("Game_Time", ""),
         )
-        if match_id is None:
+        if fixture_id is None:
             actuals_by_pick_key[pick["_row_key"]] = {"status": "PENDING", "actual": None}
             continue
-        match_groups.setdefault(match_id, []).append(pick)
+        fixture_groups.setdefault(fixture_id, []).append(pick)
 
-    for match_id, group in match_groups.items():
-        details = fetch_match_details(match_id)
-        player_actuals = extract_player_actuals(details)
+    for fixture_id, group in fixture_groups.items():
+        stats_by_player = fetch_fixture_player_stats(fixture_id)
+        api_names = [row.get("PLAYER_NAME", "") for row in stats_by_player.values()]
         for pick in group:
             player_key = normalize_player_name(pick.get("Player", ""))
-            prop = normalize_prop(pick.get("Prop", ""))
-            player_row = player_actuals.get(player_key)
+            player_row = stats_by_player.get(player_key)
             if not player_row:
-                print(f"   ⚠️ match_id={match_id}: player not found: {pick.get('Player')}")
-                actuals_by_pick_key[pick["_row_key"]] = {"status": "PENDING", "actual": None, "match_id": match_id}
+                print(
+                    f"   ❌ No API-Football player match for pick: {pick.get('Player')} "
+                    f"in fixture {fixture_id}. API-Football names: {api_names[:10]}"
+                )
+                actuals_by_pick_key[pick["_row_key"]] = {"status": "PENDING", "actual": None, "fixture_id": fixture_id}
                 continue
-            actual = player_row.get(prop)
+            try:
+                actual = extract_stat(player_row.get("stats") or {}, pick.get("Prop", ""))
+            except ValueError as e:
+                print(f"   ⚠️ fixture_id={fixture_id} player={player_row.get('PLAYER_NAME')}: {e}")
+                actuals_by_pick_key[pick["_row_key"]] = {"status": "PENDING", "actual": None, "fixture_id": fixture_id}
+                continue
             if actual is None:
-                print(f"   ⚠️ match_id={match_id} player_id={player_row.get('PLAYER_ID')}: missing stat {prop} for {pick.get('Player')}")
-                actuals_by_pick_key[pick["_row_key"]] = {"status": "PENDING", "actual": None, "match_id": match_id}
+                print(f"   ℹ️ fixture_id={fixture_id} player_id={player_row.get('PLAYER_ID')}: {player_row.get('PLAYER_NAME')} DNP")
+                actuals_by_pick_key[pick["_row_key"]] = {
+                    "status": "DNP",
+                    "actual": None,
+                    "fixture_id": fixture_id,
+                    "player_id": player_row.get("PLAYER_ID"),
+                    "player_name": player_row.get("PLAYER_NAME"),
+                }
                 continue
-            print(f"   ✅ match_id={match_id} player_id={player_row.get('PLAYER_ID')} {pick.get('Player')} {prop}={actual}")
-            actuals_by_pick_key[pick["_row_key"]] = {"status": "OK", "actual": actual, "match_id": match_id, "player_id": player_row.get("PLAYER_ID")}
+            print(
+                f"   ✅ fixture_id={fixture_id} player_id={player_row.get('PLAYER_ID')} "
+                f"{player_row.get('PLAYER_NAME')} {pick.get('Prop')}={actual}"
+            )
+            actuals_by_pick_key[pick["_row_key"]] = {
+                "status": "OK",
+                "actual": actual,
+                "fixture_id": fixture_id,
+                "player_id": player_row.get("PLAYER_ID"),
+                "player_name": player_row.get("PLAYER_NAME"),
+            }
     return actuals_by_pick_key
 
 
@@ -529,7 +471,7 @@ def grade_result(actual: float | None, line: float | None, pick: str, prop: Any 
         return "PENDING"
     prop_norm = normalize_prop(prop)
     lean = str(pick or "").strip().upper()
-    if prop_norm in {"TACKLES", "GOAL_SCORER", "GOALS"}:
+    if prop_norm in {"Tackles", "Goal Scorer", "Goals"}:
         if lean == "UNDER":
             return "HIT" if actual < line else "MISS"
         return "HIT" if actual >= line else "MISS"
@@ -559,7 +501,7 @@ def load_picks_from_sheet() -> tuple[gspread.Worksheet, list[str], list[dict]]:
 
 def pick_is_gradable(row: dict, now_utc: datetime | None = None) -> bool:
     result = str(row.get(RESULT_COL, "") or "").strip().upper()
-    if result in {"HIT", "MISS", "PUSH"}:
+    if result in {"HIT", "MISS", "PUSH", "DNP"}:
         return False
     game_time = parse_datetime_utc(row.get("Game_Time"))
     if not game_time:
@@ -577,8 +519,6 @@ def skip_if_no_recent_completed_matches(rows: list[dict]) -> bool:
             recent.append(row)
     if recent:
         return False
-    # Still allow retroactive grading for old blank rows. This satisfies the
-    # "skip recent match days" guard without blocking first-run backfills.
     old_blanks = [r for r in rows if pick_is_gradable(r, now_utc)]
     if old_blanks:
         print(f"ℹ️ No WC matches completed in last 4h, but {len(old_blanks)} older blank pick(s) need retroactive grading")
@@ -591,9 +531,13 @@ def build_graded_rows(picks: list[dict], actuals: dict[str, dict]) -> list[dict]
     graded = []
     for row in picks:
         info = actuals.get(row["_row_key"], {"status": "PENDING", "actual": None})
-        line = safe_float(row.get("Line"))
-        actual = info.get("actual")
-        result = grade_result(actual, line, row.get("Pick"), row.get("Prop"))
+        if info.get("status") == "DNP":
+            result = "DNP"
+            actual = None
+        else:
+            line = safe_float(row.get("Line"))
+            actual = info.get("actual")
+            result = grade_result(actual, line, row.get("Pick"), row.get("Prop"))
         graded.append(
             {
                 "_sheet_row": row["_sheet_row"],
@@ -603,8 +547,9 @@ def build_graded_rows(picks: list[dict], actuals: dict[str, dict]) -> list[dict]
                 "Line": row.get("Line", ""),
                 RESULT_COL: result,
                 ACTUAL_COL: "" if actual is None else actual,
-                "match_id": info.get("match_id", ""),
+                "fixture_id": info.get("fixture_id", ""),
                 "player_id": info.get("player_id", ""),
+                "player_name": info.get("player_name", ""),
             }
         )
     return graded
@@ -633,7 +578,7 @@ def grade_picks() -> None:
     print("🌎 WORLD CUP PICK GRADER v1")
     print("=" * 60)
     print(f"🕐 Run time: {now_est().strftime('%Y-%m-%d %I:%M:%S %p EST')}")
-    ws, headers, rows = load_picks_from_sheet()
+    _, headers, rows = load_picks_from_sheet()
     if not rows:
         print("⏭️ No picks found")
         return
@@ -680,7 +625,7 @@ def validate_team_aliases() -> None:
 
 def parse_args():
     parser = argparse.ArgumentParser(description="World Cup pick grader")
-    parser.add_argument("--alias-check", action="store_true", help="Validate team aliases and exit without Google/FotMob calls.")
+    parser.add_argument("--alias-check", action="store_true", help="Validate team aliases and exit without Google/API-Football calls.")
     return parser.parse_args()
 
 

@@ -23,7 +23,7 @@ It sends those fixtures and props to Gemini, validates the returned picks, and w
 - Game Entry
 - Method notes
 
-`WCGrader_v1.py` grades completed picks using FotMob match details and writes only the `Result` and `Actual` columns.
+`WCGrader_v1.py` grades completed picks using API-Football fixture/player stats and writes only the `Result` and `Actual` columns.
 
 ## Sheet
 
@@ -61,7 +61,7 @@ Write live picks to Sheets:
 ODDS_API_KEY=... GEMINI_API_KEY=... GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCEnginev1.py --once
 ```
 
-Validate grader aliases without Sheets or FotMob:
+Validate grader aliases without Sheets or API-Football:
 
 ```bash
 python3 WCGrader_v1.py --alias-check
@@ -74,6 +74,7 @@ No API keys are hardcoded. The engine reads:
 - `ODDS_API_KEY`
 - `GEMINI_API_KEY`
 - `GOOGLE_SERVICE_ACCOUNT_JSON`
+- `API_FOOTBALL_KEY`
 
 Colab userdata is also supported for manual runs.
 
