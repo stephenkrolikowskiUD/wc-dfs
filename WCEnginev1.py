@@ -24,24 +24,37 @@ from google.oauth2.service_account import Credentials
 SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g"
 SHEET_NAME = "Picks"
 ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
-PROP_MARKETS = [
+PROP_MARKETS_STANDARD = [
     "player_shots",
     "player_shots_on_target",
-    "player_passes",
-    "player_tackles",
+    "player_goal_scorer_anytime",
 ]
+PROP_MARKETS_ALTERNATE = [
+    "player_shots_alternate",
+    "player_shots_on_target_alternate",
+    "player_tackles_alternate",
+    "player_goals_alternate",
+]
+PROP_MARKETS = PROP_MARKETS_STANDARD + PROP_MARKETS_ALTERNATE
 GEMINI_MODEL = "gemini-2.0-flash-exp"
 
 PROP_MARKET_LABELS = {
     "player_shots": "Shots",
+    "player_shots_alternate": "Shots",
     "player_shots_on_target": "SOT",
-    "player_passes": "Passes",
-    "player_tackles": "Tackles",
+    "player_shots_on_target_alternate": "SOT",
+    "player_goal_scorer_anytime": "Goal Scorer",
+    "player_tackles_alternate": "Tackles",
+    "player_goals_alternate": "Goals",
 }
 
 PROP_LABEL_TO_MARKET = {v.upper(): k for k, v in PROP_MARKET_LABELS.items()}
 PROP_LABEL_TO_MARKET["SHOTS ON TARGET"] = "player_shots_on_target"
 PROP_LABEL_TO_MARKET["SHOTSONTARGET"] = "player_shots_on_target"
+PROP_LABEL_TO_MARKET["GOAL SCORER"] = "player_goal_scorer_anytime"
+PROP_LABEL_TO_MARKET["GOALSCORER"] = "player_goal_scorer_anytime"
+PROP_LABEL_TO_MARKET["GOAL SCORER ANYTIME"] = "player_goal_scorer_anytime"
+PROP_LABEL_TO_MARKET["GOALSCORERANYTIME"] = "player_goal_scorer_anytime"
 
 PICKS_COLUMNS = [
     "Player",
@@ -79,12 +92,16 @@ ANALYSIS FACTORS:
 - Opponent defensive metrics and expected game script.
 - Tournament stage and rotation risk.
 - Expected possession share.
-- Set-piece role for shots, shots on target, and passes.
+- Set-piece role for shots and shots on target.
 - Tackles should favor players facing high-possession opponents or wide overloads.
+- Goal Scorer Anytime is a binary scorer market. Treat it as "Yes to score" and emit lean OVER at line 0.5.
+- Alternate markets are milestone lines such as X+ shots, X+ tackles, or X+ goals.
 
 RULES:
-- Only output picks for these four prop types: Shots, Shots on Target, Passes, Tackles.
-- Ignore goals, assists, cards, fouls, offsides, saves, corners, fantasy points, and any market not listed above.
+- Only output picks for these five prop types: Shots, Shots on Target, Tackles, Goal Scorer, Goals.
+- Ignore passes, assists, cards, fouls, offsides, saves, corners, fantasy points, and any market not listed above.
+- For Goal Scorer picks, use prop_type "Goal Scorer", line 0.5, and lean "OVER" to mean yes.
+- For alternate markets, keep the milestone line exactly as provided and frame the pick as X+ shots/tackles/goals.
 - Tier names must be exactly SMASH, STRONG, or LEAN.
 - Confidence must be an integer from 1 to 10.
 - SMASH should be reserved for the top 3-4 picks only.
@@ -191,10 +208,12 @@ def normalize_prop(prop):
         return "SOT"
     if key == "SHOTS":
         return "Shots"
-    if key == "PASSES":
-        return "Passes"
     if key == "TACKLES":
         return "Tackles"
+    if key in {"GOALSCORER", "GOALSCORERANYTIME", "ANYTIMEGOALSCORER"}:
+        return "Goal Scorer"
+    if key == "GOALS":
+        return "Goals"
     market = PROP_LABEL_TO_MARKET.get(raw.upper()) or PROP_LABEL_TO_MARKET.get(key)
     return PROP_MARKET_LABELS.get(market, raw)
 
@@ -246,6 +265,8 @@ def odds_api_get(path, params, max_retries=MAX_API_RETRIES):
                 print(f"   ⏳ Odds API server error {resp.status_code} — waiting {wait}s")
                 time.sleep(wait)
                 continue
+            if resp.status_code == 422:
+                resp.raise_for_status()
             resp.raise_for_status()
             remaining = resp.headers.get("x-requests-remaining")
             used = resp.headers.get("x-requests-used")
@@ -253,6 +274,8 @@ def odds_api_get(path, params, max_retries=MAX_API_RETRIES):
                 print(f"   📊 Odds API quota remaining: {remaining or '?'} / used: {used or '?'}")
             return resp.json()
         except requests.RequestException as e:
+            if isinstance(e, requests.HTTPError) and getattr(e.response, "status_code", None) == 422:
+                raise
             if attempt == max_retries - 1:
                 raise
             wait = 5 * (attempt + 1)
@@ -285,19 +308,54 @@ def fetch_fixtures(odds_api_key):
     return fixtures
 
 
+def normalize_outcome(market_key: str, outcome: dict) -> dict | None:
+    """Returns {player, line, side, price} or None if unparseable."""
+    outcome_name = str(outcome.get("name") or "").strip()
+    description = str(outcome.get("description") or "").strip()
+    price = outcome.get("price", "")
+
+    if market_key == "player_goal_scorer_anytime":
+        player = description or outcome.get("participant") or outcome.get("player") or outcome_name
+        if not player or price in (None, ""):
+            return None
+        return {"player": player, "line": 0.5, "side": "Over", "price": price}
+
+    if market_key.endswith("_alternate"):
+        desc_lower = description.lower()
+        side = "Under" if re.search(r"\bunder\b", desc_lower) else "Over"
+        line = outcome.get("point")
+        if line is None:
+            line_match = re.search(r"(?:over|under)?\s*([0-9]+(?:\.[0-9]+)?)", description, flags=re.I)
+            if line_match:
+                line = line_match.group(1)
+        try:
+            line = float(line)
+        except (TypeError, ValueError):
+            return None
+        player = outcome_name
+        if outcome_name.upper() in {"OVER", "UNDER"}:
+            player = outcome.get("participant") or outcome.get("player") or ""
+        player = player or outcome.get("participant") or outcome.get("player") or ""
+        if not player or price in (None, ""):
+            return None
+        return {"player": player, "line": line, "side": side, "price": price}
+
+    side = outcome_name.upper()
+    if side not in {"OVER", "UNDER"}:
+        return None
+    player = description or outcome.get("participant") or outcome.get("player") or ""
+    line = outcome.get("point")
+    if not player or line is None or price in (None, ""):
+        return None
+    return {"player": player, "line": line, "side": side.title(), "price": price}
+
+
 def parse_prop_outcomes(event, market_key, bookmaker_key, market):
     rows = []
     metric = PROP_MARKET_LABELS.get(market_key, market_key)
     for outcome in market.get("outcomes", []) or []:
-        outcome_name = str(outcome.get("name") or "").strip()
-        side = outcome_name.upper()
-        if side not in {"OVER", "UNDER"}:
-            continue
-        player = outcome.get("description") or outcome.get("participant") or outcome.get("player") or ""
-        if not player:
-            continue
-        line = outcome.get("point")
-        if line is None:
+        normalized = normalize_outcome(market_key, outcome)
+        if not normalized:
             continue
         rows.append(
             {
@@ -306,41 +364,72 @@ def parse_prop_outcomes(event, market_key, bookmaker_key, market):
                 "home_team": event.get("home_team", ""),
                 "away_team": event.get("away_team", ""),
                 "commence_time": event.get("commence_time", ""),
-                "player": player,
+                "player": normalized["player"],
                 "prop_type": metric,
-                "line": line,
-                "lean": side.title(),
-                "odds": outcome.get("price", ""),
+                "line": normalized["line"],
+                "lean": normalized["side"],
+                "odds": normalized["price"],
                 "book": bookmaker_key,
             }
         )
     return rows
 
 
+def dedupe_best_props(rows):
+    best = {}
+    for row in rows:
+        key = (
+            row.get("event_id", ""),
+            normalize_player_name(row.get("player")),
+            normalize_prop(row.get("prop_type")),
+            str(row.get("line", "")),
+            str(row.get("lean", "")).upper(),
+        )
+        try:
+            odds = float(row.get("odds"))
+        except (TypeError, ValueError):
+            odds = -999999
+        current = best.get(key)
+        try:
+            current_odds = float(current.get("odds")) if current else -999999
+        except (TypeError, ValueError):
+            current_odds = -999999
+        if current is None or odds > current_odds:
+            best[key] = row
+    return list(best.values())
+
+
 def fetch_props(odds_api_key, fixture):
-    # TODO: multi-book spec extension
     event_id = fixture["event_id"]
     print(f"   Fetching props for {fixture['matchup']}...")
-    data = odds_api_get(
-        f"/sports/{ODDS_API_SPORT_KEY}/events/{event_id}/odds",
-        {
-            "apiKey": odds_api_key,
-            "regions": "us",
-            "markets": ",".join(PROP_MARKETS),
-            "oddsFormat": "american",
-        },
-    )
-    if not data:
-        return []
     rows = []
-    for bookmaker in data.get("bookmakers", []) or []:
-        book_key = bookmaker.get("key", "")
-        for market in bookmaker.get("markets", []) or []:
-            market_key = market.get("key", "")
-            if market_key not in PROP_MARKETS:
+    for market_name in PROP_MARKETS:
+        try:
+            data = odds_api_get(
+                f"/sports/{ODDS_API_SPORT_KEY}/events/{event_id}/odds",
+                {
+                    "apiKey": odds_api_key,
+                    "regions": "us",
+                    "markets": market_name,
+                    "oddsFormat": "american",
+                },
+            )
+        except requests.HTTPError as e:
+            status = getattr(e.response, "status_code", None)
+            if status == 422:
+                print(f"   ℹ️ Market {market_name} not available for event {event_id} — skipping")
                 continue
-            rows.extend(parse_prop_outcomes(data, market_key, book_key, market))
-    return rows
+            raise
+        if not data:
+            continue
+        for bookmaker in data.get("bookmakers", []) or []:
+            book_key = bookmaker.get("key", "")
+            for market in bookmaker.get("markets", []) or []:
+                market_key = market.get("key", "")
+                if market_key != market_name:
+                    continue
+                rows.extend(parse_prop_outcomes(data, market_key, book_key, market))
+    return dedupe_best_props(rows)
 
 
 def collapse_props_for_prompt(props):
@@ -446,7 +535,7 @@ def validate_and_format_picks(raw_picks, fixtures, props):
         prop = normalize_prop(pick.get("prop_type") or pick.get("prop") or pick.get("Prop"))
         lean = normalize_pick(pick.get("lean") or pick.get("pick") or pick.get("Pick"))
         line = pick.get("line") if pick.get("line") is not None else pick.get("Line")
-        if not player or prop not in {"Shots", "SOT", "Passes", "Tackles"} or line in (None, ""):
+        if not player or prop not in {"Shots", "SOT", "Tackles", "Goal Scorer", "Goals"} or line in (None, ""):
             continue
         key = (normalize_player_name(player), prop, str(line), lean.upper())
         prop_row = prop_lookup.get(key)
@@ -547,13 +636,16 @@ def sample_fixtures_and_props():
     ]
     props = []
     samples = [
-        ("Kylian Mbappe", "Shots", 3.5, "draftkings", -125, -105),
-        ("Antoine Griezmann", "SOT", 0.5, "draftkings", -110, -120),
-        ("Tyler Adams", "Passes", 52.5, "draftkings", -115, -115),
-        ("Weston McKennie", "Tackles", 2.5, "draftkings", 105, -135),
+        ("Kylian Mbappe", "Shots", 3.5, "betrivers", -125, -105),
+        ("Antoine Griezmann", "SOT", 0.5, "betrivers", -110, -120),
+        ("Weston McKennie", "Tackles", 2.5, "draftkings", 105, ""),
+        ("Christian Pulisic", "Goal Scorer", 0.5, "fanduel", 180, ""),
+        ("Olivier Giroud", "Goals", 1.5, "draftkings", 240, ""),
     ]
     for player, prop, line, book, over, under in samples:
         for lean, odds in [("Over", over), ("Under", under)]:
+            if odds == "":
+                continue
             props.append(
                 {
                     "event_id": "sample-1",
@@ -607,12 +699,12 @@ def sample_picks():
             "player": "Tyler Adams",
             "team": "USA",
             "opponent": "FRA",
-            "prop_type": "Passes",
-            "line": 52.5,
-            "lean": "UNDER",
+            "prop_type": "Tackles",
+            "line": 2.5,
+            "lean": "OVER",
             "tier": "LEAN",
             "confidence": 6,
-            "rationale": "France possession pressure can cap completed passing volume.",
+            "rationale": "France possession pressure creates defensive action volume.",
             "book": "draftkings",
             "game_time": "2026-06-11T19:00:00Z",
         },
@@ -627,6 +719,34 @@ def sample_picks():
             "tier": "STRONG",
             "confidence": 8,
             "rationale": "Projected to defend high-volume French midfield and wide overloads.",
+            "book": "draftkings",
+            "game_time": "2026-06-11T19:00:00Z",
+        },
+        {
+            "rank": 5,
+            "player": "Christian Pulisic",
+            "team": "USA",
+            "opponent": "FRA",
+            "prop_type": "Goal Scorer",
+            "line": 0.5,
+            "lean": "OVER",
+            "tier": "LEAN",
+            "confidence": 6,
+            "rationale": "Primary attacking role and penalty equity give a yes-to-score path.",
+            "book": "fanduel",
+            "game_time": "2026-06-11T19:00:00Z",
+        },
+        {
+            "rank": 6,
+            "player": "Olivier Giroud",
+            "team": "FRA",
+            "opponent": "USA",
+            "prop_type": "Goals",
+            "line": 1.5,
+            "lean": "OVER",
+            "tier": "LEAN",
+            "confidence": 5,
+            "rationale": "Alternate milestone only; viable if starting centrally with box-touch volume.",
             "book": "draftkings",
             "game_time": "2026-06-11T19:00:00Z",
         },

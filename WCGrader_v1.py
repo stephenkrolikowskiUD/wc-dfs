@@ -3,9 +3,9 @@
 # FotMob stat mapping chosen for v1:
 # - Shots   -> "Total shots" first, fallback "Shots"
 # - SOT     -> "Shots on target"
-# - Passes  -> "Accurate passes" first. If FotMob exposes "Accurate passes" as
-#              "42/50 (84%)", the numerator is used. Fallback: "Passes".
 # - Tackles -> "Tackles won" first, fallback "Tackles"
+# - Goal Scorer -> "Goals"; HIT when goals >= 1
+# - Goals   -> "Goals"; milestone alternate, HIT when actual >= line
 #
 # These keys are intentionally auditable because FotMob's unofficial JSON can
 # drift by competition or app release. Verify on the first completed WC match.
@@ -47,8 +47,9 @@ EASTERN = pytz.timezone("America/New_York")
 PROP_STAT_KEYS = {
     "SHOTS": ("Total shots", "Shots"),
     "SOT": ("Shots on target",),
-    "PASSES": ("Accurate passes", "Passes", "Total passes"),
     "TACKLES": ("Tackles won", "Tackles"),
+    "GOAL_SCORER": ("Goals", "goals"),
+    "GOALS": ("Goals", "goals"),
 }
 
 # Canonical names are deliberately broad. FotMob and Odds API may use country
@@ -151,10 +152,12 @@ def normalize_prop(prop: Any) -> str:
         return "SOT"
     if compact == "SHOTS":
         return "SHOTS"
-    if compact == "PASSES":
-        return "PASSES"
     if compact == "TACKLES":
         return "TACKLES"
+    if compact in {"GOALSCORER", "GOALSCORERANYTIME", "ANYTIMEGOALSCORER"}:
+        return "GOAL_SCORER"
+    if compact == "GOALS":
+        return "GOALS"
     return compact
 
 
@@ -521,12 +524,17 @@ def fetch_actuals(picks: list[dict]) -> dict[str, dict]:
     return actuals_by_pick_key
 
 
-def grade_result(actual: float | None, line: float | None, pick: str) -> str:
+def grade_result(actual: float | None, line: float | None, pick: str, prop: Any = "") -> str:
     if actual is None or line is None:
         return "PENDING"
+    prop_norm = normalize_prop(prop)
+    lean = str(pick or "").strip().upper()
+    if prop_norm in {"TACKLES", "GOAL_SCORER", "GOALS"}:
+        if lean == "UNDER":
+            return "HIT" if actual < line else "MISS"
+        return "HIT" if actual >= line else "MISS"
     if actual == line:
         return "PUSH"
-    lean = str(pick or "").strip().upper()
     if lean == "UNDER":
         return "HIT" if actual < line else "MISS"
     return "HIT" if actual > line else "MISS"
@@ -585,7 +593,7 @@ def build_graded_rows(picks: list[dict], actuals: dict[str, dict]) -> list[dict]
         info = actuals.get(row["_row_key"], {"status": "PENDING", "actual": None})
         line = safe_float(row.get("Line"))
         actual = info.get("actual")
-        result = grade_result(actual, line, row.get("Pick"))
+        result = grade_result(actual, line, row.get("Pick"), row.get("Prop"))
         graded.append(
             {
                 "_sheet_row": row["_sheet_row"],
