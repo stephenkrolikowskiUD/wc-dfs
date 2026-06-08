@@ -90,7 +90,7 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
 const SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g";
 const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 const SPORT = "WC";
-const PROP_TYPES = ["Shots","SOT","Passes","Tackles"];
+const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
 const STATS_PLACEHOLDER = "Awaiting grader — picks logged from {first_pick_date}. Grading goes live ~5 days into group stage.";
 
@@ -107,7 +107,7 @@ const st = {
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function cleanRows(rows){return (rows||[]).map(r=>{const out={};Object.entries(r||{}).forEach(([k,v])=>{const key=String(k||"").replace(/^\uFEFF/,"").trim();out[key]=typeof v==="string"?v.replace(/[\u200B-\u200D\uFEFF]/g,"").trim():v});return out})}
-function normalizeProp(v){const s=String(v||"").trim().toUpperCase().replace(/\s+/g,"");if(s==="SHOTSONTARGET"||s==="SOG")return "SOT";if(s==="SHOTS")return "Shots";if(s==="PASSES")return "Passes";if(s==="TACKLES")return "Tackles";return String(v||"").trim()}
+function normalizeProp(v){const s=String(v||"").trim().toUpperCase().replace(/\s+/g,"");if(s==="SHOTSONTARGET"||s==="SOG")return "SOT";if(s==="SHOTS")return "Shots";if(s==="TACKLES")return "Tackles";if(s==="GOALSCORER"||s==="GOALSCORERANYTIME"||s==="ANYTIMEGOALSCORER")return "Goal Scorer";if(s==="GOALS")return "Goals";return String(v||"").trim()}
 function normalizeTier(v){const s=String(v||"").trim().toUpperCase();return ["SMASH","STRONG","LEAN"].includes(s)?s:"LEAN"}
 function normalizePick(v){const s=String(v||"").trim().toUpperCase();return s==="UNDER"||s==="U"?"Under":"Over"}
 function toNum(v){const n=Number(String(v??"").replace(/[^0-9+\-.]/g,""));return Number.isFinite(n)?n:0}
@@ -291,8 +291,9 @@ function renderMethodView(){
       <div class="small muted" style="line-height:1.8">
         <strong>Shots</strong> — total shot attempts<br/>
         <strong>SOT</strong> — shots on target<br/>
-        <strong>Passes</strong> — completed or attempted pass market, depending on book wording<br/>
-        <strong>Tackles</strong> — tackle prop market<br/>
+        <strong>Tackles</strong> — alternate milestone tackle lines<br/>
+        <strong>Goal Scorer</strong> — anytime scorer, represented as Over 0.5 goals<br/>
+        <strong>Goals</strong> — alternate milestone goal lines<br/>
         <strong>SMASH / STRONG / LEAN</strong> — cross-sport confidence tiers
       </div>
     </div>

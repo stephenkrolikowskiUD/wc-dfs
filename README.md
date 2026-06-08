@@ -8,8 +8,11 @@ A v1 World Cup player-prop pick engine built from the same mental model as the e
 
 - Shots
 - Shots on Target
-- Passes
-- Tackles
+- Tackles milestone lines
+- Goal Scorer Anytime
+- Goals milestone lines
+
+The first live market probe showed that World Cup passes are not booked by US sportsbooks on The Odds API, and standard tackle markets are not broadly available. The engine therefore uses the live bookable market set: standard Shots/SOT/Goal Scorer plus alternate milestone Shots/SOT/Tackles/Goals.
 
 It sends those fixtures and props to Gemini, validates the returned picks, and writes them to the `Picks` tab in Google Sheets.
 
