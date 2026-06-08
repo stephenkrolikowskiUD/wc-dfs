@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>World Cup DFS Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08121f;--panel:#0f2038;--panel2:#0a1628;--line:#1e3a5f;--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;--accent2:#7dd3fc;--green:#22c55e;--red:#ef4444;--gold:#fbbf24}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:480px;margin:0 auto;padding-bottom:66px}
+body.light-theme{--bg:#f5f9ff;--panel:#ffffff;--panel2:#edf5ff;--line:#c7d7ec;--text:#0f172a;--muted:#64748b;--accent:#0369a1;--accent2:#0284c7}
+button,input,select{font:inherit}
+.header{background:var(--panel);padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.header-title{color:var(--accent);font-weight:900;font-size:16px;letter-spacing:-.2px}
+.header-actions{display:flex;gap:8px}
+.pill-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer}
+.top-nav{display:none}
+.page{display:none}.page.active{display:block}
+.section{padding:14px 16px 0}
+.card{background:var(--panel);border:1px solid rgba(125,211,252,.14);border-radius:12px;padding:12px 14px}
+.card-title{color:var(--accent);font-size:13px;font-weight:900;margin-bottom:8px}
+.muted{color:var(--muted)}
+.tiny{font-size:10px}.small{font-size:11px}
+.empty{padding:28px 14px;text-align:center;color:var(--muted);font-size:13px;line-height:1.5}
+.loading{display:flex;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--accent);font-weight:900}
+.error{padding:20px;color:#fecaca;background:#7f1d1d33;border:1px solid #ef444455;border-radius:12px;margin:16px}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--panel);border-top:1px solid var(--line);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+.tab-btn{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:800;color:var(--muted);cursor:pointer;border:none;background:none}
+.tab-btn.active{color:var(--accent);border-top:2px solid var(--accent)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+.stat-box .val{font-size:18px;font-weight:1000;color:var(--accent)}
+.stat-box .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:8px 16px 0}
+.filter-btn{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:11px;font-weight:900;white-space:nowrap;cursor:pointer}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#06121f}
+.pick-card{background:var(--panel);border:1px solid rgba(125,211,252,.16);border-left:4px solid var(--line);border-radius:12px;padding:13px 14px;margin:0 16px 10px}
+.pick-card.smash{border-left-color:var(--green);background:linear-gradient(90deg,rgba(34,197,94,.10),transparent 48%),var(--panel)}
+.pick-card.strong{border-left-color:var(--accent)}
+.pick-card.lean{border-left-color:var(--gold)}
+.pick-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.player-name{font-size:15px;font-weight:1000;line-height:1.2;word-break:break-word;overflow-wrap:anywhere}
+.team-line{font-size:11px;color:var(--accent2);margin-top:3px}
+.rank-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);color:var(--accent);border-radius:6px;padding:2px 6px;font-size:10px;font-weight:900;margin-right:6px}
+.tier-pill{font-size:10px;font-weight:1000;padding:4px 8px;border-radius:999px;white-space:nowrap}
+.tier-smash{background:#22c55e22;color:var(--green);border:1px solid #22c55e66}
+.tier-strong{background:#38bdf822;color:var(--accent);border:1px solid #38bdf866}
+.tier-lean{background:#fbbf2422;color:var(--gold);border:1px solid #fbbf2466}
+.prop-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prop-tag{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--accent);font-size:11px;font-weight:1000;padding:4px 8px}
+.lean-over{color:var(--green);font-weight:1000}.lean-under{color:var(--red);font-weight:1000}
+.reason{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+.meta-cell{background:var(--panel2);border-radius:8px;padding:7px 8px;font-size:10px}
+.meta-label{display:block;color:var(--muted);text-transform:uppercase;font-size:8px;font-weight:900;margin-bottom:2px}
+.game-btn{width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:11px 12px;font-weight:900;cursor:pointer}
+.game-btn.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;color:var(--accent)}
+.entry-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.16)}
+.entry-row:last-child{border-bottom:none}
+.entry-player{font-weight:1000;word-break:break-word;overflow-wrap:anywhere}
+.timestamp{text-align:center;color:var(--muted);font-size:10px;padding:18px 12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px;min-width:440px}
+th{color:var(--accent);text-align:left;border-bottom:1px solid var(--line);padding:8px 6px;background:var(--panel)}
+td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
+@media(min-width:768px){
+  body{max-width:1400px;padding-bottom:0}
+  .header{padding:14px 32px;display:flex;align-items:center;gap:22px}
+  .header-top{margin-right:auto}
+  .top-nav{display:flex;gap:8px}
+  .top-nav .tab-btn{flex:0 0 auto;border-radius:9px;border:none;padding:8px 16px;font-size:13px;border-top:none}
+  .top-nav .tab-btn.active{background:rgba(56,189,248,.14);border-top:none}
+  .tab-bar{display:none}
+  .section{padding:18px 32px 0}
+  .pick-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 32px}
+  .pick-card{margin:0}
+  .stats-row{grid-template-columns:repeat(4,160px)}
+}
+@media(min-width:1200px){.pick-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="app" class="loading">🌎 Loading World Cup slate...</div>
+
+<!-- TODO: multi-book surface pending WC line shopping spec -->
+
+<script>
+const SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g";
+const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
+const SPORT = "WC";
+const PROP_TYPES = ["Shots","SOT","Passes","Tackles"];
+const STORAGE_THEME = "wc-dashboard-theme";
+const STATS_PLACEHOLDER = "Awaiting grader — picks logged from {first_pick_date}. Grading goes live ~5 days into group stage.";
+
+const st = {
+  picks: [],
+  activeTab: "picks",
+  propFilter: "ALL",
+  selectedGame: "",
+  loadedAt: "",
+  loading: true,
+  error: "",
+  theme: localStorage.getItem(STORAGE_THEME) || "dark"
+};
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function cleanRows(rows){return (rows||[]).map(r=>{const out={};Object.entries(r||{}).forEach(([k,v])=>{const key=String(k||"").replace(/^\uFEFF/,"").trim();out[key]=typeof v==="string"?v.replace(/[\u200B-\u200D\uFEFF]/g,"").trim():v});return out})}
+function normalizeProp(v){const s=String(v||"").trim().toUpperCase().replace(/\s+/g,"");if(s==="SHOTSONTARGET"||s==="SOG")return "SOT";if(s==="SHOTS")return "Shots";if(s==="PASSES")return "Passes";if(s==="TACKLES")return "Tackles";return String(v||"").trim()}
+function normalizeTier(v){const s=String(v||"").trim().toUpperCase();return ["SMASH","STRONG","LEAN"].includes(s)?s:"LEAN"}
+function normalizePick(v){const s=String(v||"").trim().toUpperCase();return s==="UNDER"||s==="U"?"Under":"Over"}
+function toNum(v){const n=Number(String(v??"").replace(/[^0-9+\-.]/g,""));return Number.isFinite(n)?n:0}
+function switchTab(tab){st.activeTab=tab;render()}
+function setPropFilter(prop){st.propFilter=prop;render()}
+function setSelectedGame(gameId){st.selectedGame=gameId;st.activeTab="entry";render()}
+function toggleTheme(){st.theme=st.theme==="light"?"dark":"light";localStorage.setItem(STORAGE_THEME,st.theme);applyTheme();render()}
+function applyTheme(){document.body.classList.toggle("light-theme",st.theme==="light")}
+
+async function fetchSheet(name){
+  const url = `${GVIZ_BASE}?sheet=${encodeURIComponent(name)}&tqx=out:csv&cache=${Date.now()}`;
+  const resp = await fetch(url);
+  if(!resp.ok) throw new Error(`${name} fetch failed: ${resp.status}`);
+  const text = await resp.text();
+  const parsed = Papa.parse(text,{header:true,skipEmptyLines:true});
+  return cleanRows(parsed.data);
+}
+
+function rowDateMs(row){
+  const raw=row.Game_Time||row.game_time||row.Timestamp||"";
+  const ms=Date.parse(raw);
+  return Number.isFinite(ms)?ms:Infinity;
+}
+function fmtTime(raw){
+  const ms=Date.parse(raw||"");
+  if(!Number.isFinite(ms))return "";
+  return new Date(ms).toLocaleString("en-US",{timeZone:"America/New_York",weekday:"short",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
+}
+function fmtDate(raw){
+  const ms=Date.parse(raw||"");
+  if(!Number.isFinite(ms))return "";
+  return new Date(ms).toLocaleDateString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric"});
+}
+function firstPickDate(){
+  const times=st.picks.map(p=>Date.parse(p.Timestamp||p.Game_Time||"")).filter(Number.isFinite).sort((a,b)=>a-b);
+  return times.length?new Date(times[0]).toLocaleDateString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",year:"numeric"}):"first engine run";
+}
+function gameId(row){return `${row.Team||""}|${row.Opponent||""}|${row.Game_Time||""}`}
+function gameLabel(row){
+  const a=row.Team||"Team A", b=row.Opponent||"Team B", t=fmtTime(row.Game_Time);
+  return `${a} vs ${b}${t?` — ${t}`:""}`;
+}
+function getGames(){
+  const map=new Map();
+  st.picks.forEach(p=>{
+    const id=gameId(p);
+    if(!id.trim())return;
+    if(!map.has(id))map.set(id,{id,label:gameLabel(p),time:p.Game_Time,teams:[p.Team,p.Opponent]});
+  });
+  return [...map.values()].sort((a,b)=>(Date.parse(a.time||"")||Infinity)-(Date.parse(b.time||"")||Infinity));
+}
+
+function hydratePick(row, idx){
+  return {
+    rank: idx+1,
+    Player: row.Player || row.player || "",
+    Team: row.Team || row.team || "",
+    Opponent: row.Opponent || row.opponent || "",
+    Prop: normalizeProp(row.Prop || row.prop_type || ""),
+    Line: row.Line || row.line || "",
+    Pick: normalizePick(row.Pick || row.lean || ""),
+    Tier: normalizeTier(row.Tier || row.confidence || ""),
+    Confidence: row.Confidence || "",
+    Reasoning: row.Reasoning || row.rationale || "",
+    Game_Time: row.Game_Time || row.game_time || "",
+    Book: row.Book || row.book || "",
+    Result: row.Result || "",
+    Actual: row.Actual || "",
+    Timestamp: row.Timestamp || "",
+  };
+}
+
+async function loadAllData(){
+  st.loading=true;st.error="";render();
+  try{
+    const picks=await fetchSheet("Picks");
+    st.picks=picks.map(hydratePick).filter(p=>p.Player);
+    st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
+  }catch(e){
+    st.error=e.message||String(e);
+    st.picks=[];
+  }finally{
+    st.loading=false;render();
+  }
+}
+
+function pickClass(tier){return normalizeTier(tier).toLowerCase()}
+function tierPill(tier){const t=normalizeTier(tier);return `<span class="tier-pill tier-${t.toLowerCase()}">${t}</span>`}
+function renderPickCard(p){
+  const leanCls=p.Pick==="Under"?"lean-under":"lean-over";
+  return `<div class="pick-card ${pickClass(p.Tier)}">
+    <div class="pick-top">
+      <div>
+        <div class="player-name"><span class="rank-pill">#${esc(p.rank)}</span>${esc(p.Player)}</div>
+        <div class="team-line">${esc(p.Team)} vs ${esc(p.Opponent)}${p.Game_Time?` · ${esc(fmtTime(p.Game_Time))}`:""}</div>
+      </div>
+      ${tierPill(p.Tier)}
+    </div>
+    <div class="prop-line">
+      <span class="prop-tag">${esc(p.Prop)}</span>
+      <span class="${leanCls}">${esc(p.Pick)} ${esc(p.Line)}</span>
+      ${p.Confidence?`<span class="small muted">Confidence ${esc(p.Confidence)}/10</span>`:""}
+    </div>
+    ${p.Reasoning?`<div class="reason">${esc(p.Reasoning)}</div>`:""}
+    <div class="meta-grid">
+      <div class="meta-cell"><span class="meta-label">Book</span>${esc(p.Book||"—")}</div>
+      <div class="meta-cell"><span class="meta-label">Logged</span>${esc(fmtDate(p.Timestamp)||fmtDate(p.Game_Time)||"—")}</div>
+    </div>
+  </div>`;
+}
+
+function renderPicksView(){
+  const filtered=st.picks
+    .filter(p=>st.propFilter==="ALL"||p.Prop===st.propFilter)
+    .sort((a,b)=>toNum(a.rank)-toNum(b.rank)||rowDateMs(a)-rowDateMs(b));
+  const counts=PROP_TYPES.reduce((acc,p)=>(acc[p]=st.picks.filter(r=>r.Prop===p).length,acc),{});
+  return `<div class="section">
+    <div class="stats-row">
+      <div class="stat-box"><div class="val">${st.picks.length}</div><div class="lbl">Picks</div></div>
+      <div class="stat-box"><div class="val">${st.picks.filter(p=>p.Tier==="SMASH").length}</div><div class="lbl">Smash</div></div>
+      <div class="stat-box"><div class="val">${new Set(st.picks.map(gameId)).size}</div><div class="lbl">Fixtures</div></div>
+      <div class="stat-box"><div class="val">${PROP_TYPES.filter(p=>counts[p]).length}</div><div class="lbl">Markets</div></div>
+    </div>
+  </div>
+  <div class="filters">
+    <button class="filter-btn ${st.propFilter==="ALL"?"active":""}" onclick="setPropFilter('ALL')">All</button>
+    ${PROP_TYPES.map(p=>`<button class="filter-btn ${st.propFilter===p?"active":""}" onclick="setPropFilter('${p}')">${p} ${counts[p]?`(${counts[p]})`:""}</button>`).join("")}
+  </div>
+  ${filtered.length?`<div class="pick-list" style="padding-top:12px">${filtered.map(renderPickCard).join("")}</div>`:`<div class="section"><div class="card"><div class="empty">No World Cup picks yet. Run <strong>WCEnginev1.py</strong> and the Picks tab will populate from Google Sheets.</div></div></div>`}
+  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: Picks</div>`;
+}
+
+function renderStatsView(){
+  const msg=STATS_PLACEHOLDER.replace("{first_pick_date}",firstPickDate());
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">📊 Pick Performance</div>
+      <div class="empty" style="padding:18px 8px">${esc(msg)}</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="card">
+      <div class="card-title">Reserved Soccer Prop Schema</div>
+      <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Hit Rate</th><th>n</th><th>ROI</th><th>Wilson LB</th></tr></thead><tbody>
+        ${PROP_TYPES.map(p=>`<tr><td>${p}</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`).join("")}
+      </tbody></table></div>
+    </div>
+  </div>`;
+}
+
+function renderEntryView(){
+  const games=getGames();
+  const selected=games.find(g=>g.id===st.selectedGame)||games[0];
+  const gamePicks=selected?st.picks.filter(p=>gameId(p)===selected.id).sort((a,b)=>toNum(a.rank)-toNum(b.rank)):[];
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">🎟️ Game Entry</div>
+      ${games.length?`<div style="display:grid;gap:8px;margin-top:10px">${games.map(g=>`<button class="game-btn ${(selected&&selected.id===g.id)?"active":""}" onclick="setSelectedGame('${esc(g.id)}')">${esc(g.label)}</button>`).join("")}</div>`:`<div class="empty">No fixtures available yet. Once the engine writes picks, fixtures will appear here as neutral-site matchups.</div>`}
+    </div>
+  </div>
+  ${selected?`<div class="section">
+    <div class="card">
+      <div class="card-title">${esc(selected.label)}</div>
+      ${gamePicks.length?gamePicks.map(p=>`<div class="entry-row"><div><div class="entry-player">${esc(p.Player)}</div><div class="small muted">${esc(p.Team)} vs ${esc(p.Opponent)} · ${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No picks logged for this fixture yet.</div>`}
+    </div>
+  </div>`:""}`;
+}
+
+function renderMethodView(){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">🌎 How This Dashboard Works</div>
+      <div class="small muted" style="line-height:1.7">
+        <strong style="color:var(--accent)">WCEnginev1.py</strong> pulls World Cup fixtures and player props from The Odds API, sends the slate context to Gemini, validates the JSON picks, and writes the 15-column <strong>Picks</strong> sheet. This dashboard reads that sheet through Google Sheets gviz CSV.
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="card">
+      <div class="card-title">📖 Prop Glossary</div>
+      <div class="small muted" style="line-height:1.8">
+        <strong>Shots</strong> — total shot attempts<br/>
+        <strong>SOT</strong> — shots on target<br/>
+        <strong>Passes</strong> — completed or attempted pass market, depending on book wording<br/>
+        <strong>Tackles</strong> — tackle prop market<br/>
+        <strong>SMASH / STRONG / LEAN</strong> — cross-sport confidence tiers
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="card">
+      <div class="card-title">🔐 Safe To Share</div>
+      <div class="small muted" style="line-height:1.7">This HTML contains no private API keys. It only uses the public Google Sheet ID and gviz URLs. For entertainment and research purposes only.</div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  applyTheme();
+  const app=document.getElementById("app");
+  if(st.loading){app.className="loading";app.innerHTML="🌎 Loading World Cup slate...";return}
+  app.className="";
+  const tabs=[
+    ["picks","🎯 Picks"],
+    ["stats","📊 Stats"],
+    ["entry","🎟️ Game Entry"],
+    ["method","ℹ️ Info"],
+  ];
+  app.innerHTML=`<div class="header">
+    <div class="header-top">
+      <div class="header-title">🌎 World Cup DFS Dashboard</div>
+      <div class="header-actions"><button class="pill-btn" onclick="toggleTheme()">${st.theme==="light"?"🌙 Dark":"☀️ Light"}</button><button class="pill-btn" onclick="loadAllData()">↻ Refresh</button></div>
+    </div>
+    <div class="top-nav">${tabs.map(([id,label])=>`<button class="tab-btn ${st.activeTab===id?"active":""}" onclick="switchTab('${id}')">${label}</button>`).join("")}</div>
+  </div>
+  ${st.error?`<div class="error">Could not load Picks sheet: ${esc(st.error)}<br/><span class="small">If the engine has not written the tab yet, this is expected.</span></div>`:""}
+  <div class="page ${st.activeTab==="picks"?"active":""}">${renderPicksView()}</div>
+  <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
+  <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
+  <div class="page ${st.activeTab==="method"?"active":""}">${renderMethodView()}</div>
+  <div class="tab-bar">${tabs.map(([id,label])=>`<button class="tab-btn ${st.activeTab===id?"active":""}" onclick="switchTab('${id}')">${label.replace("Game Entry","Entry")}</button>`).join("")}</div>`;
+}
+
+applyTheme();
+loadAllData();
+</script>
+</body>
+</html>

@@ -13,6 +13,13 @@ A v1 World Cup player-prop pick engine built from the same mental model as the e
 
 It sends those fixtures and props to Gemini, validates the returned picks, and writes them to the `Picks` tab in Google Sheets.
 
+`index.html` is the GitHub Pages dashboard. It reads the same `Picks` tab through Google Sheets gviz CSV and renders:
+
+- Picks
+- Stats placeholder
+- Game Entry
+- Method notes
+
 ## Sheet
 
 Workbook:
@@ -61,6 +68,7 @@ Colab userdata is also supported for manual runs.
 
 ## Notes
 
+- The dashboard file must stay named `index.html` at the repo root for GitHub Pages.
 - Tier names are exactly `SMASH`, `STRONG`, and `LEAN` for cross-sport parity.
 - Multi-book line shopping is out of scope for v1.
 - Soft-line / asymmetric-info detection is out of scope for v1.
