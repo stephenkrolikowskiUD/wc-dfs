@@ -1,0 +1,26 @@
+name: World Cup Player Form
+
+on:
+  schedule:
+    # Daily during tournament window; refreshes only players already present in Picks.
+    - cron: '30 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-world-cup-form:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests gspread google-auth
+      - name: Pull World Cup player form
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: python WCFormPull.py --picks-only

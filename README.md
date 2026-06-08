@@ -25,21 +25,27 @@ It sends those fixtures and props to Gemini, validates the returned picks, and w
 
 `WCGrader_v1.py` grades completed picks using API-Football fixture/player stats and writes only the `Result` and `Actual` columns.
 
+`WCFormPull.py` pulls recent international form from API-Football, writes a `Player_Form` tab, and maintains a committed `player_id_cache.json` so Odds API/Gemini player names can be matched to API-Football player IDs repeatably. The engine reads that form tab before calling Gemini and appends per-pick form fields for dashboard badges.
+
 ## Sheet
 
 Workbook:
 
 `1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g`
 
-Tab:
+Tabs:
 
 `Picks`
 
+`Player_Form`
+
 Columns:
 
-`Player, Team, Opponent, Prop, Line, Pick, Tier, Confidence, Reasoning, Game_Time, Book, UD_FP, Result, Actual, Timestamp`
+`Player, Team, Opponent, Prop, Line, Pick, Tier, Confidence, Reasoning, Game_Time, Book, UD_FP, Result, Actual, Timestamp, Intl_Sample, Avg_Shots, Avg_SOT, Avg_Tackles, Goal_Scorer_Rate, Last_5_Shots`
 
 `UD_FP` is intentionally blank in v1. A soccer fantasy formula can be defined after the tournament data proves what matters.
+
+`Player_Form` stores the reusable form summary: player name, API-Football ID, nationality, international sample size, minutes, shots, SOT, tackles, goals, goal-rate proxy, and update notes.
 
 ## Run
 
@@ -67,6 +73,24 @@ Validate grader aliases without Sheets or API-Football:
 python3 WCGrader_v1.py --alias-check
 ```
 
+Pull form data for current picks only:
+
+```bash
+API_FOOTBALL_KEY=... GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCFormPull.py --picks-only
+```
+
+Build the full World Cup squad form tab and committed player-ID cache:
+
+```bash
+API_FOOTBALL_KEY=... GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCFormPull.py --all
+```
+
+Verify international competition IDs exposed by API-Football:
+
+```bash
+API_FOOTBALL_KEY=... python3 WCFormPull.py --verify-leagues --dry-run
+```
+
 ## Secrets
 
 No API keys are hardcoded. The engine reads:
@@ -84,4 +108,5 @@ Colab userdata is also supported for manual runs.
 - Tier names are exactly `SMASH`, `STRONG`, and `LEAN` for cross-sport parity.
 - Multi-book line shopping is out of scope for v1.
 - Soft-line / asymmetric-info detection is out of scope for v1.
+- Form badges use `Player_Form` where available and gracefully show limited-history badges for old rows or unmatched players.
 - This is a personal research tool, not betting advice.

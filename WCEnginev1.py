@@ -72,6 +72,12 @@ PICKS_COLUMNS = [
     "Result",
     "Actual",
     "Timestamp",
+    "Intl_Sample",
+    "Avg_Shots",
+    "Avg_SOT",
+    "Avg_Tackles",
+    "Goal_Scorer_Rate",
+    "Last_5_Shots",
 ]
 
 TIER_NAMES = {"SMASH", "STRONG", "LEAN"}
@@ -109,6 +115,8 @@ RULES:
 - Prefer players whose role is stable for the full match. Downgrade rotation-risk players.
 - Include at least one pick from each available prop type when there are enough props.
 - Do not invent players, teams, opponents, books, prop types, or lines.
+- For each prop, you have the current sportsbook line and may have form_context with last 24 months of international form.
+- Weight form_context heavily when present. When form_context is null, note "limited data" in reasoning and lower confidence accordingly.
 
 AVAILABLE FIXTURES:
 {fixtures_json}
@@ -216,6 +224,22 @@ def normalize_prop(prop):
         return "Goals"
     market = PROP_LABEL_TO_MARKET.get(raw.upper()) or PROP_LABEL_TO_MARKET.get(key)
     return PROP_MARKET_LABELS.get(market, raw)
+
+
+def safe_float(value, default=None):
+    if value is None:
+        return default
+    if isinstance(value, (int, float)):
+        if math.isnan(float(value)) or math.isinf(float(value)):
+            return default
+        return float(value)
+    text = str(value).strip().replace(",", "")
+    if not text:
+        return default
+    try:
+        return float(text)
+    except ValueError:
+        return default
 
 
 def normalize_tier(tier):
@@ -454,6 +478,7 @@ def collapse_props_for_prompt(props):
                 "book": row.get("book", ""),
                 "over_odds": "",
                 "under_odds": "",
+                "form_context": row.get("form_context"),
             },
         )
         if row.get("lean") == "Over":
@@ -461,6 +486,54 @@ def collapse_props_for_prompt(props):
         elif row.get("lean") == "Under":
             entry["under_odds"] = row.get("odds", "")
     return list(grouped.values())
+
+
+def load_player_form_sheet():
+    try:
+        gc = get_gspread_client()
+        sh = gc.open_by_key(SHEET_ID)
+        ws = sh.worksheet("Player_Form")
+        values = ws.get_all_values()
+    except Exception as e:
+        print(f"⚠️ Player_Form unavailable — form enrichment skipped: {e}")
+        return {}
+    if not values:
+        return {}
+    headers = values[0]
+    form_data = {}
+    for vals in values[1:]:
+        row = {headers[i]: vals[i] if i < len(vals) else "" for i in range(len(headers))}
+        name = row.get("Player_Name", "")
+        if not name:
+            continue
+        form_data[normalize_player_name(name)] = row
+    print(f"✅ Loaded Player_Form for {len(form_data)} player(s)")
+    return form_data
+
+
+def form_context_from_row(form):
+    sample = safe_float(form.get("Intl_Matches_Last_24mo"), 0) or 0
+    return {
+        "intl_sample": int(sample),
+        "avg_shots": safe_float(form.get("Avg_Shots")),
+        "avg_sot": safe_float(form.get("Avg_SOT")),
+        "avg_tackles": safe_float(form.get("Avg_Tackles")),
+        "goal_scorer_rate": safe_float(form.get("Goal_Scorer_Rate")),
+        "last_5_shots": form.get("Last_5_Shots", ""),
+        "notes": form.get("Notes", ""),
+    }
+
+
+def enrich_with_form(prop_rows):
+    """For each prop row, add player_form context if available."""
+    form_data = load_player_form_sheet()
+    enriched = []
+    for row in prop_rows:
+        out = dict(row)
+        form = form_data.get(normalize_player_name(row.get("player", "")))
+        out["form_context"] = form_context_from_row(form) if form else None
+        enriched.append(out)
+    return enriched
 
 
 def infer_teams_for_pick(pick, fixtures):
@@ -485,13 +558,14 @@ def infer_teams_for_pick(pick, fixtures):
 
 
 def build_gemini_context(fixtures, props):
-    prompt_props = collapse_props_for_prompt(props)
+    enriched_props = enrich_with_form(props)
+    prompt_props = collapse_props_for_prompt(enriched_props)
     context = WC_PROMPT_V1.format(
         today_est=timestamp_est(),
         fixtures_json=json.dumps(fixtures, ensure_ascii=False, indent=2)[:12000],
         props_json=json.dumps(prompt_props[:500], ensure_ascii=False, indent=2)[:45000],
     )
-    return context
+    return context, enriched_props
 
 
 def call_gemini(context, gemini_api_key):
@@ -565,6 +639,7 @@ def validate_and_format_picks(raw_picks, fixtures, props):
         except (TypeError, ValueError):
             confidence = 5
         confidence = max(1, min(10, confidence))
+        form_context = prop_row.get("form_context") or {}
         rows.append(
             {
                 "Player": player,
@@ -582,6 +657,12 @@ def validate_and_format_picks(raw_picks, fixtures, props):
                 "Result": "",
                 "Actual": "",
                 "Timestamp": timestamp_utc_iso(),
+                "Intl_Sample": form_context.get("intl_sample", ""),
+                "Avg_Shots": form_context.get("avg_shots", ""),
+                "Avg_SOT": form_context.get("avg_sot", ""),
+                "Avg_Tackles": form_context.get("avg_tackles", ""),
+                "Goal_Scorer_Rate": form_context.get("goal_scorer_rate", ""),
+                "Last_5_Shots": form_context.get("last_5_shots", ""),
             }
         )
     for rank, row in enumerate(rows, start=1):
@@ -610,16 +691,20 @@ def write_to_sheet(picks):
         ws = sh.worksheet(SHEET_NAME)
     except gspread.exceptions.WorksheetNotFound:
         ws = sh.add_worksheet(title=SHEET_NAME, rows=100, cols=len(PICKS_COLUMNS))
-        ws.update("A1:O1", [PICKS_COLUMNS])
+        ws.update("A1", [PICKS_COLUMNS])
 
     existing_headers = ws.row_values(1)
-    if existing_headers != PICKS_COLUMNS:
-        if not existing_headers:
-            ws.update("A1:O1", [PICKS_COLUMNS])
-        else:
-            raise RuntimeError(f"{SHEET_NAME} header mismatch. Expected {PICKS_COLUMNS}, found {existing_headers}")
+    if not existing_headers:
+        existing_headers = PICKS_COLUMNS[:]
+        ws.update("A1", [existing_headers])
+    else:
+        missing_cols = [col for col in PICKS_COLUMNS if col not in existing_headers]
+        if missing_cols:
+            existing_headers = existing_headers + missing_cols
+            ws.update("A1", [existing_headers])
+            print(f"✅ Added Picks columns: {', '.join(missing_cols)}")
 
-    values = [[clean_cell(row.get(col, "")) for col in PICKS_COLUMNS] for row in picks]
+    values = [[clean_cell(row.get(col, "")) for col in existing_headers] for row in picks]
     ws.append_rows(values, value_input_option="USER_ENTERED")
     print(f"✅ Appended {len(values)} pick row(s) to {SHEET_NAME}")
 
@@ -778,7 +863,7 @@ def run_engine(args):
                 time.sleep(0.5)
             print(f"✅ Parsed {len(props)} prop outcome row(s)")
             if fixtures and props and gemini_api_key:
-                context = build_gemini_context(fixtures, props)
+                context, props = build_gemini_context(fixtures, props)
                 raw_picks = call_gemini(context, gemini_api_key)
             else:
                 raw_picks = []
