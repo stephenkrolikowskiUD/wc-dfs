@@ -25,7 +25,7 @@ It sends those fixtures and props to Gemini, validates the returned picks, and w
 
 `WCGrader_v1.py` grades completed picks using API-Football fixture/player stats and writes only the `Result` and `Actual` columns.
 
-`WCFormPull.py` pulls recent international form from API-Football, writes a `Player_Form` tab, and maintains a committed `player_id_cache.json` so Odds API/Gemini player names can be matched to API-Football player IDs repeatably. The engine reads that form tab before calling Gemini and appends per-pick form fields for dashboard badges.
+`WCFormPull.py` pulls recent international form from API-Football, writes a `Player_Form` tab, and maintains a local `player_id_cache.json` so Odds API/Gemini player names can be matched to API-Football player IDs repeatably. The resolver is nationality-gated so a player is skipped rather than matched to the wrong human. The engine reads that form tab before calling Gemini and appends per-pick form fields for dashboard badges.
 
 ## Sheet
 
@@ -89,6 +89,12 @@ Verify international competition IDs exposed by API-Football:
 
 ```bash
 API_FOOTBALL_KEY=... python3 WCFormPull.py --verify-leagues --dry-run
+```
+
+Clear polluted form data without pulling new API data:
+
+```bash
+GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCFormPull.py --clear-form
 ```
 
 ## Secrets

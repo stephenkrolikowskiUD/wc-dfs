@@ -13,6 +13,7 @@ import re
 import time
 import unicodedata
 from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from typing import Any
 
 import gspread
@@ -31,6 +32,61 @@ FORM_SEASONS = (2025, 2024)
 REQUEST_TIMEOUT = 15
 MAX_RETRIES = 3
 PLAYER_ID_CACHE_PATH = "player_id_cache.json"
+
+TEAM_TO_NATIONALITY = {
+    "Argentina": "Argentina",
+    "Australia": "Australia",
+    "Austria": "Austria",
+    "Belgium": "Belgium",
+    "Brazil": "Brazil",
+    "Canada": "Canada",
+    "Chile": "Chile",
+    "Colombia": "Colombia",
+    "Costa Rica": "Costa Rica",
+    "Croatia": "Croatia",
+    "Denmark": "Denmark",
+    "Ecuador": "Ecuador",
+    "Egypt": "Egypt",
+    "England": "England",
+    "France": "France",
+    "Germany": "Germany",
+    "Ghana": "Ghana",
+    "Greece": "Greece",
+    "Iran": "Iran",
+    "IR Iran": "Iran",
+    "Italy": "Italy",
+    "Japan": "Japan",
+    "Korea Republic": "South Korea",
+    "South Korea": "South Korea",
+    "Mexico": "Mexico",
+    "Morocco": "Morocco",
+    "Netherlands": "Netherlands",
+    "New Zealand": "New Zealand",
+    "Nigeria": "Nigeria",
+    "Norway": "Norway",
+    "Panama": "Panama",
+    "Paraguay": "Paraguay",
+    "Peru": "Peru",
+    "Poland": "Poland",
+    "Portugal": "Portugal",
+    "Qatar": "Qatar",
+    "Saudi Arabia": "Saudi Arabia",
+    "Scotland": "Scotland",
+    "Senegal": "Senegal",
+    "Serbia": "Serbia",
+    "South Africa": "South Africa",
+    "Spain": "Spain",
+    "Sweden": "Sweden",
+    "Switzerland": "Switzerland",
+    "Tunisia": "Tunisia",
+    "Turkey": "Turkey",
+    "Türkiye": "Turkey",
+    "Ukraine": "Ukraine",
+    "United States": "United States",
+    "USA": "United States",
+    "Uruguay": "Uruguay",
+    "Wales": "Wales",
+}
 
 INTL_COMPETITION_IDS = {
     1,    # World Cup
@@ -132,6 +188,36 @@ def normalize_name(name: Any) -> str:
     text = re.sub(r"[’'`\.]", "", text)
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def normalize_country(value: Any) -> str:
+    country = normalize_name(value)
+    aliases = {
+        "ir iran": "iran",
+        "iran": "iran",
+        "korea republic": "south korea",
+        "republic of korea": "south korea",
+        "south korea": "south korea",
+        "usa": "united states",
+        "us": "united states",
+        "united states of america": "united states",
+        "united states": "united states",
+        "turkiye": "turkey",
+        "turkey": "turkey",
+    }
+    return aliases.get(country, country)
+
+
+def expected_nationality_for_player(player: dict) -> str:
+    team = str(player.get("team") or player.get("nationality") or "").strip()
+    expected = TEAM_TO_NATIONALITY.get(team, team)
+    return expected
+
+
+def nationality_matches(candidate: dict, expected_nationality: str) -> bool:
+    expected = normalize_country(expected_nationality)
+    actual = normalize_country(candidate.get("nationality") or "")
+    return bool(expected and actual and expected == actual)
 
 
 def clean_cell(value: Any) -> Any:
@@ -241,30 +327,45 @@ def fetch_wc_squad_players() -> list[dict]:
     return list(players.values())
 
 
-def candidate_score(candidate: dict, player_name: str, nationality: str = "") -> int:
+def candidate_name_score(candidate: dict, player_name: str) -> float:
     candidate_name = candidate.get("name") or candidate.get("firstname") or ""
-    score = 0
-    if normalize_name(candidate_name) == normalize_name(player_name):
-        score += 100
+    target = normalize_name(player_name)
+    actual = normalize_name(candidate_name)
+    if actual == target:
+        return 1000.0
+    target_parts = target.split()
+    actual_parts = actual.split()
+    target_last = target_parts[-1] if target_parts else ""
+    actual_last = actual_parts[-1] if actual_parts else ""
+    score = 0.0
+    if target_last and actual_last == target_last:
+        score += 500
+    elif target_last and target_last in actual_parts:
+        score += 350
     player_parts = set(normalize_name(player_name).split())
     candidate_parts = set(normalize_name(candidate_name).split())
-    score += 10 * len(player_parts & candidate_parts)
-    candidate_nationality = str(candidate.get("nationality") or "").lower()
-    if nationality and normalize_name(nationality) in normalize_name(candidate_nationality):
-        score += 20
+    score += 50 * len(player_parts & candidate_parts)
+    score += 100 * SequenceMatcher(None, target, actual).ratio()
     return score
 
 
 def resolve_player_id(player: dict, cache: dict[str, dict]) -> dict | None:
     key = normalize_name(player.get("name", ""))
-    if key in cache:
+    expected_nationality = expected_nationality_for_player(player)
+    if key in cache and nationality_matches(cache[key], expected_nationality):
         return cache[key]
+    if key in cache:
+        print(
+            f"   ⚠️ Ignoring cached player mismatch for {player.get('name')}: "
+            f"cached nationality={cache[key].get('nationality')} expected={expected_nationality}"
+        )
+        cache.pop(key, None)
 
     if player.get("api_id"):
         cache[key] = {
             "id": player["api_id"],
             "name": player.get("name", ""),
-            "nationality": player.get("nationality", ""),
+            "nationality": expected_nationality or player.get("nationality", ""),
         }
         return cache[key]
 
@@ -281,15 +382,28 @@ def resolve_player_id(player: dict, cache: dict[str, dict]) -> dict | None:
     if not candidates:
         print(f"   ⚠️ No player profile match for {search_name}")
         return None
-    best = max(candidates, key=lambda c: candidate_score(c, search_name, player.get("nationality", "")))
-    best_score = candidate_score(best, search_name, player.get("nationality", ""))
-    if best_score < 20:
-        print(f"   ⚠️ Weak player profile match for {search_name}: {best.get('name')} score={best_score}")
+
+    nationality_candidates = [c for c in candidates if nationality_matches(c, expected_nationality)]
+    if not nationality_candidates:
+        seen_nationalities = sorted({str(c.get("nationality") or "unknown") for c in candidates})
+        print(
+            f"   ⚠️ No nationality-safe player match for {search_name} "
+            f"({expected_nationality}). Candidate nationalities: {', '.join(seen_nationalities[:8])}"
+        )
+        return None
+
+    best = max(nationality_candidates, key=lambda c: candidate_name_score(c, search_name))
+    best_score = candidate_name_score(best, search_name)
+    if best_score < 350:
+        print(
+            f"   ⚠️ Weak nationality-safe match for {search_name} "
+            f"({expected_nationality}): {best.get('name')} score={best_score:.1f}"
+        )
         return None
     cache[key] = {
         "id": best.get("id"),
         "name": best.get("name") or search_name,
-        "nationality": best.get("nationality") or player.get("nationality", ""),
+        "nationality": best.get("nationality") or expected_nationality,
     }
     return cache[key]
 
@@ -368,6 +482,18 @@ def safe_upload_form(rows: list[dict]) -> None:
     print(f"✅ Wrote {len(rows)} player form row(s) to {FORM_SHEET_NAME}")
 
 
+def clear_player_form_sheet() -> None:
+    gc = get_gspread_client()
+    sh = gc.open_by_key(SHEET_ID)
+    try:
+        ws = sh.worksheet(FORM_SHEET_NAME)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sh.add_worksheet(title=FORM_SHEET_NAME, rows=100, cols=len(FORM_COLUMNS))
+    ws.clear()
+    ws.update("A1", [FORM_COLUMNS], value_input_option="USER_ENTERED")
+    print(f"🧹 Cleared {FORM_SHEET_NAME} before rebuilding form data")
+
+
 def verify_international_leagues() -> None:
     print("🔎 Verifying World-country competition ids from API-Football")
     for league_type in ("cup", "league"):
@@ -380,10 +506,20 @@ def verify_international_leagues() -> None:
 
 def run(args: argparse.Namespace) -> list[dict]:
     cache = load_player_id_cache()
+    if args.clear_form and not args.all and not args.picks_only and not args.verify_leagues:
+        if args.dry_run:
+            print("🧪 Dry run — would clear Player_Form")
+            return []
+        clear_player_form_sheet()
+        return []
+
     if args.verify_leagues:
         verify_international_leagues()
         if not args.all and not args.picks_only:
             return []
+
+    if not args.dry_run:
+        clear_player_form_sheet()
 
     players = fetch_wc_squad_players() if args.all else players_from_picks_sheet()
     print(f"📋 Form candidates: {len(players)}")
@@ -416,10 +552,11 @@ def parse_args() -> argparse.Namespace:
     mode.add_argument("--all", action="store_true", help="Pull all WC squad players.")
     mode.add_argument("--picks-only", action="store_true", help="Pull only players currently present in Picks.")
     parser.add_argument("--verify-leagues", action="store_true", help="Print World-country league ids for audit.")
+    parser.add_argument("--clear-form", action="store_true", help="Clear Player_Form to headers only.")
     parser.add_argument("--dry-run", action="store_true", help="Do not write Player_Form.")
     args = parser.parse_args()
-    if not args.verify_leagues and not args.all and not args.picks_only:
-        parser.error("one of --all, --picks-only, or --verify-leagues is required")
+    if not args.verify_leagues and not args.all and not args.picks_only and not args.clear_form:
+        parser.error("one of --all, --picks-only, --verify-leagues, or --clear-form is required")
     return args
 
 
