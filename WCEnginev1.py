@@ -36,7 +36,7 @@ PROP_MARKETS_ALTERNATE = [
     "player_goals_alternate",
 ]
 PROP_MARKETS = PROP_MARKETS_STANDARD + PROP_MARKETS_ALTERNATE
-GEMINI_MODEL = "gemini-2.0-flash-exp"
+GEMINI_MODEL = "gemini-2.5-flash-lite"
 
 PROP_MARKET_LABELS = {
     "player_shots": "Shots",
