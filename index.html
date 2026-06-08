@@ -52,6 +52,10 @@ button,input,select{font:inherit}
 .prop-tag{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--accent);font-size:11px;font-weight:1000;padding:4px 8px}
 .lean-over{color:var(--green);font-weight:1000}.lean-under{color:var(--red);font-weight:1000}
 .reason{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
+.form-row{background:var(--panel2);border:1px solid rgba(125,211,252,.14);border-radius:9px;padding:8px 9px;margin-top:9px;font-size:10px;color:var(--muted);line-height:1.5}
+.form-title{display:block;color:var(--accent);font-weight:1000;text-transform:uppercase;font-size:8px;letter-spacing:.4px;margin-bottom:3px}
+.form-metric{display:inline-block;margin-right:8px;color:var(--text);font-weight:800}
+.form-limited{color:var(--gold);font-weight:900}
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
 .meta-cell{background:var(--panel2);border-radius:8px;padding:7px 8px;font-size:10px}
 .meta-label{display:block;color:var(--muted);text-transform:uppercase;font-size:8px;font-weight:900;margin-bottom:2px}
@@ -177,6 +181,12 @@ function hydratePick(row, idx){
     Result: row.Result || "",
     Actual: row.Actual || "",
     Timestamp: row.Timestamp || "",
+    Intl_Sample: row.Intl_Sample || row.Intl_Matches_Last_24mo || "",
+    Avg_Shots: row.Avg_Shots || "",
+    Avg_SOT: row.Avg_SOT || "",
+    Avg_Tackles: row.Avg_Tackles || "",
+    Goal_Scorer_Rate: row.Goal_Scorer_Rate || "",
+    Last_5_Shots: row.Last_5_Shots || "",
   };
 }
 
@@ -196,6 +206,21 @@ async function loadAllData(){
 
 function pickClass(tier){return normalizeTier(tier).toLowerCase()}
 function tierPill(tier){const t=normalizeTier(tier);return `<span class="tier-pill tier-${t.toLowerCase()}">${t}</span>`}
+function fmtRate(v){const n=Number(v);return Number.isFinite(n)?`${Math.round(n*100)}%`:"—"}
+function fmtOne(v){const n=Number(v);return Number.isFinite(n)?n.toFixed(1):"—"}
+function renderFormRow(p){
+  const sample=Number(p.Intl_Sample||0);
+  if(!sample){
+    return `<div class="form-row"><span class="form-title">FORM</span><span class="form-limited">⚠️ Limited international history</span></div>`;
+  }
+  return `<div class="form-row">
+    <span class="form-title">FORM (last ${sample} intl matches)</span>
+    <span class="form-metric">🎯 ${fmtOne(p.Avg_Shots)} shots/game</span>
+    <span class="form-metric">⚡ ${fmtOne(p.Avg_SOT)} SOT/game</span>
+    <span class="form-metric">🛡️ ${fmtOne(p.Avg_Tackles)} tackles/game</span>
+    <span class="form-metric">⚽ ${fmtRate(p.Goal_Scorer_Rate)} goal rate</span>
+  </div>`;
+}
 function renderPickCard(p){
   const leanCls=p.Pick==="Under"?"lean-under":"lean-over";
   return `<div class="pick-card ${pickClass(p.Tier)}">
@@ -212,6 +237,7 @@ function renderPickCard(p){
       ${p.Confidence?`<span class="small muted">Confidence ${esc(p.Confidence)}/10</span>`:""}
     </div>
     ${p.Reasoning?`<div class="reason">${esc(p.Reasoning)}</div>`:""}
+    ${renderFormRow(p)}
     <div class="meta-grid">
       <div class="meta-cell"><span class="meta-label">Book</span>${esc(p.Book||"—")}</div>
       <div class="meta-cell"><span class="meta-label">Logged</span>${esc(fmtDate(p.Timestamp)||fmtDate(p.Game_Time)||"—")}</div>
