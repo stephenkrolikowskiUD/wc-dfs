@@ -10,7 +10,7 @@ import os
 import re
 import time
 import unicodedata
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import gspread
 import pytz
@@ -88,6 +88,9 @@ ODDS_API_BASE = "https://api.the-odds-api.com/v4"
 REQUEST_TIMEOUT = 20
 MAX_API_RETRIES = 3
 SQUAD_CACHE_PATH = "squad_cache.json"
+PROP_LOOKAHEAD_HOURS = 48
+MARKET_422_CACHE_PATH = "market_422_cache.json"
+MARKET_422_CACHE_TTL_SECONDS = 6 * 3600
 
 TEAM_NAME_ALIASES = {
     "argentina": "argentina",
@@ -390,6 +393,80 @@ def odds_api_get(path, params, max_retries=MAX_API_RETRIES):
     return None
 
 
+def parse_utc_datetime(value):
+    try:
+        return datetime.fromisoformat(str(value or "").replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def fixtures_in_window(fixtures: list[dict], hours: int = PROP_LOOKAHEAD_HOURS) -> list[dict]:
+    """Filter to fixtures whose prop markets are likely to be posted soon."""
+    now = datetime.now(timezone.utc)
+    cutoff = now + timedelta(hours=hours)
+    in_window = []
+    deferred = 0
+    invalid = 0
+    for fixture in fixtures:
+        kickoff = parse_utc_datetime(fixture.get("commence_time"))
+        if not kickoff:
+            invalid += 1
+            continue
+        if now <= kickoff <= cutoff:
+            in_window.append(fixture)
+        else:
+            deferred += 1
+    invalid_note = f", {invalid} invalid kickoff" if invalid else ""
+    print(f"🔍 {hours}hr window filter: {len(in_window)} fixtures in window, {deferred} deferred{invalid_note}")
+    return in_window
+
+
+def load_422_cache():
+    if not os.path.exists(MARKET_422_CACHE_PATH):
+        return {}
+    try:
+        with open(MARKET_422_CACHE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"⚠️ Could not read {MARKET_422_CACHE_PATH} — starting fresh: {e}")
+        return {}
+
+
+def save_422_cache(cache):
+    now = time.time()
+    pruned = {}
+    for key, entry in (cache or {}).items():
+        if not isinstance(entry, dict):
+            continue
+        ts = safe_float(entry.get("timestamp"))
+        if ts is not None and now - ts <= MARKET_422_CACHE_TTL_SECONDS:
+            pruned[key] = {"timestamp": ts}
+    with open(MARKET_422_CACHE_PATH, "w", encoding="utf-8") as f:
+        json.dump(pruned, f, indent=2, sort_keys=True)
+        f.write("\n")
+    print(f"💾 Saved 422 market cache: {len(pruned)} active entr{'y' if len(pruned) == 1 else 'ies'}")
+
+
+def market_422_key(fixture_id, market):
+    return f"{fixture_id}:{market}"
+
+
+def should_skip_422(cache, fixture_id, market):
+    entry = (cache or {}).get(market_422_key(fixture_id, market))
+    if not isinstance(entry, dict):
+        return False
+    ts = safe_float(entry.get("timestamp"))
+    if ts is None:
+        return False
+    return time.time() - ts <= MARKET_422_CACHE_TTL_SECONDS
+
+
+def mark_422(cache, fixture_id, market):
+    if cache is not None:
+        cache[market_422_key(fixture_id, market)] = {"timestamp": time.time()}
+
+
 def fetch_fixtures(odds_api_key):
     print("Fetching World Cup fixtures...")
     events = odds_api_get(
@@ -505,11 +582,14 @@ def dedupe_best_props(rows):
     return list(best.values())
 
 
-def fetch_props(odds_api_key, fixture):
+def fetch_props(odds_api_key, fixture, market_422_cache=None):
     event_id = fixture["event_id"]
     print(f"   Fetching props for {fixture['matchup']}...")
     rows = []
     for market_name in PROP_MARKETS:
+        if market_422_cache is not None and should_skip_422(market_422_cache, event_id, market_name):
+            print(f"      💾 422 cache hit: skipping {market_name}")
+            continue
         try:
             data = odds_api_get(
                 f"/sports/{ODDS_API_SPORT_KEY}/events/{event_id}/odds",
@@ -523,7 +603,8 @@ def fetch_props(odds_api_key, fixture):
         except requests.HTTPError as e:
             status = getattr(e.response, "status_code", None)
             if status == 422:
-                print(f"   ℹ️ Market {market_name} not available for event {event_id} — skipping")
+                mark_422(market_422_cache, event_id, market_name)
+                print(f"      ℹ️ Market {market_name} not available for event {event_id} — cached 6h")
                 continue
             raise
         if not data:
@@ -1060,11 +1141,14 @@ def run_engine(args):
             print("⚠️ No ODDS_API_KEY available — no fixtures or props fetched")
             fixtures, props, raw_picks = [], [], []
         else:
-            fixtures = fetch_fixtures(odds_api_key)
+            all_fixtures = fetch_fixtures(odds_api_key)
+            fixtures = fixtures_in_window(all_fixtures)
             props = []
+            market_422_cache = load_422_cache()
             for fixture in fixtures:
-                props.extend(fetch_props(odds_api_key, fixture))
+                props.extend(fetch_props(odds_api_key, fixture, market_422_cache))
                 time.sleep(0.5)
+            save_422_cache(market_422_cache)
             print(f"✅ Parsed {len(props)} prop outcome row(s)")
             if fixtures and props and gemini_api_key:
                 context, props = build_gemini_context(fixtures, props)
