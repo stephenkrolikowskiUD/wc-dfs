@@ -22,7 +22,8 @@ from google.oauth2.service_account import Credentials
 
 
 SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g"
-SHEET_NAME = "Picks"
+PICKS_HISTORY_SHEET_NAME = "Picks_History"
+PICKS_CURRENT_SHEET_NAME = "Picks_Current"
 ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
 PROP_MARKETS_STANDARD = [
     "player_shots",
@@ -871,16 +872,11 @@ def validate_schema(rows):
     return True
 
 
-def write_to_sheet(picks):
-    if not picks:
-        print("⏭️ No picks to write")
-        return
-    gc = get_gspread_client()
-    sh = gc.open_by_key(SHEET_ID)
+def ensure_picks_worksheet(sh, sheet_name):
     try:
-        ws = sh.worksheet(SHEET_NAME)
+        ws = sh.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
-        ws = sh.add_worksheet(title=SHEET_NAME, rows=100, cols=len(PICKS_COLUMNS))
+        ws = sh.add_worksheet(title=sheet_name, rows=100, cols=len(PICKS_COLUMNS))
         ws.update("A1", [PICKS_COLUMNS])
 
     existing_headers = ws.row_values(1)
@@ -892,11 +888,29 @@ def write_to_sheet(picks):
         if missing_cols:
             existing_headers = existing_headers + missing_cols
             ws.update("A1", [existing_headers])
-            print(f"✅ Added Picks columns: {', '.join(missing_cols)}")
+            print(f"✅ Added {sheet_name} columns: {', '.join(missing_cols)}")
+    return ws, existing_headers
 
+
+def write_to_sheet(picks, sheet_name=PICKS_HISTORY_SHEET_NAME, mode="append"):
+    gc = get_gspread_client()
+    sh = gc.open_by_key(SHEET_ID)
+    ws, existing_headers = ensure_picks_worksheet(sh, sheet_name)
+
+    if mode == "overwrite":
+        ws.batch_clear(["A2:Z"])
+        print(f"🧹 Cleared {sheet_name} current rows")
+
+    if not picks:
+        print(f"⏭️ No picks to write to {sheet_name}")
+        return
+
+    if mode not in {"append", "overwrite"}:
+        raise ValueError(f"Unsupported write mode: {mode}")
     values = [[clean_cell(row.get(col, "")) for col in existing_headers] for row in picks]
     ws.append_rows(values, value_input_option="USER_ENTERED")
-    print(f"✅ Appended {len(values)} pick row(s) to {SHEET_NAME}")
+    action = "Wrote" if mode == "overwrite" else "Appended"
+    print(f"✅ {action} {len(values)} pick row(s) to {sheet_name}")
 
 
 def sample_fixtures_and_props():
@@ -1077,7 +1091,8 @@ def run_engine(args):
     if args.dry_run:
         print("\n🧪 Dry run complete — skipped Google Sheets write")
     else:
-        write_to_sheet(picks)
+        write_to_sheet(picks, sheet_name=PICKS_HISTORY_SHEET_NAME, mode="append")
+        write_to_sheet(picks, sheet_name=PICKS_CURRENT_SHEET_NAME, mode="overwrite")
 
     print("\n" + "=" * 60)
     print("✅ WORLD CUP DFS PICK ENGINE COMPLETE")
