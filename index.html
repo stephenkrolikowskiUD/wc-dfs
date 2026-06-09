@@ -101,6 +101,20 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .roster-slot.empty{color:var(--muted)}
 .roster-total{font-size:28px;font-weight:1000;color:var(--wc-gold);line-height:1}
 .constraint-line{font-size:10px;color:var(--muted);font-weight:900;line-height:1.6;margin-top:8px}
+.slip-grid{display:grid;gap:12px}
+.slip-col{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.slip-col-title{display:flex;align-items:center;justify-content:space-between;color:var(--accent);font-size:13px;font-weight:1000;margin-bottom:10px}
+.slip-card{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:10px}
+.slip-card:last-child{margin-bottom:0}
+.slip-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.payout-badge{display:inline-flex;align-items:center;background:var(--wc-gold);color:var(--wc-ink);border-radius:999px;padding:4px 8px;font-size:10px;font-weight:1000}
+.conviction-score{font-size:20px;font-weight:1000;color:var(--accent);line-height:1;text-align:right}
+.slip-leg{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--panel);border:1px solid rgba(148,163,184,.18);border-radius:9px;padding:8px;margin-top:7px}
+.slip-player{font-size:12px;font-weight:1000;line-height:1.25;word-break:break-word;overflow-wrap:anywhere}
+.slip-meta{font-size:10px;color:var(--muted);font-weight:800;margin-top:2px;line-height:1.4}
+.weak-link{color:var(--wc-red);font-size:9px;font-weight:1000;margin-top:3px}
+.copy-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+.copy-status{font-size:10px;color:var(--accent2);font-weight:900}
 .timestamp{text-align:center;color:var(--muted);font-size:10px;padding:18px 12px}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:11px;min-width:440px}
@@ -120,6 +134,7 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
   .pick-card{margin:0}
   .stats-row{grid-template-columns:repeat(4,160px)}
   .draft-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .slip-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .daily-layout{grid-template-columns:minmax(0,1fr) 320px;align-items:start}
   .daily-columns{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
@@ -138,6 +153,7 @@ const SPORT = "WC";
 const PICKS_TAB = "Picks_Current";
 const DRAFT_TAB = "Draft_Recommendations";
 const DAILY_SLATE_TAB = "Daily_Slate";
+const SLIPS_TAB = "Slip_Recommendations";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
 const STATS_PLACEHOLDER = "Stats reads from Picks_History — grader populates Result + Actual columns after each WC match completes. Aggregate hit rate / ROI shown here after the first matches finish (June 11 onward).";
@@ -149,6 +165,7 @@ const st = {
   picks: [],
   draftRecommendations: [],
   dailySlate: [],
+  slipRecommendations: [],
   dailyDrafted: new Set(),
   dailyRoster: [],
   activeTab: "picks",
@@ -297,17 +314,41 @@ function hydrateDailyRow(row){
   };
 }
 
+function hydrateSlipRow(row){
+  return {
+    Slip_Rank: row.Slip_Rank || "",
+    Slip_Size: row.Slip_Size || "",
+    Payout_Multiplier: row.Payout_Multiplier || "",
+    Avg_Conviction: row.Avg_Conviction || "",
+    Min_Conviction: row.Min_Conviction || "",
+    Teams_Represented: row.Teams_Represented || "",
+    SMASH_Count: row.SMASH_Count || "",
+    Slot_Number: row.Slot_Number || "",
+    Player: row.Player || "",
+    Team: row.Team || "",
+    Prop: normalizeProp(row.Prop || ""),
+    Line: row.Line || "",
+    Pick: normalizePick(row.Pick || ""),
+    Tier: normalizeTier(row.Tier || ""),
+    Confidence: row.Confidence || "",
+    Has_Form_Data: row.Has_Form_Data || "",
+    Generated_At: row.Generated_At || "",
+  };
+}
+
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const [picks,draft,daily]=await Promise.all([
+    const [picks,draft,daily,slips]=await Promise.all([
       fetchSheet(PICKS_TAB),
       fetchSheet(DRAFT_TAB).catch(()=>[]),
-      fetchSheet(DAILY_SLATE_TAB).catch(()=>[])
+      fetchSheet(DAILY_SLATE_TAB).catch(()=>[]),
+      fetchSheet(SLIPS_TAB).catch(()=>[])
     ]);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
     st.draftRecommendations=draft.map(hydrateDraftRow).filter(r=>r.Player);
     st.dailySlate=daily.map(hydrateDailyRow).filter(r=>r.Player_Name);
+    st.slipRecommendations=slips.map(hydrateSlipRow).filter(r=>r.Player);
     const validKeys=new Set(st.dailySlate.map(dailyKey));
     st.dailyDrafted=new Set([...st.dailyDrafted].filter(k=>validKeys.has(k)));
     st.dailyRoster=st.dailyRoster.filter(k=>validKeys.has(k));
@@ -317,6 +358,7 @@ async function loadAllData(){
     st.picks=[];
     st.draftRecommendations=[];
     st.dailySlate=[];
+    st.slipRecommendations=[];
   }finally{
     st.loading=false;render();
   }
@@ -601,6 +643,121 @@ function renderDailyDraftView(){
   <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(DAILY_SLATE_TAB)}</div>`;
 }
 
+function slipHasForm(row){
+  return String(row.Has_Form_Data||"").trim().toUpperCase()==="TRUE";
+}
+
+function slipLegConviction(row){
+  const tierWeight={SMASH:3,STRONG:2,LEAN:1}[normalizeTier(row.Tier)]||0.5;
+  const confidence=Math.max(0,Math.min(10,toNum(row.Confidence)))/10;
+  const formBonus=slipHasForm(row)?1.15:0.9;
+  return tierWeight*confidence*formBonus;
+}
+
+function groupSlipRecommendations(){
+  const groups=new Map();
+  st.slipRecommendations.forEach(row=>{
+    const rank=String(row.Slip_Rank||"").trim();
+    if(!rank)return;
+    if(!groups.has(rank))groups.set(rank,[]);
+    groups.get(rank).push(row);
+  });
+  return [...groups.entries()].map(([rank,rows])=>{
+    rows.sort((a,b)=>toNum(a.Slot_Number)-toNum(b.Slot_Number));
+    return {
+      rank,
+      size:String(rows[0]?.Slip_Size||""),
+      payout:rows[0]?.Payout_Multiplier||"",
+      avg:toNum(rows[0]?.Avg_Conviction),
+      min:toNum(rows[0]?.Min_Conviction),
+      teams:rows[0]?.Teams_Represented||"",
+      smash:rows[0]?.SMASH_Count||"",
+      generatedAt:rows[0]?.Generated_At||"",
+      rows
+    };
+  }).sort((a,b)=>toNum(a.size)-toNum(b.size)||toNum(a.rank)-toNum(b.rank));
+}
+
+function slipsBySize(size){
+  return groupSlipRecommendations().filter(group=>String(group.size)===String(size));
+}
+
+function slipCopyText(group){
+  const lines=[`${group.size}-leg WC slip (${group.payout})`, `Avg conviction ${fmtOne(group.avg)} · ${group.teams} teams`];
+  group.rows.forEach((row,idx)=>{
+    lines.push(`${idx+1}. ${row.Player} - ${row.Prop} ${row.Pick} ${row.Line} (${row.Team})`);
+  });
+  lines.push(`Generated: ${group.generatedAt||new Date().toISOString()}`);
+  return lines.join("\n");
+}
+
+function copySlip(rank){
+  const group=groupSlipRecommendations().find(g=>String(g.rank)===String(rank));
+  if(!group)return;
+  const text=slipCopyText(group);
+  const status=document.getElementById(`copy-status-${rank}`);
+  function markCopied(){
+    if(status){status.textContent="Copied";setTimeout(()=>{status.textContent=""},1600)}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(markCopied).catch(()=>window.prompt("Copy slip",text));
+  }else{
+    window.prompt("Copy slip",text);
+  }
+}
+
+function renderSlipLeg(row, group){
+  const legScore=slipLegConviction(row);
+  const isWeak=group.avg&&legScore <= group.avg*0.72;
+  return `<div class="slip-leg">
+    <div>
+      <div class="slip-player">${esc(row.Player)}</div>
+      <div class="slip-meta">${esc(teamWithFlag(row.Team))} · ${esc(row.Prop)} ${esc(row.Pick)} ${esc(row.Line)} · ${esc(row.Confidence)}/10</div>
+      ${isWeak?`<div class="weak-link">Weak-link leg · ${fmtOne(legScore)} conviction</div>`:""}
+    </div>
+    ${tierPill(row.Tier)}
+  </div>`;
+}
+
+function renderSlipCard(group){
+  return `<div class="slip-card">
+    <div class="slip-head">
+      <div>
+        <span class="payout-badge">${esc(group.payout||`${group.size}-leg`)}</span>
+        <div class="small muted" style="margin-top:5px">${esc(group.teams)} teams · ${esc(group.smash)} SMASH</div>
+      </div>
+      <div>
+        <div class="conviction-score">${fmtOne(group.avg)}</div>
+        <div class="tiny muted">avg conviction</div>
+      </div>
+    </div>
+    ${group.rows.map(row=>renderSlipLeg(row,group)).join("")}
+    <div class="copy-row">
+      <button class="pill-btn" onclick="copySlip('${esc(group.rank)}')">Copy slip</button>
+      <span class="copy-status" id="copy-status-${esc(group.rank)}"></span>
+    </div>
+  </div>`;
+}
+
+function renderSlipsView(){
+  const sizes=[3,4,5];
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">🎫 Slip Recommendations</div>
+      <div class="small muted" style="line-height:1.6">Best 3-, 4-, and 5-leg entries from <strong>Picks_Current</strong>, scored by tier, confidence, and form-data support. Every slip uses at least 2 teams and never repeats a player.</div>
+    </div>
+  </div>
+  ${st.slipRecommendations.length?`<div class="section"><div class="slip-grid">${sizes.map(size=>{
+    const groups=slipsBySize(size);
+    const payout={3:"6x",4:"10x",5:"20x"}[size];
+    return `<div class="slip-col">
+      <div class="slip-col-title"><span>${size}-Leg</span><span class="payout-badge">${payout}</span></div>
+      ${groups.length?groups.map(renderSlipCard).join(""):`<div class="empty">No valid ${size}-leg slips yet.</div>`}
+    </div>`;
+  }).join("")}</div></div>`:`<div class="section"><div class="card"><div class="empty">Slip recommendations are not populated yet. Run <strong>WCEntryBuilder.py</strong> after the engine writes <strong>${esc(PICKS_TAB)}</strong>.</div></div></div>`}
+  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(SLIPS_TAB)}</div>`;
+}
+
 function renderEntryView(){
   const games=getGames();
   const selected=games.find(g=>g.id===st.selectedGame)||games[0];
@@ -658,6 +815,7 @@ function render(){
     ["picks","⚽ Picks"],
     ["draft","🏆 Draft"],
     ["daily","🎯 Daily Draft"],
+    ["slips","🎫 Slips"],
     ["stats","📊 Stats"],
     ["entry","📋 Game Entry"],
     ["method","ℹ️ Info"],
@@ -673,6 +831,7 @@ function render(){
   <div class="page ${st.activeTab==="picks"?"active":""}">${renderPicksView()}</div>
   <div class="page ${st.activeTab==="draft"?"active":""}">${renderDraftView()}</div>
   <div class="page ${st.activeTab==="daily"?"active":""}">${renderDailyDraftView()}</div>
+  <div class="page ${st.activeTab==="slips"?"active":""}">${renderSlipsView()}</div>
   <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
   <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
   <div class="page ${st.activeTab==="method"?"active":""}">${renderMethodView()}</div>
