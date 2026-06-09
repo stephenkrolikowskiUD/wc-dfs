@@ -377,7 +377,7 @@ function pickClass(tier){return normalizeTier(tier).toLowerCase()}
 function tierPill(tier){const t=normalizeTier(tier);return `<span class="tier-pill tier-${t.toLowerCase()}">${t}</span>`}
 function fmtRate(v){const n=Number(v);return Number.isFinite(n)?`${Math.round(n*100)}%`:"—"}
 function fmtOne(v){const n=Number(v);return Number.isFinite(n)?n.toFixed(1):"—"}
-function injuryStatusValue(row){const n=Number(row?.Injury_Status);return Number.isFinite(n)?n:1}
+function injuryStatusValue(row){const raw=row?.Injury_Status;if(raw===undefined||raw===null||String(raw).trim()==="")return 1;const n=Number(raw);return Number.isFinite(n)?n:1}
 function injuryBadge(row){
   const status=injuryStatusValue(row);
   if(status>=1)return "";
