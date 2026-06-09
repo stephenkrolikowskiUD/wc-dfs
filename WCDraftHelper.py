@@ -27,6 +27,7 @@ FORM_SHEET_NAME = "Player_Form"
 EFP_SHEET_NAME = "Player_EFP"
 SURVIVAL_SHEET_NAME = "Team_Survival"
 DRAFT_SHEET_NAME = "Draft_Recommendations"
+INJURY_SHEET_NAME = "Player_Injuries"
 SQUAD_CACHE_PATH = "squad_cache.json"
 
 ROSTER_SIZE = 12
@@ -65,6 +66,8 @@ DRAFT_COLUMNS = [
     "Expected_Matches",
     "ETFP",
     "Notes",
+    "Injury_Status",
+    "Injury_Reason",
 ]
 
 TEAM_NAME_ALIASES = {
@@ -485,22 +488,71 @@ def team_survival_map(survival_rows: list[dict]) -> dict[str, float]:
     }
 
 
-def candidate_from_efp(row: dict, survival: dict[str, float]) -> dict:
+def load_injury_map() -> dict[str, dict]:
+    rows = get_sheet_rows(INJURY_SHEET_NAME)
+    injuries: dict[str, dict] = {}
+    for row in rows:
+        api_id = str(row.get("API_Football_ID") or "").strip()
+        if not api_id:
+            continue
+        status = safe_float(row.get("Status_Score"), 1.0)
+        current = injuries.get(api_id)
+        if current is None or status < safe_float(current.get("Status_Score"), 1.0):
+            injuries[api_id] = row
+    if injuries:
+        print(f"✅ Loaded injury status for {len(injuries)} player(s)")
+    else:
+        print("ℹ️ No injury rows loaded; treating all players as healthy")
+    return injuries
+
+
+def injury_adjusted_matches(base_matches: float, injury: dict | None) -> float:
+    if not injury:
+        return base_matches
+    status = safe_float(injury.get("Status_Score"), 1.0)
+    if status <= 0.0:
+        return max(base_matches - 1.0, 0.0)
+    if status < 1.0:
+        return max(base_matches - 0.5, 0.0)
+    return base_matches
+
+
+def injury_note(injury: dict | None) -> str:
+    if not injury:
+        return ""
+    status = safe_float(injury.get("Status_Score"), 1.0)
+    if status >= 1.0:
+        return ""
+    label = "Out" if status <= 0 else "Questionable"
+    reason = injury.get("Reason") or injury.get("Injury_Type") or "injury"
+    return f"{label}: {reason}"
+
+
+def candidate_from_efp(row: dict, survival: dict[str, float], injuries: dict[str, dict] | None = None) -> dict:
     team = row.get("Team", "")
-    expected_matches = survival.get(canonical_team_name(team), 3.2)
+    api_id = row.get("API_Football_ID", "")
+    injury = (injuries or {}).get(str(api_id))
+    base_expected_matches = survival.get(canonical_team_name(team), 3.2)
+    expected_matches = injury_adjusted_matches(base_expected_matches, injury)
     raw_efp = safe_float(row.get("EFP_Raw"))
     efp = safe_float(row.get("EFP_Regressed") or row.get("EFP_Per_Match"))
+    note = row.get("Notes", "")
+    inj_note = injury_note(injury)
+    if inj_note:
+        note = f"{note}; {inj_note}" if note else inj_note
     return {
         "player": row.get("Player_Name", ""),
-        "api_id": row.get("API_Football_ID", ""),
+        "api_id": api_id,
         "team": team,
         "position": row.get("Position", ""),
         "efp": efp,
         "raw_efp": raw_efp,
         "expected_matches": expected_matches,
         "etfp": efp * expected_matches,
-        "notes": row.get("Notes", ""),
+        "notes": note,
         "sample": int(safe_float(row.get("Intl_Sample"))),
+        "injury_status": safe_float((injury or {}).get("Status_Score"), 1.0),
+        "injury_reason": (injury or {}).get("Reason", ""),
     }
 
 
@@ -774,6 +826,8 @@ def recommendation_rows(recommendations: list[dict]) -> list[dict]:
                     "Expected_Matches": round(player["expected_matches"], 2),
                     "ETFP": round(player["etfp"], 2),
                     "Notes": f"Sim score {rec['score']:.1f}; raw EFP {player.get('raw_efp', player['efp']):.2f}; {player['notes']}",
+                    "Injury_Status": player.get("injury_status", ""),
+                    "Injury_Reason": player.get("injury_reason", ""),
                 }
             )
     return rows
@@ -806,7 +860,8 @@ def run(args: argparse.Namespace) -> list[dict]:
     efp_rows = compute_player_efp_rows(form_rows, squad_by_id)
     survival_rows = compute_team_survival_rows(squad_teams, efp_rows)
     survival = team_survival_map(survival_rows)
-    candidates = [candidate_from_efp(row, survival) for row in efp_rows]
+    injuries = {} if args.sample else load_injury_map()
+    candidates = [candidate_from_efp(row, survival, injuries) for row in efp_rows]
     recommendations = build_recommendations(candidates, args.simulations, args.seeds)
     draft_rows = recommendation_rows(recommendations)
 

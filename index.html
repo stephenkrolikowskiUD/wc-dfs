@@ -50,6 +50,9 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .tier-smash{background:var(--tier-smash);color:var(--wc-ink);border:1px solid rgba(20,33,61,.16)}
 .tier-strong{background:var(--tier-strong);color:#fff;border:1px solid rgba(230,57,70,.28)}
 .tier-lean{background:var(--tier-lean);color:#fff;border:1px solid rgba(42,157,143,.28)}
+.injury-badge{display:inline-flex;align-items:center;vertical-align:middle;border-radius:999px;padding:2px 6px;font-size:9px;font-weight:1000;margin-left:5px;white-space:nowrap}
+.injury-badge.questionable{background:rgba(244,196,48,.24);color:#8a5d00;border:1px solid rgba(244,196,48,.55)}
+.injury-badge.out{background:rgba(230,57,70,.16);color:var(--wc-red);border:1px solid rgba(230,57,70,.42)}
 .prop-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 .prop-tag{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--accent);font-size:11px;font-weight:1000;padding:4px 8px}
 .lean-over{color:var(--green);font-weight:1000}.lean-under{color:var(--red);font-weight:1000}
@@ -280,6 +283,8 @@ function hydratePick(row, idx){
     Avg_Tackles: row.Avg_Tackles || "",
     Goal_Scorer_Rate: row.Goal_Scorer_Rate || "",
     Last_5_Shots: row.Last_5_Shots || "",
+    Injury_Status: row.Injury_Status || "",
+    Injury_Reason: row.Injury_Reason || "",
   };
 }
 
@@ -294,6 +299,8 @@ function hydrateDraftRow(row){
     Expected_Matches: row.Expected_Matches || "",
     ETFP: row.ETFP || "",
     Notes: row.Notes || "",
+    Injury_Status: row.Injury_Status || "",
+    Injury_Reason: row.Injury_Reason || "",
   };
 }
 
@@ -311,6 +318,8 @@ function hydrateDailyRow(row){
     Kickoff_Time: row.Kickoff_Time || "",
     Source: row.Source || "",
     Notes: row.Notes || "",
+    Injury_Status: row.Injury_Status || "",
+    Injury_Reason: row.Injury_Reason || "",
   };
 }
 
@@ -368,6 +377,16 @@ function pickClass(tier){return normalizeTier(tier).toLowerCase()}
 function tierPill(tier){const t=normalizeTier(tier);return `<span class="tier-pill tier-${t.toLowerCase()}">${t}</span>`}
 function fmtRate(v){const n=Number(v);return Number.isFinite(n)?`${Math.round(n*100)}%`:"—"}
 function fmtOne(v){const n=Number(v);return Number.isFinite(n)?n.toFixed(1):"—"}
+function injuryStatusValue(row){const n=Number(row?.Injury_Status);return Number.isFinite(n)?n:1}
+function injuryBadge(row){
+  const status=injuryStatusValue(row);
+  if(status>=1)return "";
+  const out=status<=0;
+  const label=out?"Out":"Questionable";
+  const cls=out?"out":"questionable";
+  const reason=row.Injury_Reason||label;
+  return `<span class="injury-badge ${cls}" title="${esc(reason)}">${out?"🔴":"🟡"} ${label}</span>`;
+}
 function renderFormRow(p){
   const sample=Number(p.Intl_Sample||0);
   if(!sample){
@@ -386,7 +405,7 @@ function renderPickCard(p){
   return `<div class="pick-card ${pickClass(p.Tier)}">
     <div class="pick-top">
       <div>
-        <div class="player-name"><span class="rank-pill">#${esc(p.rank)}</span>${esc(p.Player)}</div>
+        <div class="player-name"><span class="rank-pill">#${esc(p.rank)}</span>${esc(p.Player)} ${injuryBadge(p)}</div>
         <div class="team-line">${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))}${p.Game_Time?` · ${esc(fmtTime(p.Game_Time))}`:""}</div>
       </div>
       ${tierPill(p.Tier)}
@@ -476,7 +495,7 @@ function renderDraftPlayer(row){
     <div class="slot-badge">${esc(row.Slot||row.Position||"")}</div>
     <div>
       <div class="draft-name">${esc(row.Player)}</div>
-      <div class="draft-meta">${esc(teamWithFlag(row.Team))} · ${esc(row.Position||"—")} · ${esc(fmtOne(row.EFP_Per_Match))} EFP × ${esc(fmtOne(row.Expected_Matches))} matches</div>
+      <div class="draft-meta">${esc(teamWithFlag(row.Team))} · ${esc(row.Position||"—")} · ${esc(fmtOne(row.EFP_Per_Match))} EFP × ${esc(fmtOne(row.Expected_Matches))} matches ${injuryBadge(row)}</div>
       ${row.Notes?`<div class="draft-note">${esc(row.Notes).split(";")[0]}</div>`:""}
     </div>
     <div class="draft-etfp">${esc(fmtOne(row.ETFP))}</div>
@@ -543,7 +562,7 @@ function renderDailyPlayer(p){
   const addable=canAddDailyPlayer(p);
   return `<div class="daily-player ${unavailable?"out":""}">
     <div>
-      <div class="daily-name"><span class="tier-letter tier-${tierLetter(p.Tier).toLowerCase()}">${esc(tierLetter(p.Tier))}</span>${esc(p.Player_Name)}</div>
+      <div class="daily-name"><span class="tier-letter tier-${tierLetter(p.Tier).toLowerCase()}">${esc(tierLetter(p.Tier))}</span>${esc(p.Player_Name)} ${injuryBadge(p)}</div>
       <div class="daily-metrics">${esc(teamWithFlag(p.Team))} · ${esc(fmtOne(p.EFP_Per_Match))} EFP · ${(toNum(p.Start_Prob)*100).toFixed(0)}% start · <strong>${esc(fmtOne(p.Adjusted_EFP))} adj</strong></div>
       ${p.Notes?`<div class="draft-note">${esc(p.Notes).split(";")[0]}</div>`:""}
     </div>

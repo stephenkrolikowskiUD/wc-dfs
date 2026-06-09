@@ -22,6 +22,7 @@ from WCDraftHelper import (
     canonical_team_name,
     compute_player_efp_rows,
     get_sheet_rows,
+    load_injury_map,
     load_squad_cache,
     normalize_name,
     safe_float,
@@ -49,6 +50,8 @@ DAILY_SLATE_COLUMNS = [
     "Kickoff_Time",
     "Source",
     "Notes",
+    "Injury_Status",
+    "Injury_Reason",
 ]
 
 TEAM_ALIASES = {
@@ -312,6 +315,18 @@ def adjusted_score(efp: float, start_prob: float) -> float:
     return round(efp * start_multiplier(start_prob), 2)
 
 
+def apply_injury_to_start_prob(start_prob: float, injury: dict | None) -> tuple[float, str]:
+    if not injury:
+        return start_prob, ""
+    status = safe_float(injury.get("Status_Score"), 1.0)
+    reason = injury.get("Reason") or injury.get("Injury_Type") or "injury"
+    if status <= 0.0:
+        return 0.05, f"injury out: {reason}"
+    if status < 1.0:
+        return round(start_prob * 0.5, 3), f"injury questionable: {reason}"
+    return start_prob, ""
+
+
 def load_fixtures() -> list[dict]:
     payload = api_get("/fixtures", {"league": API_FOOTBALL_LEAGUE_ID, "season": API_FOOTBALL_SEASON})
     return payload.get("response", []) if isinstance(payload, dict) else []
@@ -397,6 +412,7 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
     games = parse_slate(slate)
     opponent_map = opponent_map_from_games(games)
     players, squad_teams = load_player_pool(games)
+    injuries = load_injury_map()
     fixture_map: dict[str, dict] = {}
     lineup_by_fixture: dict[str, dict[str, str]] = {}
     if mode == "confirmed":
@@ -417,6 +433,10 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
         else:
             start_prob = pre_xi_start_prob(player["Avg_Minutes"])
             start_note = f"pre-XI minutes proxy ({player['Avg_Minutes']:.1f} avg min)"
+        injury = injuries.get(str(player.get("API_Football_ID") or ""))
+        start_prob, injury_start_note = apply_injury_to_start_prob(start_prob, injury)
+        if injury_start_note:
+            start_note = f"{start_note}; {injury_start_note}"
         adjusted = adjusted_score(player["EFP_Per_Match"], start_prob)
         notes = f"{start_note}; {player['Notes']}"
         rows.append(
@@ -433,6 +453,8 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
                 "Kickoff_Time": kickoff,
                 "Source": mode,
                 "Notes": notes,
+                "Injury_Status": safe_float((injury or {}).get("Status_Score"), 1.0) if injury else "",
+                "Injury_Reason": (injury or {}).get("Reason", "") if injury else "",
                 "Intl_Sample": player.get("Intl_Sample", 0),
             }
         )
