@@ -30,7 +30,7 @@ from google.oauth2.service_account import Credentials
 
 
 SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g"
-SHEET_NAME = "Picks"
+PICKS_TAB = "Picks_History"
 API_BASE = "https://v3.football.api-sports.io"
 API_FOOTBALL_LEAGUE_ID = 1
 API_FOOTBALL_SEASON = 2026
@@ -42,6 +42,30 @@ MAX_RETRIES = 3
 MATCH_TIME_TOLERANCE_HOURS = 2
 FIXTURE_CACHE_TTL_SECONDS = 24 * 60 * 60
 EASTERN = pytz.timezone("America/New_York")
+
+PICKS_COLUMNS = [
+    "Player",
+    "Team",
+    "Opponent",
+    "Prop",
+    "Line",
+    "Pick",
+    "Tier",
+    "Confidence",
+    "Reasoning",
+    "Game_Time",
+    "Book",
+    "UD_FP",
+    "Result",
+    "Actual",
+    "Timestamp",
+    "Intl_Sample",
+    "Avg_Shots",
+    "Avg_SOT",
+    "Avg_Tackles",
+    "Goal_Scorer_Rate",
+    "Last_5_Shots",
+]
 
 
 def resolve_cache_dir() -> str:
@@ -482,10 +506,29 @@ def grade_result(actual: float | None, line: float | None, pick: str, prop: Any 
     return "HIT" if actual > line else "MISS"
 
 
+def ensure_picks_worksheet(sh) -> gspread.Worksheet:
+    try:
+        ws = sh.worksheet(PICKS_TAB)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sh.add_worksheet(title=PICKS_TAB, rows=100, cols=len(PICKS_COLUMNS))
+        ws.update("A1", [PICKS_COLUMNS])
+        return ws
+
+    headers = ws.row_values(1)
+    if not headers:
+        ws.update("A1", [PICKS_COLUMNS])
+    else:
+        missing_cols = [col for col in PICKS_COLUMNS if col not in headers]
+        if missing_cols:
+            ws.update("A1", [headers + missing_cols])
+            print(f"✅ Added {PICKS_TAB} columns: {', '.join(missing_cols)}")
+    return ws
+
+
 def load_picks_from_sheet() -> tuple[gspread.Worksheet, list[str], list[dict]]:
     gc = get_gspread_client()
     sh = gc.open_by_key(SHEET_ID)
-    ws = sh.worksheet(SHEET_NAME)
+    ws = ensure_picks_worksheet(sh)
     values = ws.get_all_values()
     if not values:
         return ws, [], []
@@ -561,7 +604,7 @@ def write_results(graded: list[dict]) -> None:
         return
     ws, headers, _ = load_picks_from_sheet()
     if RESULT_COL not in headers or ACTUAL_COL not in headers:
-        raise RuntimeError(f"Missing {RESULT_COL}/{ACTUAL_COL} columns in {SHEET_NAME}")
+        raise RuntimeError(f"Missing {RESULT_COL}/{ACTUAL_COL} columns in {PICKS_TAB}")
     result_col = headers.index(RESULT_COL) + 1
     actual_col = headers.index(ACTUAL_COL) + 1
     updates = []

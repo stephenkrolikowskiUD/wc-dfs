@@ -98,9 +98,10 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
 const SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g";
 const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 const SPORT = "WC";
+const PICKS_TAB = "Picks_Current";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
-const STATS_PLACEHOLDER = "Awaiting grader — picks logged from {first_pick_date}. Grading goes live ~5 days into group stage.";
+const STATS_PLACEHOLDER = "Stats reads from Picks_History — grader populates Result + Actual columns after each WC match completes. Aggregate hit rate / ROI shown here after the first matches finish (June 11 onward).";
 const TEAM_FLAG = {
   "Algeria":"🇩🇿","Argentina":"🇦🇷","Australia":"🇦🇺","Austria":"🇦🇹","Belgium":"🇧🇪","Bosnia Herzegovina":"🇧🇦","Brazil":"🇧🇷","Canada":"🇨🇦","Chile":"🇨🇱","Colombia":"🇨🇴","Costa Rica":"🇨🇷","Croatia":"🇭🇷","Czech Republic":"🇨🇿","Czechia":"🇨🇿","Denmark":"🇩🇰","Ecuador":"🇪🇨","Egypt":"🇪🇬","England":"🏴","France":"🇫🇷","Germany":"🇩🇪","Ghana":"🇬🇭","Greece":"🇬🇷","Iran":"🇮🇷","IR Iran":"🇮🇷","Italy":"🇮🇹","Ivory Coast":"🇨🇮","Cote d'Ivoire":"🇨🇮","Japan":"🇯🇵","Korea Republic":"🇰🇷","South Korea":"🇰🇷","Mexico":"🇲🇽","Morocco":"🇲🇦","Netherlands":"🇳🇱","New Zealand":"🇳🇿","Nigeria":"🇳🇬","Norway":"🇳🇴","Panama":"🇵🇦","Paraguay":"🇵🇾","Peru":"🇵🇪","Poland":"🇵🇱","Portugal":"🇵🇹","Qatar":"🇶🇦","Saudi Arabia":"🇸🇦","Scotland":"🏴","Senegal":"🇸🇳","Serbia":"🇷🇸","Slovakia":"🇸🇰","Slovenia":"🇸🇮","South Africa":"🇿🇦","Spain":"🇪🇸","Sweden":"🇸🇪","Switzerland":"🇨🇭","Tunisia":"🇹🇳","Turkey":"🇹🇷","Türkiye":"🇹🇷","Ukraine":"🇺🇦","United States":"🇺🇸","USA":"🇺🇸","Uruguay":"🇺🇾","Wales":"🏴"
 };
@@ -202,7 +203,7 @@ function hydratePick(row, idx){
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const picks=await fetchSheet("Picks");
+    const picks=await fetchSheet(PICKS_TAB);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
     st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
   }catch(e){
@@ -271,8 +272,8 @@ function renderPicksView(){
     <button class="filter-btn ${st.propFilter==="ALL"?"active":""}" onclick="setPropFilter('ALL')">All</button>
     ${PROP_TYPES.map(p=>`<button class="filter-btn ${st.propFilter===p?"active":""}" onclick="setPropFilter('${p}')">${p} ${counts[p]?`(${counts[p]})`:""}</button>`).join("")}
   </div>
-  ${filtered.length?`<div class="pick-list" style="padding-top:12px">${filtered.map(renderPickCard).join("")}</div>`:`<div class="section"><div class="card"><div class="empty">No World Cup picks yet. Run <strong>WCEnginev1.py</strong> and the Picks tab will populate from Google Sheets.</div></div></div>`}
-  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: Picks</div>`;
+  ${filtered.length?`<div class="pick-list" style="padding-top:12px">${filtered.map(renderPickCard).join("")}</div>`:`<div class="section"><div class="card"><div class="empty">No current World Cup picks yet. Run <strong>WCEnginev1.py</strong> and <strong>Picks_Current</strong> will populate from Google Sheets.</div></div></div>`}
+  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(PICKS_TAB)}</div>`;
 }
 
 function renderStatsView(){
@@ -316,7 +317,7 @@ function renderMethodView(){
     <div class="card">
       <div class="card-title">🌎 How This Dashboard Works</div>
       <div class="small muted" style="line-height:1.7">
-        <strong style="color:var(--accent)">WCEnginev1.py</strong> pulls World Cup fixtures and player props from The Odds API, sends the slate context to Gemini, validates the JSON picks, and writes the 15-column <strong>Picks</strong> sheet. This dashboard reads that sheet through Google Sheets gviz CSV.
+        <strong style="color:var(--accent)">WCEnginev1.py</strong> pulls World Cup fixtures and player props from The Odds API, sends the slate context to Gemini, validates the JSON picks, appends to <strong>Picks_History</strong>, and overwrites <strong>Picks_Current</strong>. This dashboard reads <strong>Picks_Current</strong> through Google Sheets gviz CSV.
       </div>
     </div>
   </div>
@@ -359,7 +360,7 @@ function render(){
     </div>
     <div class="top-nav">${tabs.map(([id,label])=>`<button class="tab-btn ${st.activeTab===id?"active":""}" onclick="switchTab('${id}')">${label}</button>`).join("")}</div>
   </div>
-  ${st.error?`<div class="error">Could not load Picks sheet: ${esc(st.error)}<br/><span class="small">If the engine has not written the tab yet, this is expected.</span></div>`:""}
+  ${st.error?`<div class="error">Could not load ${esc(PICKS_TAB)} sheet: ${esc(st.error)}<br/><span class="small">If the engine has not written the tab yet, this is expected.</span></div>`:""}
   <div class="page ${st.activeTab==="picks"?"active":""}">${renderPicksView()}</div>
   <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
   <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
