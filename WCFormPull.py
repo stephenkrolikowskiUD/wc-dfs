@@ -31,7 +31,7 @@ API_FOOTBALL_SEASON = 2026
 FORM_SEASONS = (2025, 2024)
 REQUEST_TIMEOUT = 15
 MAX_RETRIES = 3
-PLAYER_ID_CACHE_PATH = "player_id_cache.json"
+SQUAD_CACHE_PATH = "squad_cache.json"
 
 TEAM_TO_NATIONALITY = {
     "Argentina": "Argentina",
@@ -86,6 +86,72 @@ TEAM_TO_NATIONALITY = {
     "USA": "United States",
     "Uruguay": "Uruguay",
     "Wales": "Wales",
+}
+
+TEAM_NAME_ALIASES = {
+    "argentina": "argentina",
+    "australia": "australia",
+    "austria": "austria",
+    "belgium": "belgium",
+    "brazil": "brazil",
+    "canada": "canada",
+    "chile": "chile",
+    "colombia": "colombia",
+    "costa rica": "costa rica",
+    "croatia": "croatia",
+    "czech republic": "czechia",
+    "czechia": "czechia",
+    "denmark": "denmark",
+    "ecuador": "ecuador",
+    "egypt": "egypt",
+    "england": "england",
+    "france": "france",
+    "germany": "germany",
+    "ghana": "ghana",
+    "iran": "iran",
+    "ir iran": "iran",
+    "islamic republic of iran": "iran",
+    "italy": "italy",
+    "ivory coast": "cote d ivoire",
+    "cote divoire": "cote d ivoire",
+    "cote d ivoire": "cote d ivoire",
+    "japan": "japan",
+    "korea republic": "south korea",
+    "south korea": "south korea",
+    "republic of korea": "south korea",
+    "mexico": "mexico",
+    "morocco": "morocco",
+    "netherlands": "netherlands",
+    "holland": "netherlands",
+    "new zealand": "new zealand",
+    "nigeria": "nigeria",
+    "norway": "norway",
+    "panama": "panama",
+    "paraguay": "paraguay",
+    "peru": "peru",
+    "poland": "poland",
+    "portugal": "portugal",
+    "qatar": "qatar",
+    "saudi arabia": "saudi arabia",
+    "scotland": "scotland",
+    "senegal": "senegal",
+    "serbia": "serbia",
+    "slovakia": "slovakia",
+    "slovenia": "slovenia",
+    "south africa": "south africa",
+    "spain": "spain",
+    "sweden": "sweden",
+    "switzerland": "switzerland",
+    "tunisia": "tunisia",
+    "turkey": "turkiye",
+    "turkiye": "turkiye",
+    "ukraine": "ukraine",
+    "united states": "usa",
+    "usa": "usa",
+    "us": "usa",
+    "u s a": "usa",
+    "uruguay": "uruguay",
+    "wales": "wales",
 }
 
 INTL_COMPETITION_IDS = {
@@ -190,6 +256,28 @@ def normalize_name(name: Any) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def canonical_team_name(name: Any) -> str:
+    norm = normalize_name(name)
+    return TEAM_NAME_ALIASES.get(norm, norm)
+
+
+def player_last_name(normalized_name: str) -> str:
+    parts = normalized_name.split()
+    return parts[-1] if parts else ""
+
+
+def player_first_initial(normalized_name: str) -> str:
+    parts = normalized_name.split()
+    return parts[0][0] if parts and parts[0] else ""
+
+
+def player_surnames(normalized_name: str) -> set[str]:
+    parts = normalized_name.split()
+    if len(parts) <= 1:
+        return set(parts)
+    return set(parts[1:])
+
+
 def normalize_country(value: Any) -> str:
     country = normalize_name(value)
     aliases = {
@@ -254,15 +342,15 @@ def api_get(path: str, params: dict[str, Any] | None = None, max_retries: int = 
     return {}
 
 
-def load_player_id_cache() -> dict[str, dict]:
-    if not os.path.exists(PLAYER_ID_CACHE_PATH):
+def load_squad_cache() -> dict:
+    if not os.path.exists(SQUAD_CACHE_PATH):
         return {}
-    with open(PLAYER_ID_CACHE_PATH) as f:
+    with open(SQUAD_CACHE_PATH) as f:
         return json.load(f)
 
 
-def save_player_id_cache(cache: dict[str, dict]) -> None:
-    with open(PLAYER_ID_CACHE_PATH, "w") as f:
+def save_squad_cache(cache: dict) -> None:
+    with open(SQUAD_CACHE_PATH, "w") as f:
         json.dump(cache, f, indent=2, sort_keys=True)
 
 
@@ -299,10 +387,11 @@ def players_from_picks_sheet() -> list[dict]:
     return list(players.values())
 
 
-def fetch_wc_squad_players() -> list[dict]:
+def build_squad_cache() -> dict:
+    """Pull all WC team squads and persist the team-scoped player ID cache."""
     teams_payload = api_get("/teams", {"league": API_FOOTBALL_LEAGUE_ID, "season": API_FOOTBALL_SEASON})
     teams = teams_payload.get("response", []) if isinstance(teams_payload, dict) else []
-    players: dict[str, dict] = {}
+    squad_cache: dict[str, dict] = {}
     print(f"🌎 Pulling WC squads for {len(teams)} team(s)")
     for item in teams:
         team = item.get("team", {}) or {}
@@ -310,21 +399,120 @@ def fetch_wc_squad_players() -> list[dict]:
         team_name = team.get("name", "")
         if not team_id:
             continue
+        team_key = canonical_team_name(team_name)
         squad_payload = api_get("/players/squads", {"team": team_id})
+        squad_players = []
         for squad in squad_payload.get("response", []) or []:
             for player in squad.get("players", []) or []:
                 name = player.get("name") or ""
                 if not name:
                     continue
-                key = normalize_name(name)
-                players[key] = {
-                    "name": name,
-                    "team": team_name,
-                    "nationality": team_name,
-                    "api_id": player.get("id"),
-                }
+                squad_players.append(
+                    {
+                        "api_id": player.get("id"),
+                        "name": name,
+                        "name_normalized": normalize_name(name),
+                        "position": player.get("position", ""),
+                    }
+                )
+        squad_cache[team_key] = {
+            "team_id": team_id,
+            "team_name": team_name,
+            "team_name_normalized": team_key,
+            "players": sorted(squad_players, key=lambda p: p.get("name_normalized", "")),
+        }
+        print(f"   {team_name}: {len(squad_players)} player(s)")
         time.sleep(0.2)
+    save_squad_cache(squad_cache)
+    total_players = sum(len(team.get("players", [])) for team in squad_cache.values())
+    print(f"✅ Wrote {SQUAD_CACHE_PATH}: {len(squad_cache)} team(s), {total_players} player(s)")
+    return squad_cache
+
+
+def ensure_squad_cache() -> dict:
+    cache = load_squad_cache()
+    if cache:
+        return cache
+    print(f"ℹ️ {SQUAD_CACHE_PATH} missing — building squad cache first")
+    return build_squad_cache()
+
+
+def fetch_wc_squad_players(squad_cache: dict | None = None) -> list[dict]:
+    cache = squad_cache or ensure_squad_cache()
+    players: dict[str, dict] = {}
+    for team_key, team in cache.items():
+        team_name = team.get("team_name") or team_key
+        for player in team.get("players", []) or []:
+            api_id = player.get("api_id")
+            name = player.get("name") or ""
+            if not api_id or not name:
+                continue
+            key = f"{team_key}:{api_id}"
+            players[key] = {
+                "name": name,
+                "team": team_name,
+                "nationality": team_name,
+                "api_id": api_id,
+                "position": player.get("position", ""),
+            }
     return list(players.values())
+
+
+def squad_player_to_resolved(player: dict, team_name: str) -> dict:
+    return {
+        "id": player.get("api_id"),
+        "name": player.get("name", ""),
+        "nationality": TEAM_TO_NATIONALITY.get(team_name, team_name),
+        "position": player.get("position", ""),
+        "source": "squad_cache",
+    }
+
+
+def resolve_via_squad(player_name: str, team_name: str, squad_cache: dict) -> dict | None:
+    team_key = canonical_team_name(team_name)
+    team = squad_cache.get(team_key)
+    if not team:
+        print(f"   ⚠️ No squad cache team for {team_name} ({team_key})")
+        return None
+
+    target = normalize_name(player_name)
+    target_last = player_last_name(target)
+    target_initial = player_first_initial(target)
+    target_surnames = player_surnames(target)
+    squad_players = team.get("players", []) or []
+
+    exact = [p for p in squad_players if p.get("name_normalized") == target]
+    if len(exact) == 1:
+        return squad_player_to_resolved(exact[0], team.get("team_name", team_name))
+
+    initial_last = []
+    for p in squad_players:
+        cand = p.get("name_normalized", "")
+        cand_last = player_last_name(cand)
+        cand_initial = player_first_initial(cand)
+        if target_surnames and cand_last in target_surnames and target_initial and cand_initial == target_initial:
+            initial_last.append(p)
+    if len(initial_last) == 1:
+        return squad_player_to_resolved(initial_last[0], team.get("team_name", team_name))
+
+    last_matches = [p for p in squad_players if target_last and player_last_name(p.get("name_normalized", "")) == target_last]
+    if len(last_matches) == 1:
+        return squad_player_to_resolved(last_matches[0], team.get("team_name", team_name))
+
+    substring_matches = [
+        p
+        for p in squad_players
+        if target_last and target_last in p.get("name_normalized", "").split()
+    ]
+    if len(substring_matches) == 1:
+        return squad_player_to_resolved(substring_matches[0], team.get("team_name", team_name))
+
+    if len(initial_last) > 1 or len(last_matches) > 1 or len(substring_matches) > 1:
+        choices = sorted({p.get("name", "") for p in (initial_last or last_matches or substring_matches)})
+        print(f"   ⚠️ Ambiguous squad match for {player_name} ({team_name}): {', '.join(choices)}")
+    else:
+        print(f"   ⚠️ No squad match for {player_name} ({team_name})")
+    return None
 
 
 def candidate_name_score(candidate: dict, player_name: str) -> float:
@@ -349,25 +537,26 @@ def candidate_name_score(candidate: dict, player_name: str) -> float:
     return score
 
 
-def resolve_player_id(player: dict, cache: dict[str, dict]) -> dict | None:
-    key = normalize_name(player.get("name", ""))
+def resolve_player_id(player: dict, squad_cache: dict) -> dict | None:
     expected_nationality = expected_nationality_for_player(player)
-    if key in cache and nationality_matches(cache[key], expected_nationality):
-        return cache[key]
-    if key in cache:
-        print(
-            f"   ⚠️ Ignoring cached player mismatch for {player.get('name')}: "
-            f"cached nationality={cache[key].get('nationality')} expected={expected_nationality}"
-        )
-        cache.pop(key, None)
 
     if player.get("api_id"):
-        cache[key] = {
+        return {
             "id": player["api_id"],
             "name": player.get("name", ""),
             "nationality": expected_nationality or player.get("nationality", ""),
+            "position": player.get("position", ""),
+            "source": "direct_api_id",
         }
-        return cache[key]
+
+    squad_match = resolve_via_squad(str(player.get("name", "")), str(player.get("team", "")), squad_cache)
+    if squad_match:
+        return squad_match
+
+    print(
+        f"   ⚠️ Player '{player.get('name')}' not found in {player.get('team')} squad cache, "
+        "falling back to name search"
+    )
 
     search_name = str(player.get("name", "")).strip()
     lastname = search_name.split()[-1] if search_name else ""
@@ -400,12 +589,12 @@ def resolve_player_id(player: dict, cache: dict[str, dict]) -> dict | None:
             f"({expected_nationality}): {best.get('name')} score={best_score:.1f}"
         )
         return None
-    cache[key] = {
+    return {
         "id": best.get("id"),
         "name": best.get("name") or search_name,
         "nationality": best.get("nationality") or expected_nationality,
+        "source": "name_search",
     }
-    return cache[key]
 
 
 def stat_num(container: dict, *path: str) -> float:
@@ -505,7 +694,10 @@ def verify_international_leagues() -> None:
 
 
 def run(args: argparse.Namespace) -> list[dict]:
-    cache = load_player_id_cache()
+    if args.build_squads:
+        build_squad_cache()
+        return []
+
     if args.clear_form and not args.all and not args.picks_only and not args.verify_leagues:
         if args.dry_run:
             print("🧪 Dry run — would clear Player_Form")
@@ -521,22 +713,26 @@ def run(args: argparse.Namespace) -> list[dict]:
     if not args.dry_run:
         clear_player_form_sheet()
 
-    players = fetch_wc_squad_players() if args.all else players_from_picks_sheet()
+    squad_cache = ensure_squad_cache()
+    players = fetch_wc_squad_players(squad_cache) if args.all else players_from_picks_sheet()
     print(f"📋 Form candidates: {len(players)}")
     rows = []
+    fallback_count = 0
     for idx, player in enumerate(players, start=1):
-        resolved = resolve_player_id(player, cache)
+        resolved = resolve_player_id(player, squad_cache)
         if not resolved or not resolved.get("id"):
             continue
+        if resolved.get("source") == "name_search":
+            fallback_count += 1
         try:
             rows.append(summarize_form(player, resolved))
         except Exception as e:
             print(f"   ⚠️ Form pull failed for {player.get('name')}: {e}")
         if idx % 25 == 0:
             print(f"   Processed {idx}/{len(players)} players")
-            save_player_id_cache(cache)
-    save_player_id_cache(cache)
     rows = sorted(rows, key=lambda r: normalize_name(r.get("Player_Name", "")))
+    if players:
+        print(f"🔎 Name-search fallback usage: {fallback_count}/{len(players)} player(s)")
     if args.dry_run:
         print(f"🧪 Dry run — would write {len(rows)} rows")
         if rows:
@@ -549,14 +745,15 @@ def run(args: argparse.Namespace) -> list[dict]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Pull World Cup player international form")
     mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--build-squads", action="store_true", help="Build squad_cache.json and exit.")
     mode.add_argument("--all", action="store_true", help="Pull all WC squad players.")
     mode.add_argument("--picks-only", action="store_true", help="Pull only players currently present in Picks.")
     parser.add_argument("--verify-leagues", action="store_true", help="Print World-country league ids for audit.")
     parser.add_argument("--clear-form", action="store_true", help="Clear Player_Form to headers only.")
     parser.add_argument("--dry-run", action="store_true", help="Do not write Player_Form.")
     args = parser.parse_args()
-    if not args.verify_leagues and not args.all and not args.picks_only and not args.clear_form:
-        parser.error("one of --all, --picks-only, --verify-leagues, or --clear-form is required")
+    if not args.verify_leagues and not args.build_squads and not args.all and not args.picks_only and not args.clear_form:
+        parser.error("one of --build-squads, --all, --picks-only, --verify-leagues, or --clear-form is required")
     return args
 
 
