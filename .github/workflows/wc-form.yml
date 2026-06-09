@@ -5,6 +5,15 @@ on:
     # Daily during tournament window; refreshes only players already present in Picks.
     - cron: '30 9 * * *'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Pull mode'
+        required: true
+        default: 'picks-only'
+        type: choice
+        options:
+          - picks-only
+          - all
 
 jobs:
   run-world-cup-form:
@@ -23,4 +32,6 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
-        run: python WCFormPull.py --picks-only
+        run: |
+          MODE="${{ github.event.inputs.mode || 'picks-only' }}"
+          python -u WCFormPull.py --$MODE
