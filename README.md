@@ -25,7 +25,7 @@ It sends those fixtures and props to Gemini, validates the returned picks, and w
 
 `WCGrader_v1.py` grades completed picks using API-Football fixture/player stats and writes only the `Result` and `Actual` columns.
 
-`WCFormPull.py` pulls recent international form from API-Football, writes a `Player_Form` tab, and maintains a local `player_id_cache.json` so Odds API/Gemini player names can be matched to API-Football player IDs repeatably. The resolver is nationality-gated so a player is skipped rather than matched to the wrong human. The engine reads that form tab before calling Gemini and appends per-pick form fields for dashboard badges.
+`WCFormPull.py` pulls recent international form from API-Football, writes a `Player_Form` tab, and maintains a local `squad_cache.json` from the official World Cup squad endpoint. Picks are resolved inside that player's national-team roster first, which avoids global name-search collisions. The old global search path is kept only as a loud fallback. The engine reads the form tab before calling Gemini and appends per-pick form fields for dashboard badges.
 
 ## Sheet
 
@@ -79,7 +79,15 @@ Pull form data for current picks only:
 API_FOOTBALL_KEY=... GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCFormPull.py --picks-only
 ```
 
-Build the full World Cup squad form tab and committed player-ID cache:
+Build or refresh the World Cup squad cache:
+
+```bash
+API_FOOTBALL_KEY=... python3 WCFormPull.py --build-squads
+```
+
+In GitHub Actions, choose `mode=build-squads`; the workflow commits `squad_cache.json` back to the repo when it changes.
+
+Build the full World Cup squad form tab from the squad cache:
 
 ```bash
 API_FOOTBALL_KEY=... GOOGLE_SERVICE_ACCOUNT_JSON=... python3 WCFormPull.py --all
