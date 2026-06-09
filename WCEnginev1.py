@@ -24,6 +24,7 @@ from google.oauth2.service_account import Credentials
 SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g"
 PICKS_HISTORY_SHEET_NAME = "Picks_History"
 PICKS_CURRENT_SHEET_NAME = "Picks_Current"
+INJURY_SHEET_NAME = "Player_Injuries"
 ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
 PROP_MARKETS_STANDARD = [
     "player_shots",
@@ -79,6 +80,8 @@ PICKS_COLUMNS = [
     "Avg_Tackles",
     "Goal_Scorer_Rate",
     "Last_5_Shots",
+    "Injury_Status",
+    "Injury_Reason",
 ]
 
 TIER_NAMES = {"SMASH", "STRONG", "LEAN"}
@@ -180,6 +183,7 @@ RULES:
 - Do not invent players, teams, opponents, books, prop types, or lines.
 - For each prop, you have the current sportsbook line and may have form_context with last 24 months of international form.
 - Weight form_context heavily when present. When form_context is null, note "limited data" in reasoning and lower confidence accordingly.
+- Injury status is provided when known. Downgrade or avoid players with injury_status below 1.0 unless the price and role still justify the risk. Mention injury uncertainty in the rationale.
 
 AVAILABLE FIXTURES:
 {fixtures_json}
@@ -642,6 +646,10 @@ def collapse_props_for_prompt(props):
                 "over_odds": "",
                 "under_odds": "",
                 "form_context": row.get("form_context"),
+                "api_football_id": row.get("api_football_id", ""),
+                "injury_status": row.get("injury_status", 1.0),
+                "injury_type": row.get("injury_type", ""),
+                "injury_reason": row.get("injury_reason", ""),
             },
         )
         if row.get("lean") == "Over":
@@ -675,6 +683,32 @@ def load_player_form_sheet():
             form_data["by_id"][api_id] = row
     print(f"✅ Loaded Player_Form for {len(form_data['by_name'])} player(s)")
     return form_data
+
+
+def load_injury_map():
+    try:
+        gc = get_gspread_client()
+        sh = gc.open_by_key(SHEET_ID)
+        ws = sh.worksheet(INJURY_SHEET_NAME)
+        values = ws.get_all_values()
+    except Exception as e:
+        print(f"⚠️ {INJURY_SHEET_NAME} unavailable — injury enrichment skipped: {e}")
+        return {}
+    if not values:
+        return {}
+    headers = values[0]
+    injuries = {}
+    for vals in values[1:]:
+        row = {headers[i]: vals[i] if i < len(vals) else "" for i in range(len(headers))}
+        api_id = str(row.get("API_Football_ID", "")).strip()
+        if not api_id:
+            continue
+        status = safe_float(row.get("Status_Score"), 1.0)
+        current = injuries.get(api_id)
+        if current is None or status < safe_float(current.get("Status_Score"), 1.0):
+            injuries[api_id] = row
+    print(f"✅ Loaded injury status for {len(injuries)} player(s)")
+    return injuries
 
 
 def load_squad_cache():
@@ -788,6 +822,7 @@ def enrich_with_form(prop_rows):
     """For each prop row, add player_form context if available."""
     form_data = load_player_form_sheet()
     squad_cache = load_squad_cache()
+    injuries = load_injury_map()
     enriched = []
     matched = 0
     matched_by = {"name": 0, "squad_id": 0, "squad_name": 0}
@@ -797,7 +832,16 @@ def enrich_with_form(prop_rows):
         if form:
             matched += 1
             matched_by[source] = matched_by.get(source, 0) + 1
+        api_id = str((form or {}).get("API_Football_ID", "")).strip()
+        if not api_id:
+            resolved = resolve_player_from_fixture_squads(row, squad_cache)
+            api_id = str((resolved or {}).get("id", "")).strip()
+        injury = injuries.get(api_id, {}) if api_id else {}
         out["form_context"] = form_context_from_row(form) if form else None
+        out["api_football_id"] = api_id
+        out["injury_status"] = safe_float(injury.get("Status_Score"), 1.0) if injury else 1.0
+        out["injury_type"] = injury.get("Injury_Type", "") if injury else ""
+        out["injury_reason"] = injury.get("Reason", "") if injury else ""
         enriched.append(out)
     print(
         "✅ Form enrichment matched "
@@ -912,6 +956,7 @@ def validate_and_format_picks(raw_picks, fixtures, props):
             confidence = 5
         confidence = max(1, min(10, confidence))
         form_context = prop_row.get("form_context") or {}
+        injury_status = safe_float(prop_row.get("injury_status"), 1.0)
         rows.append(
             {
                 "Player": player,
@@ -935,6 +980,8 @@ def validate_and_format_picks(raw_picks, fixtures, props):
                 "Avg_Tackles": form_context.get("avg_tackles", ""),
                 "Goal_Scorer_Rate": form_context.get("goal_scorer_rate", ""),
                 "Last_5_Shots": form_context.get("last_5_shots", ""),
+                "Injury_Status": injury_status if injury_status < 1.0 else "",
+                "Injury_Reason": prop_row.get("injury_reason", ""),
             }
         )
     for rank, row in enumerate(rows, start=1):
