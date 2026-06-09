@@ -86,6 +86,65 @@ EASTERN = pytz.timezone("America/New_York")
 ODDS_API_BASE = "https://api.the-odds-api.com/v4"
 REQUEST_TIMEOUT = 20
 MAX_API_RETRIES = 3
+SQUAD_CACHE_PATH = "squad_cache.json"
+
+TEAM_NAME_ALIASES = {
+    "argentina": "argentina",
+    "australia": "australia",
+    "austria": "austria",
+    "belgium": "belgium",
+    "brazil": "brazil",
+    "canada": "canada",
+    "chile": "chile",
+    "colombia": "colombia",
+    "costa rica": "costa rica",
+    "croatia": "croatia",
+    "denmark": "denmark",
+    "ecuador": "ecuador",
+    "egypt": "egypt",
+    "england": "england",
+    "france": "france",
+    "germany": "germany",
+    "ghana": "ghana",
+    "iran": "iran",
+    "ir iran": "iran",
+    "italy": "italy",
+    "japan": "japan",
+    "korea republic": "south korea",
+    "south korea": "south korea",
+    "republic of korea": "south korea",
+    "mexico": "mexico",
+    "morocco": "morocco",
+    "netherlands": "netherlands",
+    "holland": "netherlands",
+    "new zealand": "new zealand",
+    "nigeria": "nigeria",
+    "norway": "norway",
+    "panama": "panama",
+    "paraguay": "paraguay",
+    "peru": "peru",
+    "poland": "poland",
+    "portugal": "portugal",
+    "qatar": "qatar",
+    "saudi arabia": "saudi arabia",
+    "scotland": "scotland",
+    "senegal": "senegal",
+    "serbia": "serbia",
+    "south africa": "south africa",
+    "spain": "spain",
+    "sweden": "sweden",
+    "switzerland": "switzerland",
+    "tunisia": "tunisia",
+    "turkey": "turkiye",
+    "turkiye": "turkiye",
+    "ukraine": "ukraine",
+    "united states": "usa",
+    "usa": "usa",
+    "us": "usa",
+    "u s a": "usa",
+    "uruguay": "uruguay",
+    "wales": "wales",
+}
 
 
 WC_PROMPT_V1 = """
@@ -207,6 +266,28 @@ def normalize_player_name(name):
     text = re.sub(r"[’'`\.]", "", text)
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def canonical_team_name(name):
+    norm = normalize_player_name(name)
+    return TEAM_NAME_ALIASES.get(norm, norm)
+
+
+def player_last_name(normalized_name):
+    parts = normalized_name.split()
+    return parts[-1] if parts else ""
+
+
+def player_first_initial(normalized_name):
+    parts = normalized_name.split()
+    return parts[0][0] if parts and parts[0] else ""
+
+
+def player_surnames(normalized_name):
+    parts = normalized_name.split()
+    if len(parts) <= 1:
+        return set(parts)
+    return set(parts[1:])
 
 
 def normalize_prop(prop):
@@ -500,15 +581,112 @@ def load_player_form_sheet():
     if not values:
         return {}
     headers = values[0]
-    form_data = {}
+    form_data = {"by_name": {}, "by_id": {}}
     for vals in values[1:]:
         row = {headers[i]: vals[i] if i < len(vals) else "" for i in range(len(headers))}
         name = row.get("Player_Name", "")
         if not name:
             continue
-        form_data[normalize_player_name(name)] = row
-    print(f"✅ Loaded Player_Form for {len(form_data)} player(s)")
+        form_data["by_name"][normalize_player_name(name)] = row
+        api_id = str(row.get("API_Football_ID", "")).strip()
+        if api_id:
+            form_data["by_id"][api_id] = row
+    print(f"✅ Loaded Player_Form for {len(form_data['by_name'])} player(s)")
     return form_data
+
+
+def load_squad_cache():
+    try:
+        with open(SQUAD_CACHE_PATH) as f:
+            cache = json.load(f)
+    except Exception as e:
+        print(f"⚠️ {SQUAD_CACHE_PATH} unavailable — form join will use exact names only: {e}")
+        return {}
+    total_players = sum(len(team.get("players", [])) for team in cache.values())
+    print(f"✅ Loaded {SQUAD_CACHE_PATH}: {len(cache)} team(s), {total_players} player(s)")
+    return cache
+
+
+def squad_player_to_resolved(player, team_name):
+    return {
+        "id": str(player.get("api_id", "")).strip(),
+        "name": player.get("name", ""),
+        "team": team_name,
+    }
+
+
+def resolve_player_from_team_squad(player_name, team_name, squad_cache):
+    team_key = canonical_team_name(team_name)
+    team = squad_cache.get(team_key)
+    if not team:
+        return None
+
+    target = normalize_player_name(player_name)
+    target_last = player_last_name(target)
+    target_initial = player_first_initial(target)
+    target_surnames = player_surnames(target)
+    squad_players = team.get("players", []) or []
+
+    exact = [p for p in squad_players if p.get("name_normalized") == target]
+    if len(exact) == 1:
+        return squad_player_to_resolved(exact[0], team.get("team_name", team_name))
+
+    initial_last = []
+    for p in squad_players:
+        cand = p.get("name_normalized", "")
+        cand_last = player_last_name(cand)
+        cand_initial = player_first_initial(cand)
+        if target_surnames and cand_last in target_surnames and target_initial and cand_initial == target_initial:
+            initial_last.append(p)
+    if len(initial_last) == 1:
+        return squad_player_to_resolved(initial_last[0], team.get("team_name", team_name))
+
+    last_matches = [p for p in squad_players if target_last and player_last_name(p.get("name_normalized", "")) == target_last]
+    if len(last_matches) == 1:
+        return squad_player_to_resolved(last_matches[0], team.get("team_name", team_name))
+
+    substring_matches = [
+        p
+        for p in squad_players
+        if target_last and target_last in p.get("name_normalized", "").split()
+    ]
+    if len(substring_matches) == 1:
+        return squad_player_to_resolved(substring_matches[0], team.get("team_name", team_name))
+    return None
+
+
+def resolve_player_from_fixture_squads(row, squad_cache):
+    player_name = row.get("player", "")
+    teams = [row.get("home_team", ""), row.get("away_team", "")]
+    matches = []
+    for team_name in teams:
+        resolved = resolve_player_from_team_squad(player_name, team_name, squad_cache)
+        if resolved and resolved.get("id"):
+            matches.append(resolved)
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        choices = ", ".join(f"{m.get('name')} ({m.get('team')})" for m in matches)
+        print(f"   ⚠️ Ambiguous squad form match for {player_name}: {choices}")
+    return None
+
+
+def find_form_for_prop(row, form_data, squad_cache):
+    player_key = normalize_player_name(row.get("player", ""))
+    form = form_data.get("by_name", {}).get(player_key)
+    if form:
+        return form, "name"
+
+    resolved = resolve_player_from_fixture_squads(row, squad_cache)
+    if resolved:
+        form = form_data.get("by_id", {}).get(resolved.get("id", ""))
+        if form:
+            return form, "squad_id"
+        canonical_name = normalize_player_name(resolved.get("name", ""))
+        form = form_data.get("by_name", {}).get(canonical_name)
+        if form:
+            return form, "squad_name"
+    return None, None
 
 
 def form_context_from_row(form):
@@ -527,12 +705,24 @@ def form_context_from_row(form):
 def enrich_with_form(prop_rows):
     """For each prop row, add player_form context if available."""
     form_data = load_player_form_sheet()
+    squad_cache = load_squad_cache()
     enriched = []
+    matched = 0
+    matched_by = {"name": 0, "squad_id": 0, "squad_name": 0}
     for row in prop_rows:
         out = dict(row)
-        form = form_data.get(normalize_player_name(row.get("player", "")))
+        form, source = find_form_for_prop(row, form_data, squad_cache)
+        if form:
+            matched += 1
+            matched_by[source] = matched_by.get(source, 0) + 1
         out["form_context"] = form_context_from_row(form) if form else None
         enriched.append(out)
+    print(
+        "✅ Form enrichment matched "
+        f"{matched}/{len(prop_rows)} prop rows "
+        f"(name={matched_by.get('name', 0)}, squad_id={matched_by.get('squad_id', 0)}, "
+        f"squad_name={matched_by.get('squad_name', 0)})"
+    )
     return enriched
 
 
