@@ -363,7 +363,7 @@ def compute_efp_per_match(form_row: dict, position: str) -> tuple[float, str]:
     if position == "G":
         # Player_Form does not yet include saves, wins, clean sheets, or goals conceded.
         efp = 4.0
-        note = "GK baseline estimate; v1 excludes saves, wins, goals conceded, and clean sheets"
+        note = "GK tie-break: ranked by intl caps (EFP stubbed pending v1.1); v1 excludes saves, wins, goals conceded, and clean sheets"
         return round(efp, 2), note
 
     assist_proxy = goals * 0.5
@@ -510,11 +510,11 @@ def auto_lineup_score(players: list[dict], period_multiplier: float) -> float:
     used: set[int] = set()
 
     def take_best(pos: str, count: int = 1) -> list[dict]:
-        pool = sorted(
-            [(idx, p) for idx, p in enumerate(players) if p.get("position") == pos and idx not in used],
-            key=lambda item: item[1]["efp"],
-            reverse=True,
-        )
+        pool = [(idx, p) for idx, p in enumerate(players) if p.get("position") == pos and idx not in used]
+        if pos == "G":
+            pool = sorted(pool, key=lambda item: gk_sort_key(item[1]))
+        else:
+            pool = sorted(pool, key=lambda item: item[1]["efp"], reverse=True)
         chosen = []
         for idx, player in pool[:count]:
             used.add(idx)
@@ -589,20 +589,29 @@ def sorted_candidates(candidates: list[dict], rng: random.Random) -> list[dict]:
     return sorted(candidates, key=lambda p: p["etfp"] * rng.uniform(0.92, 1.08), reverse=True)
 
 
+def gk_sort_key(player: dict) -> tuple:
+    """
+    Goalkeepers are on a stubbed EFP baseline in v1.
+    Break ties by international sample so likely #1 keepers beat backups.
+    """
+    return (-player["efp"], -player.get("sample", 0), -player.get("expected_matches", 0), player.get("player", ""))
+
+
 def build_greedy_roster(candidates: list[dict], seed: int) -> list[dict]:
     rng = random.Random(seed)
     ordered = sorted_candidates(candidates, rng)
+    gk_ordered = sorted([c for c in candidates if c.get("position") == "G"], key=gk_sort_key)
     roster: list[dict] = []
 
-    def add_best(predicate, count: int) -> None:
+    def add_best(predicate, count: int, pool: list[dict] | None = None) -> None:
         nonlocal roster
-        for cand in ordered:
+        for cand in pool or ordered:
             if len([p for p in roster if predicate(p)]) >= count:
                 return
             if predicate(cand) and can_add_player(roster, cand):
                 roster.append(cand)
 
-    add_best(lambda p: p["position"] == "G", 1)
+    add_best(lambda p: p["position"] == "G", 1, gk_ordered)
     add_best(lambda p: p["position"] == "D", 1)
     add_best(lambda p: p["position"] == "MD", 1)
     add_best(lambda p: p["position"] == "FW", 2)
@@ -680,10 +689,14 @@ def assign_slots(roster: list[dict]) -> list[tuple[str, dict]]:
     assigned: list[tuple[str, dict]] = []
 
     def pop_best(pos: str) -> dict | None:
-        for idx, player in enumerate(remaining):
-            if player["position"] == pos:
-                return remaining.pop(idx)
-        return None
+        matches = [(idx, player) for idx, player in enumerate(remaining) if player["position"] == pos]
+        if not matches:
+            return None
+        if pos == "G":
+            idx, _ = min(matches, key=lambda item: gk_sort_key(item[1]))
+        else:
+            idx, _ = max(matches, key=lambda item: item[1]["efp"])
+        return remaining.pop(idx)
 
     for slot, pos in [("G", "G"), ("D", "D"), ("MD", "MD"), ("FW", "FW"), ("FW", "FW")]:
         player = pop_best(pos)
