@@ -67,6 +67,16 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .entry-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.16)}
 .entry-row:last-child{border-bottom:none}
 .entry-player{font-weight:1000;word-break:break-word;overflow-wrap:anywhere}
+.draft-grid{display:grid;gap:12px}
+.draft-rec{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.draft-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.draft-total{font-size:22px;font-weight:1000;color:var(--wc-gold);line-height:1}
+.draft-player{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;padding:9px 0;border-top:1px solid rgba(148,163,184,.16)}
+.slot-badge{min-width:52px;text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 6px;color:var(--accent);font-size:10px;font-weight:1000}
+.draft-name{font-size:12px;font-weight:1000;line-height:1.2;word-break:break-word;overflow-wrap:anywhere}
+.draft-meta{font-size:10px;color:var(--muted);margin-top:2px;font-weight:800}
+.draft-etfp{text-align:right;font-weight:1000;color:var(--accent2);font-size:12px}
+.draft-note{font-size:9px;color:var(--muted);line-height:1.35;margin-top:3px}
 .timestamp{text-align:center;color:var(--muted);font-size:10px;padding:18px 12px}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:11px;min-width:440px}
@@ -85,6 +95,7 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
   .pick-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 32px}
   .pick-card{margin:0}
   .stats-row{grid-template-columns:repeat(4,160px)}
+  .draft-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(min-width:1200px){.pick-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
@@ -99,6 +110,7 @@ const SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g";
 const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 const SPORT = "WC";
 const PICKS_TAB = "Picks_Current";
+const DRAFT_TAB = "Draft_Recommendations";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
 const STATS_PLACEHOLDER = "Stats reads from Picks_History — grader populates Result + Actual columns after each WC match completes. Aggregate hit rate / ROI shown here after the first matches finish (June 11 onward).";
@@ -108,6 +120,7 @@ const TEAM_FLAG = {
 
 const st = {
   picks: [],
+  draftRecommendations: [],
   activeTab: "picks",
   propFilter: "ALL",
   selectedGame: "",
@@ -200,15 +213,34 @@ function hydratePick(row, idx){
   };
 }
 
+function hydrateDraftRow(row){
+  return {
+    Recommendation_Rank: row.Recommendation_Rank || "",
+    Slot: row.Slot || "",
+    Player: row.Player || "",
+    Team: row.Team || "",
+    Position: row.Position || "",
+    EFP_Per_Match: row.EFP_Per_Match || "",
+    Expected_Matches: row.Expected_Matches || "",
+    ETFP: row.ETFP || "",
+    Notes: row.Notes || "",
+  };
+}
+
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const picks=await fetchSheet(PICKS_TAB);
+    const [picks,draft]=await Promise.all([
+      fetchSheet(PICKS_TAB),
+      fetchSheet(DRAFT_TAB).catch(()=>[])
+    ]);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
+    st.draftRecommendations=draft.map(hydrateDraftRow).filter(r=>r.Player);
     st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
   }catch(e){
     st.error=e.message||String(e);
     st.picks=[];
+    st.draftRecommendations=[];
   }finally{
     st.loading=false;render();
   }
@@ -294,6 +326,70 @@ function renderStatsView(){
   </div>`;
 }
 
+function groupDraftRecommendations(){
+  const groups=new Map();
+  st.draftRecommendations.forEach(row=>{
+    const rank=String(row.Recommendation_Rank||"").trim()||"1";
+    if(!groups.has(rank))groups.set(rank,[]);
+    groups.get(rank).push(row);
+  });
+  return [...groups.entries()]
+    .sort((a,b)=>Number(a[0])-Number(b[0]))
+    .map(([rank,rows])=>({rank,rows}));
+}
+
+function draftTotal(rows){
+  return rows.reduce((sum,row)=>sum+toNum(row.ETFP),0);
+}
+
+function draftBreakdown(rows){
+  const pos={G:0,D:0,MD:0,FW:0};
+  const teams={};
+  rows.forEach(r=>{
+    if(pos[r.Position]!==undefined)pos[r.Position]++;
+    teams[r.Team]=(teams[r.Team]||0)+1;
+  });
+  const topTeams=Object.entries(teams).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([team,n])=>`${n} ${team}`).join(", ");
+  return `${pos.G}G / ${pos.D}D / ${pos.MD}MD / ${pos.FW}FW${topTeams?` · ${topTeams}`:""}`;
+}
+
+function renderDraftPlayer(row){
+  return `<div class="draft-player">
+    <div class="slot-badge">${esc(row.Slot||row.Position||"")}</div>
+    <div>
+      <div class="draft-name">${esc(row.Player)}</div>
+      <div class="draft-meta">${esc(teamWithFlag(row.Team))} · ${esc(row.Position||"—")} · ${esc(fmtOne(row.EFP_Per_Match))} EFP × ${esc(fmtOne(row.Expected_Matches))} matches</div>
+      ${row.Notes?`<div class="draft-note">${esc(row.Notes).split(";")[0]}</div>`:""}
+    </div>
+    <div class="draft-etfp">${esc(fmtOne(row.ETFP))}</div>
+  </div>`;
+}
+
+function renderDraftView(){
+  const groups=groupDraftRecommendations();
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">🏆 UD World Pup Draft Helper</div>
+      <div class="small muted" style="line-height:1.6">Season-long roster guidance using Player_Form-derived EFP, team survival estimates, and Underdog auto-allocation rules. v1 projections exclude assists, crosses, passes, saves, and clean-sheet detail.</div>
+    </div>
+  </div>
+  ${groups.length?`<div class="section"><div class="draft-grid">${groups.map(group=>`
+    <div class="draft-rec">
+      <div class="draft-head">
+        <div>
+          <div class="card-title">Recommendation #${esc(group.rank)}</div>
+          <div class="small muted">${esc(draftBreakdown(group.rows))}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="draft-total">${fmtOne(draftTotal(group.rows))}</div>
+          <div class="tiny muted">ETFP</div>
+        </div>
+      </div>
+      ${group.rows.map(renderDraftPlayer).join("")}
+    </div>`).join("")}</div></div>`:`<div class="section"><div class="card"><div class="empty">Draft recommendations are not populated yet. Run <strong>WCDraftHelper.py</strong> to create <strong>${esc(DRAFT_TAB)}</strong>.</div></div></div>`}
+  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(DRAFT_TAB)}</div>`;
+}
+
 function renderEntryView(){
   const games=getGames();
   const selected=games.find(g=>g.id===st.selectedGame)||games[0];
@@ -349,6 +445,7 @@ function render(){
   app.className="";
   const tabs=[
     ["picks","⚽ Picks"],
+    ["draft","🏆 Draft"],
     ["stats","📊 Stats"],
     ["entry","📋 Game Entry"],
     ["method","ℹ️ Info"],
@@ -362,6 +459,7 @@ function render(){
   </div>
   ${st.error?`<div class="error">Could not load ${esc(PICKS_TAB)} sheet: ${esc(st.error)}<br/><span class="small">If the engine has not written the tab yet, this is expected.</span></div>`:""}
   <div class="page ${st.activeTab==="picks"?"active":""}">${renderPicksView()}</div>
+  <div class="page ${st.activeTab==="draft"?"active":""}">${renderDraftView()}</div>
   <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
   <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
   <div class="page ${st.activeTab==="method"?"active":""}">${renderMethodView()}</div>
