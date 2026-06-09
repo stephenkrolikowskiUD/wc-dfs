@@ -33,12 +33,15 @@ ROSTER_SIZE = 12
 MAX_PLAYERS_PER_TEAM = 4
 DEFAULT_SIMULATIONS = 1000
 DEFAULT_RANDOM_SEEDS = 8
+EFP_REGRESSION_K = 10
 
 EFP_COLUMNS = [
     "Player_Name",
     "API_Football_ID",
     "Team",
     "Position",
+    "EFP_Raw",
+    "EFP_Regressed",
     "EFP_Per_Match",
     "Intl_Sample",
     "Notes",
@@ -382,26 +385,65 @@ def compute_efp_per_match(form_row: dict, position: str) -> tuple[float, str]:
     return round(max(efp, 0.0), 2), "; ".join(notes)
 
 
+def regressed_efp(raw_efp: float, sample_size: int, position_mean: float) -> tuple[float, float]:
+    if sample_size <= 0:
+        return round(position_mean, 2), 0.0
+    weight = sample_size / (sample_size + EFP_REGRESSION_K)
+    regressed = weight * raw_efp + (1 - weight) * position_mean
+    return round(regressed, 2), weight
+
+
+def compute_position_means(rows: list[dict]) -> dict[str, float]:
+    means = {}
+    all_by_pos: dict[str, list[float]] = {}
+    reliable_by_pos: dict[str, list[float]] = {}
+    for row in rows:
+        pos = row.get("Position", "")
+        raw = safe_float(row.get("EFP_Raw"))
+        if pos not in {"G", "D", "MD", "FW"}:
+            continue
+        all_by_pos.setdefault(pos, []).append(raw)
+        if safe_float(row.get("Intl_Sample")) >= 10:
+            reliable_by_pos.setdefault(pos, []).append(raw)
+    for pos, values in all_by_pos.items():
+        source = reliable_by_pos.get(pos) or values
+        means[pos] = sum(source) / len(source) if source else 0.0
+    return means
+
+
 def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict]) -> list[dict]:
-    rows = []
+    raw_rows = []
     for row in form_rows:
         api_id = str(row.get("API_Football_ID") or "").strip()
         squad = squad_by_id.get(api_id, {})
         team = squad.get("Team") or row.get("Team") or row.get("Nationality") or ""
         position = squad.get("Position") or position_code(row.get("Position", "")) or infer_position_from_form(row)
-        efp, notes = compute_efp_per_match(row, position)
-        rows.append(
+        raw_efp, notes = compute_efp_per_match(row, position)
+        raw_rows.append(
             {
                 "Player_Name": row.get("Player_Name", ""),
                 "API_Football_ID": api_id,
                 "Team": team,
                 "Position": position,
-                "EFP_Per_Match": efp,
+                "EFP_Raw": raw_efp,
+                "EFP_Regressed": raw_efp,
+                "EFP_Per_Match": raw_efp,
                 "Intl_Sample": int(safe_float(row.get("Intl_Matches_Last_24mo"))),
                 "Notes": notes,
             }
         )
-    rows = [r for r in rows if r["Player_Name"]]
+    rows = [r for r in raw_rows if r["Player_Name"]]
+    position_means = compute_position_means(rows)
+    for row in rows:
+        pos = row.get("Position", "")
+        sample = int(safe_float(row.get("Intl_Sample")))
+        raw = safe_float(row.get("EFP_Raw"))
+        mean = position_means.get(pos, raw)
+        regressed, weight = regressed_efp(raw, sample, mean)
+        row["EFP_Regressed"] = regressed
+        row["EFP_Per_Match"] = regressed
+        regression_note = f"EFP regressed: {sample} caps -> {round(weight * 100)}% observed weight"
+        row["Notes"] = f"{row.get('Notes', '')}; {regression_note}" if row.get("Notes") else regression_note
     return sorted(rows, key=lambda r: (canonical_team_name(r.get("Team", "")), r.get("Position", ""), -safe_float(r.get("EFP_Per_Match"))))
 
 
@@ -446,13 +488,15 @@ def team_survival_map(survival_rows: list[dict]) -> dict[str, float]:
 def candidate_from_efp(row: dict, survival: dict[str, float]) -> dict:
     team = row.get("Team", "")
     expected_matches = survival.get(canonical_team_name(team), 3.2)
-    efp = safe_float(row.get("EFP_Per_Match"))
+    raw_efp = safe_float(row.get("EFP_Raw"))
+    efp = safe_float(row.get("EFP_Regressed") or row.get("EFP_Per_Match"))
     return {
         "player": row.get("Player_Name", ""),
         "api_id": row.get("API_Football_ID", ""),
         "team": team,
         "position": row.get("Position", ""),
         "efp": efp,
+        "raw_efp": raw_efp,
         "expected_matches": expected_matches,
         "etfp": efp * expected_matches,
         "notes": row.get("Notes", ""),
@@ -729,7 +773,7 @@ def recommendation_rows(recommendations: list[dict]) -> list[dict]:
                     "EFP_Per_Match": round(player["efp"], 2),
                     "Expected_Matches": round(player["expected_matches"], 2),
                     "ETFP": round(player["etfp"], 2),
-                    "Notes": f"Sim score {rec['score']:.1f}; {player['notes']}",
+                    "Notes": f"Sim score {rec['score']:.1f}; raw EFP {player.get('raw_efp', player['efp']):.2f}; {player['notes']}",
                 }
             )
     return rows
