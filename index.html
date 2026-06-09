@@ -7,19 +7,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#08121f;--panel:#0f2038;--panel2:#0a1628;--line:#1e3a5f;--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;--accent2:#7dd3fc;--green:#22c55e;--red:#ef4444;--gold:#fbbf24}
-body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:480px;margin:0 auto;padding-bottom:66px}
-body.light-theme{--bg:#f5f9ff;--panel:#ffffff;--panel2:#edf5ff;--line:#c7d7ec;--text:#0f172a;--muted:#64748b;--accent:#0369a1;--accent2:#0284c7}
+:root{--wc-red:#E63946;--wc-blue:#1D3557;--wc-green:#2A9D8F;--wc-gold:#F4C430;--wc-cream:#FAF9F6;--wc-ink:#14213D;--wc-muted:#6B7280;--tier-smash:var(--wc-gold);--tier-strong:var(--wc-red);--tier-lean:var(--wc-green);--bg:var(--wc-cream);--panel:#ffffff;--panel2:#f1f5f9;--line:#d7dde7;--text:var(--wc-ink);--muted:var(--wc-muted);--accent:var(--wc-blue);--accent2:var(--wc-green);--green:var(--wc-green);--red:var(--wc-red);--gold:var(--wc-gold);--shadow:0 14px 34px rgba(29,53,87,.10)}
+body{background:radial-gradient(circle at 12% 0%,rgba(230,57,70,.13),transparent 30%),radial-gradient(circle at 92% 4%,rgba(42,157,143,.14),transparent 30%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:480px;margin:0 auto;padding-bottom:66px}
+body.dark-theme{--bg:#08121f;--panel:#0f2038;--panel2:#0a1628;--line:#1e3a5f;--text:#f8fafc;--muted:#94a3b8;--accent:#7dd3fc;--accent2:#2A9D8F;--green:#2A9D8F;--red:#f87171;--gold:#F4C430;--shadow:none}
 button,input,select{font:inherit}
-.header{background:var(--panel);padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.header{background:linear-gradient(135deg,rgba(230,57,70,.13),rgba(29,53,87,.10) 48%,rgba(42,157,143,.14)),var(--panel);padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;box-shadow:var(--shadow);overflow:hidden}
+.header:after{content:"";position:absolute;right:-42px;top:-46px;width:132px;height:132px;background:radial-gradient(circle,rgba(244,196,48,.30),transparent 52%),radial-gradient(circle at 28% 66%,rgba(230,57,70,.20),transparent 34%),radial-gradient(circle at 68% 34%,rgba(42,157,143,.20),transparent 34%);opacity:.75;pointer-events:none}
 .header-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.header-title{color:var(--accent);font-weight:900;font-size:16px;letter-spacing:-.2px}
+.header-title{color:var(--accent);font-weight:1000;font-size:16px;letter-spacing:-.2px;position:relative;z-index:1}
 .header-actions{display:flex;gap:8px}
-.pill-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer}
-.top-nav{display:none}
+.pill-btn{background:rgba(255,255,255,.72);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer;position:relative;z-index:1}
+body.dark-theme .pill-btn{background:var(--panel2)}
+.top-nav{display:none;position:relative;z-index:1}
 .page{display:none}.page.active{display:block}
 .section{padding:14px 16px 0}
-.card{background:var(--panel);border:1px solid rgba(125,211,252,.14);border-radius:12px;padding:12px 14px}
+.card{background:var(--panel);border:1px solid rgba(29,53,87,.10);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
 .card-title{color:var(--accent);font-size:13px;font-weight:900;margin-bottom:8px}
 .muted{color:var(--muted)}
 .tiny{font-size:10px}.small{font-size:11px}
@@ -28,34 +30,35 @@ button,input,select{font:inherit}
 .error{padding:20px;color:#fecaca;background:#7f1d1d33;border:1px solid #ef444455;border-radius:12px;margin:16px}
 .tab-bar{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--panel);border-top:1px solid var(--line);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom)}
 .tab-btn{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:800;color:var(--muted);cursor:pointer;border:none;background:none}
-.tab-btn.active{color:var(--accent);border-top:2px solid var(--accent)}
+.tab-btn.active{color:var(--accent);border-top:2px solid var(--wc-red)}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .stat-box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
 .stat-box .val{font-size:18px;font-weight:1000;color:var(--accent)}
 .stat-box .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px}
 .filters{display:flex;gap:6px;overflow-x:auto;padding:8px 16px 0}
 .filter-btn{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:11px;font-weight:900;white-space:nowrap;cursor:pointer}
-.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#06121f}
-.pick-card{background:var(--panel);border:1px solid rgba(125,211,252,.16);border-left:4px solid var(--line);border-radius:12px;padding:13px 14px;margin:0 16px 10px}
-.pick-card.smash{border-left-color:var(--green);background:linear-gradient(90deg,rgba(34,197,94,.10),transparent 48%),var(--panel)}
-.pick-card.strong{border-left-color:var(--accent)}
-.pick-card.lean{border-left-color:var(--gold)}
+.filter-btn.active{background:var(--wc-blue);border-color:var(--wc-blue);color:#fff}
+.pick-card{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-left:4px solid var(--line);border-radius:12px;padding:13px 14px;margin:0 16px 10px;box-shadow:var(--shadow)}
+.pick-card.smash{border-left-color:var(--tier-smash);background:linear-gradient(90deg,rgba(244,196,48,.18),transparent 48%),var(--panel)}
+.pick-card.strong{border-left-color:var(--tier-strong);background:linear-gradient(90deg,rgba(230,57,70,.08),transparent 48%),var(--panel)}
+.pick-card.lean{border-left-color:var(--tier-lean);background:linear-gradient(90deg,rgba(42,157,143,.08),transparent 48%),var(--panel)}
 .pick-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .player-name{font-size:15px;font-weight:1000;line-height:1.2;word-break:break-word;overflow-wrap:anywhere}
-.team-line{font-size:11px;color:var(--accent2);margin-top:3px}
+.team-line{font-size:11px;color:var(--accent2);margin-top:3px;font-weight:800}
 .rank-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);color:var(--accent);border-radius:6px;padding:2px 6px;font-size:10px;font-weight:900;margin-right:6px}
 .tier-pill{font-size:10px;font-weight:1000;padding:4px 8px;border-radius:999px;white-space:nowrap}
-.tier-smash{background:#22c55e22;color:var(--green);border:1px solid #22c55e66}
-.tier-strong{background:#38bdf822;color:var(--accent);border:1px solid #38bdf866}
-.tier-lean{background:#fbbf2422;color:var(--gold);border:1px solid #fbbf2466}
+.tier-smash{background:var(--tier-smash);color:var(--wc-ink);border:1px solid rgba(20,33,61,.16)}
+.tier-strong{background:var(--tier-strong);color:#fff;border:1px solid rgba(230,57,70,.28)}
+.tier-lean{background:var(--tier-lean);color:#fff;border:1px solid rgba(42,157,143,.28)}
 .prop-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 .prop-tag{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--accent);font-size:11px;font-weight:1000;padding:4px 8px}
 .lean-over{color:var(--green);font-weight:1000}.lean-under{color:var(--red);font-weight:1000}
 .reason{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
-.form-row{background:var(--panel2);border:1px solid rgba(125,211,252,.14);border-radius:9px;padding:8px 9px;margin-top:9px;font-size:10px;color:var(--muted);line-height:1.5}
+.form-row{background:linear-gradient(90deg,rgba(42,157,143,.09),rgba(244,196,48,.08)),var(--panel2);border:1px solid rgba(42,157,143,.20);border-radius:9px;padding:8px 9px;margin-top:9px;font-size:10px;color:var(--muted);line-height:1.5}
 .form-title{display:block;color:var(--accent);font-weight:1000;text-transform:uppercase;font-size:8px;letter-spacing:.4px;margin-bottom:3px}
 .form-metric{display:inline-block;margin-right:8px;color:var(--text);font-weight:800}
-.form-limited{color:var(--gold);font-weight:900}
+.form-row.limited{background:var(--panel2);border-color:var(--line)}
+.form-limited{color:var(--muted);font-weight:800}
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
 .meta-cell{background:var(--panel2);border-radius:8px;padding:7px 8px;font-size:10px}
 .meta-label{display:block;color:var(--muted);text-transform:uppercase;font-size:8px;font-weight:900;margin-bottom:2px}
@@ -75,7 +78,8 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
   .header-top{margin-right:auto}
   .top-nav{display:flex;gap:8px}
   .top-nav .tab-btn{flex:0 0 auto;border-radius:9px;border:none;padding:8px 16px;font-size:13px;border-top:none}
-  .top-nav .tab-btn.active{background:rgba(56,189,248,.14);border-top:none}
+  .top-nav .tab-btn.active{background:rgba(244,196,48,.28);border-top:none;color:var(--wc-ink)}
+  body.dark-theme .top-nav .tab-btn.active{color:var(--text);background:rgba(244,196,48,.16)}
   .tab-bar{display:none}
   .section{padding:18px 32px 0}
   .pick-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 32px}
@@ -97,6 +101,9 @@ const SPORT = "WC";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
 const STATS_PLACEHOLDER = "Awaiting grader — picks logged from {first_pick_date}. Grading goes live ~5 days into group stage.";
+const TEAM_FLAG = {
+  "Algeria":"🇩🇿","Argentina":"🇦🇷","Australia":"🇦🇺","Austria":"🇦🇹","Belgium":"🇧🇪","Bosnia Herzegovina":"🇧🇦","Brazil":"🇧🇷","Canada":"🇨🇦","Chile":"🇨🇱","Colombia":"🇨🇴","Costa Rica":"🇨🇷","Croatia":"🇭🇷","Czech Republic":"🇨🇿","Czechia":"🇨🇿","Denmark":"🇩🇰","Ecuador":"🇪🇨","Egypt":"🇪🇬","England":"🏴","France":"🇫🇷","Germany":"🇩🇪","Ghana":"🇬🇭","Greece":"🇬🇷","Iran":"🇮🇷","IR Iran":"🇮🇷","Italy":"🇮🇹","Ivory Coast":"🇨🇮","Cote d'Ivoire":"🇨🇮","Japan":"🇯🇵","Korea Republic":"🇰🇷","South Korea":"🇰🇷","Mexico":"🇲🇽","Morocco":"🇲🇦","Netherlands":"🇳🇱","New Zealand":"🇳🇿","Nigeria":"🇳🇬","Norway":"🇳🇴","Panama":"🇵🇦","Paraguay":"🇵🇾","Peru":"🇵🇪","Poland":"🇵🇱","Portugal":"🇵🇹","Qatar":"🇶🇦","Saudi Arabia":"🇸🇦","Scotland":"🏴","Senegal":"🇸🇳","Serbia":"🇷🇸","Slovakia":"🇸🇰","Slovenia":"🇸🇮","South Africa":"🇿🇦","Spain":"🇪🇸","Sweden":"🇸🇪","Switzerland":"🇨🇭","Tunisia":"🇹🇳","Turkey":"🇹🇷","Türkiye":"🇹🇷","Ukraine":"🇺🇦","United States":"🇺🇸","USA":"🇺🇸","Uruguay":"🇺🇾","Wales":"🏴"
+};
 
 const st = {
   picks: [],
@@ -106,7 +113,7 @@ const st = {
   loadedAt: "",
   loading: true,
   error: "",
-  theme: localStorage.getItem(STORAGE_THEME) || "dark"
+  theme: localStorage.getItem(STORAGE_THEME) || "light"
 };
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
@@ -119,7 +126,7 @@ function switchTab(tab){st.activeTab=tab;render()}
 function setPropFilter(prop){st.propFilter=prop;render()}
 function setSelectedGame(gameId){st.selectedGame=gameId;st.activeTab="entry";render()}
 function toggleTheme(){st.theme=st.theme==="light"?"dark":"light";localStorage.setItem(STORAGE_THEME,st.theme);applyTheme();render()}
-function applyTheme(){document.body.classList.toggle("light-theme",st.theme==="light")}
+function applyTheme(){document.body.classList.toggle("dark-theme",st.theme==="dark")}
 
 async function fetchSheet(name){
   const url = `${GVIZ_BASE}?sheet=${encodeURIComponent(name)}&tqx=out:csv&cache=${Date.now()}`;
@@ -145,6 +152,8 @@ function fmtDate(raw){
   if(!Number.isFinite(ms))return "";
   return new Date(ms).toLocaleDateString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric"});
 }
+function flagForTeam(team){return TEAM_FLAG[String(team||"").trim()]||""}
+function teamWithFlag(team){const flag=flagForTeam(team);return `${flag?flag+" ":""}${team||"Team"}`}
 function firstPickDate(){
   const times=st.picks.map(p=>Date.parse(p.Timestamp||p.Game_Time||"")).filter(Number.isFinite).sort((a,b)=>a-b);
   return times.length?new Date(times[0]).toLocaleDateString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",year:"numeric"}):"first engine run";
@@ -152,7 +161,7 @@ function firstPickDate(){
 function gameId(row){return `${row.Team||""}|${row.Opponent||""}|${row.Game_Time||""}`}
 function gameLabel(row){
   const a=row.Team||"Team A", b=row.Opponent||"Team B", t=fmtTime(row.Game_Time);
-  return `${a} vs ${b}${t?` — ${t}`:""}`;
+  return `${teamWithFlag(a)} vs ${teamWithFlag(b)}${t?` — ${t}`:""}`;
 }
 function getGames(){
   const map=new Map();
@@ -211,7 +220,7 @@ function fmtOne(v){const n=Number(v);return Number.isFinite(n)?n.toFixed(1):"—
 function renderFormRow(p){
   const sample=Number(p.Intl_Sample||0);
   if(!sample){
-    return `<div class="form-row"><span class="form-title">FORM</span><span class="form-limited">⚠️ Limited international history</span></div>`;
+    return `<div class="form-row limited"><span class="form-title">FORM</span><span class="form-limited">ℹ️ Limited sample</span></div>`;
   }
   return `<div class="form-row">
     <span class="form-title">FORM (last ${sample} intl matches)</span>
@@ -227,7 +236,7 @@ function renderPickCard(p){
     <div class="pick-top">
       <div>
         <div class="player-name"><span class="rank-pill">#${esc(p.rank)}</span>${esc(p.Player)}</div>
-        <div class="team-line">${esc(p.Team)} vs ${esc(p.Opponent)}${p.Game_Time?` · ${esc(fmtTime(p.Game_Time))}`:""}</div>
+        <div class="team-line">${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))}${p.Game_Time?` · ${esc(fmtTime(p.Game_Time))}`:""}</div>
       </div>
       ${tierPill(p.Tier)}
     </div>
@@ -297,7 +306,7 @@ function renderEntryView(){
   ${selected?`<div class="section">
     <div class="card">
       <div class="card-title">${esc(selected.label)}</div>
-      ${gamePicks.length?gamePicks.map(p=>`<div class="entry-row"><div><div class="entry-player">${esc(p.Player)}</div><div class="small muted">${esc(p.Team)} vs ${esc(p.Opponent)} · ${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No picks logged for this fixture yet.</div>`}
+      ${gamePicks.length?gamePicks.map(p=>`<div class="entry-row"><div><div class="entry-player">${esc(p.Player)}</div><div class="small muted">${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))} · ${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No picks logged for this fixture yet.</div>`}
     </div>
   </div>`:""}`;
 }
@@ -338,14 +347,14 @@ function render(){
   if(st.loading){app.className="loading";app.innerHTML="🌎 Loading World Cup slate...";return}
   app.className="";
   const tabs=[
-    ["picks","🎯 Picks"],
+    ["picks","⚽ Picks"],
     ["stats","📊 Stats"],
-    ["entry","🎟️ Game Entry"],
+    ["entry","📋 Game Entry"],
     ["method","ℹ️ Info"],
   ];
   app.innerHTML=`<div class="header">
     <div class="header-top">
-      <div class="header-title">🌎 World Cup DFS Dashboard</div>
+      <div class="header-title">⚽ World Cup DFS Dashboard</div>
       <div class="header-actions"><button class="pill-btn" onclick="toggleTheme()">${st.theme==="light"?"🌙 Dark":"☀️ Light"}</button><button class="pill-btn" onclick="loadAllData()">↻ Refresh</button></div>
     </div>
     <div class="top-nav">${tabs.map(([id,label])=>`<button class="tab-btn ${st.activeTab===id?"active":""}" onclick="switchTab('${id}')">${label}</button>`).join("")}</div>
