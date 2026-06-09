@@ -18,14 +18,12 @@ import requests
 
 from WCDraftHelper import (
     FORM_SHEET_NAME,
-    SQUAD_CACHE_PATH,
     build_squad_indexes,
     canonical_team_name,
-    compute_efp_per_match,
+    compute_player_efp_rows,
     get_sheet_rows,
     load_squad_cache,
     normalize_name,
-    position_code,
     safe_float,
     safe_upload,
 )
@@ -257,19 +255,19 @@ def load_player_pool(slate_games: list[tuple[str, str]]) -> tuple[list[dict], di
     squad_cache = load_squad_cache()
     squad_by_id, squad_teams = build_squad_indexes(squad_cache)
     form_rows = get_sheet_rows(FORM_SHEET_NAME)
+    efp_rows = compute_player_efp_rows(form_rows, squad_by_id)
     slate_teams = set(opponent_map_from_games(slate_games).keys())
     players = []
-    for row in form_rows:
+    for row in efp_rows:
         api_id = str(row.get("API_Football_ID") or "").strip()
         squad = squad_by_id.get(api_id, {})
         team = squad.get("Team") or row.get("Team") or row.get("Nationality") or ""
         canonical = team_key(team)
         if canonical not in slate_teams:
             continue
-        position = squad.get("Position") or position_code(row.get("Position", ""))
+        position = row.get("Position", "")
         if not position:
             continue
-        efp, efp_note = compute_efp_per_match(row, position)
         avg_minutes = safe_float(row.get("Avg_Minutes"))
         players.append(
             {
@@ -278,9 +276,11 @@ def load_player_pool(slate_games: list[tuple[str, str]]) -> tuple[list[dict], di
                 "Team": display_team_name(canonical, squad_teams) or team,
                 "Team_Key": canonical,
                 "Position": position,
-                "EFP_Per_Match": efp,
+                "EFP_Per_Match": safe_float(row.get("EFP_Regressed") or row.get("EFP_Per_Match")),
+                "EFP_Raw": safe_float(row.get("EFP_Raw")),
+                "Intl_Sample": int(safe_float(row.get("Intl_Sample"))),
                 "Avg_Minutes": avg_minutes,
-                "Notes": efp_note,
+                "Notes": row.get("Notes", ""),
             }
         )
     return players, squad_teams
@@ -371,9 +371,16 @@ def confirmed_start_prob(player: dict, lineup_status: dict[str, str]) -> tuple[f
     return 0.05, "not listed in confirmed XI"
 
 
+def daily_sort_key(row: dict) -> tuple:
+    adjusted = -safe_float(row.get("Adjusted_EFP"))
+    if row.get("Position") == "G":
+        return (adjusted, -safe_float(row.get("Intl_Sample")), row.get("Player_Name", ""))
+    return (adjusted, row.get("Player_Name", ""))
+
+
 def tier_daily_slate(rows: list[dict]) -> list[dict]:
     for pos in ("G", "D", "MD", "FW"):
-        pos_rows = sorted([r for r in rows if r["Position"] == pos], key=lambda r: safe_float(r["Adjusted_EFP"]), reverse=True)
+        pos_rows = sorted([r for r in rows if r["Position"] == pos], key=daily_sort_key)
         for idx, row in enumerate(pos_rows):
             if idx < 3:
                 row["Tier"] = "S"
@@ -426,10 +433,11 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
                 "Kickoff_Time": kickoff,
                 "Source": mode,
                 "Notes": notes,
+                "Intl_Sample": player.get("Intl_Sample", 0),
             }
         )
     rows = tier_daily_slate(rows)
-    return sorted(rows, key=lambda r: (r["Position"], -safe_float(r["Adjusted_EFP"]), r["Team"], r["Player_Name"]))
+    return sorted(rows, key=lambda r: (r["Position"], daily_sort_key(r), r["Team"], r["Player_Name"]))
 
 
 def sample_rows() -> list[dict]:
