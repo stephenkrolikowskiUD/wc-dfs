@@ -199,12 +199,22 @@ const FORM_TAB = "Player_Form";
 const EFP_TAB = "Player_EFP";
 const SURVIVAL_TAB = "Team_Survival";
 const INJURY_TAB = "Player_Injuries";
+const SQUAD_CACHE_URL = "squad_cache.json";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const LOOKUP_STATS = ["Shots","SOT","Tackles","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
 const STATS_PLACEHOLDER = "Stats reads from Picks_History — grader populates Result + Actual columns after each WC match completes. Aggregate hit rate / ROI shown here after the first matches finish (June 11 onward).";
 const TEAM_FLAG = {
   "Algeria":"🇩🇿","Argentina":"🇦🇷","Australia":"🇦🇺","Austria":"🇦🇹","Belgium":"🇧🇪","Bosnia Herzegovina":"🇧🇦","Brazil":"🇧🇷","Canada":"🇨🇦","Chile":"🇨🇱","Colombia":"🇨🇴","Costa Rica":"🇨🇷","Croatia":"🇭🇷","Czech Republic":"🇨🇿","Czechia":"🇨🇿","Denmark":"🇩🇰","Ecuador":"🇪🇨","Egypt":"🇪🇬","England":"🏴","France":"🇫🇷","Germany":"🇩🇪","Ghana":"🇬🇭","Greece":"🇬🇷","Iran":"🇮🇷","IR Iran":"🇮🇷","Italy":"🇮🇹","Ivory Coast":"🇨🇮","Cote d'Ivoire":"🇨🇮","Japan":"🇯🇵","Korea Republic":"🇰🇷","South Korea":"🇰🇷","Mexico":"🇲🇽","Morocco":"🇲🇦","Netherlands":"🇳🇱","New Zealand":"🇳🇿","Nigeria":"🇳🇬","Norway":"🇳🇴","Panama":"🇵🇦","Paraguay":"🇵🇾","Peru":"🇵🇪","Poland":"🇵🇱","Portugal":"🇵🇹","Qatar":"🇶🇦","Saudi Arabia":"🇸🇦","Scotland":"🏴","Senegal":"🇸🇳","Serbia":"🇷🇸","Slovakia":"🇸🇰","Slovenia":"🇸🇮","South Africa":"🇿🇦","Spain":"🇪🇸","Sweden":"🇸🇪","Switzerland":"🇨🇭","Tunisia":"🇹🇳","Turkey":"🇹🇷","Türkiye":"🇹🇷","Ukraine":"🇺🇦","United States":"🇺🇸","USA":"🇺🇸","Uruguay":"🇺🇾","Wales":"🏴"
+};
+const LOOKUP_FULL_NAME_ALIASES = {
+  "17":["Christian Pulisic"],
+  "2869":["Edson Álvarez","Edson Alvarez"],
+  "2887":["Raúl Jiménez","Raul Jimenez"],
+  "94562":["Santiago Giménez","Santiago Gimenez"],
+  "36111":["César Saúl Huerta Valera","Cesar Saul Huerta Valera","César Huerta","Cesar Huerta"],
+  "35690":["Luis Chávez","Luis Chavez"],
+  "874":["Cristiano Ronaldo"]
 };
 
 const st = {
@@ -216,6 +226,7 @@ const st = {
   playerEfp: [],
   teamSurvival: [],
   playerInjuries: [],
+  squadCache: {},
   picksHistory: [],
   dailyDrafted: new Set(),
   dailyRoster: [],
@@ -299,6 +310,11 @@ async function fetchSheet(name){
   const text = await resp.text();
   const parsed = Papa.parse(text,{header:true,skipEmptyLines:true});
   return cleanRows(parsed.data);
+}
+async function fetchJson(url){
+  const resp = await fetch(`${url}?cache=${Date.now()}`);
+  if(!resp.ok) throw new Error(`${url} fetch failed: ${resp.status}`);
+  return resp.json();
 }
 
 function rowDateMs(row){
@@ -482,7 +498,7 @@ function hydrateInjuryRow(row){
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const [picks,draft,daily,slips,form,efp,survival,history,injuries]=await Promise.all([
+    const [picks,draft,daily,slips,form,efp,survival,history,injuries,squadCache]=await Promise.all([
       fetchSheet(PICKS_TAB),
       fetchSheet(DRAFT_TAB).catch(()=>[]),
       fetchSheet(DAILY_SLATE_TAB).catch(()=>[]),
@@ -491,7 +507,8 @@ async function loadAllData(){
       fetchSheet(EFP_TAB).catch(()=>[]),
       fetchSheet(SURVIVAL_TAB).catch(()=>[]),
       fetchSheet(PICKS_HISTORY_TAB).catch(()=>[]),
-      fetchSheet(INJURY_TAB).catch(()=>[])
+      fetchSheet(INJURY_TAB).catch(()=>[]),
+      fetchJson(SQUAD_CACHE_URL).catch(()=>({}))
     ]);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
     st.draftRecommendations=draft.map(hydrateDraftRow).filter(r=>r.Player);
@@ -502,6 +519,7 @@ async function loadAllData(){
     st.teamSurvival=survival.map(hydrateSurvivalRow).filter(r=>r.Team);
     st.picksHistory=history.map(hydratePick).filter(p=>p.Player);
     st.playerInjuries=injuries.map(hydrateInjuryRow).filter(r=>r.Player_Name||r.API_Football_ID);
+    st.squadCache=squadCache||{};
     const validKeys=new Set(st.dailySlate.map(dailyKey));
     st.dailyDrafted=new Set([...st.dailyDrafted].filter(k=>validKeys.has(k)));
     st.dailyRoster=st.dailyRoster.filter(k=>validKeys.has(k));
@@ -517,6 +535,7 @@ async function loadAllData(){
     st.teamSurvival=[];
     st.picksHistory=[];
     st.playerInjuries=[];
+    st.squadCache={};
   }finally{
     applyHashRoute();
     st.loading=false;render();
@@ -557,16 +576,26 @@ function efpMap(){
   st.playerEfp.forEach(row=>map.set(playerKeyFrom(row.API_Football_ID,row.Player_Name,row.Team),row));
   return map;
 }
+function squadNameMap(){
+  const map=new Map();
+  Object.values(st.squadCache||{}).forEach(team=>{
+    (team.players||[]).forEach(player=>{
+      const id=String(player.api_id||player.API_Football_ID||"").trim();
+      if(id)map.set(id,{name:player.name||"",normalized:player.name_normalized||"",team:team.team_name||"",position:player.position||""});
+    });
+  });
+  return map;
+}
 function survivalMap(){
   const map=new Map();
   st.teamSurvival.forEach(row=>map.set(teamKey(row.Team),row));
   return map;
 }
 function playerIndex(){
-  const efps=efpMap(), injuries=injuryMap(), survival=survivalMap(), map=new Map();
+  const efps=efpMap(), injuries=injuryMap(), survival=survivalMap(), squadNames=squadNameMap(), map=new Map();
   function ensure(id,name,team){
     const key=playerKeyFrom(id,name,team);
-    if(!map.has(key))map.set(key,{Lookup_ID:key,API_Football_ID:id||"",Player_Name:name||"",Team:team||"",Position:"",Intl_Sample:"",Avg_Minutes:"",Avg_Shots:"",Avg_SOT:"",Avg_Tackles:"",Goals_Per_Match:"",Goal_Scorer_Rate:"",Last_5_Shots:"",Last_5_Goals:"",EFP_Per_Match:"",Expected_Matches:"",ETFP:"",Notes:"",Injury_Status:"",Injury_Reason:"",Injury_Updated:""});
+    if(!map.has(key))map.set(key,{Lookup_ID:key,API_Football_ID:id||"",Player_Name:name||"",Full_Name:"",Squad_Name:"",Search_Aliases:[],Team:team||"",Position:"",Intl_Sample:"",Avg_Minutes:"",Avg_Shots:"",Avg_SOT:"",Avg_Tackles:"",Goals_Per_Match:"",Goal_Scorer_Rate:"",Last_5_Shots:"",Last_5_Goals:"",EFP_Per_Match:"",Expected_Matches:"",ETFP:"",Notes:"",Injury_Status:"",Injury_Reason:"",Injury_Updated:""});
     return map.get(key);
   }
   st.playerForm.forEach(row=>{
@@ -591,6 +620,17 @@ function playerIndex(){
     p.ETFP=toNum(p.EFP_Per_Match)*toNum(p.Expected_Matches);
     const inj=injuries.get(key)||injuries.get(playerKeyFrom(p.API_Football_ID,p.Player_Name,p.Team));
     if(inj){p.Injury_Status=inj.Status_Score;p.Injury_Reason=inj.Reason||inj.Injury_Type;p.Injury_Updated=inj.Last_Updated;p.Injury_Type=inj.Injury_Type}
+    const squad=squadNames.get(String(p.API_Football_ID||"").trim());
+    if(squad){
+      p.Squad_Name=squad.name||"";
+      if(!p.Position&&squad.position){
+        p.Position=squad.position==="Attacker"?"FW":squad.position==="Midfielder"?"MD":squad.position==="Defender"?"D":squad.position==="Goalkeeper"?"G":p.Position;
+      }
+    }
+    p.Search_Aliases=[...(LOOKUP_FULL_NAME_ALIASES[String(p.API_Football_ID||"").trim()]||[])];
+    const displayNorm=normalizeLookupText(p.Player_Name);
+    const squadNorm=normalizeLookupText(p.Squad_Name);
+    if(squadNorm&&squadNorm!==displayNorm)p.Search_Aliases.push(p.Squad_Name);
   }
   return [...map.values()].filter(p=>p.Player_Name&&normalizeLookupText(p.Player_Name));
 }
@@ -598,15 +638,43 @@ function lookupTeams(){return [...new Set(playerIndex().map(p=>p.Team).filter(Bo
 function selectedLookupPlayer(){const players=playerIndex();return players.find(p=>String(p.Lookup_ID)===String(st.selectedLookupId))||players[0]||null}
 function lookupLastName(norm){const parts=norm.split(" ").filter(Boolean);return parts[parts.length-1]||""}
 function lookupInitial(norm){const parts=norm.split(" ").filter(Boolean);return parts[0]?.[0]||""}
+function lookupSearchFields(player){
+  return [...new Set([
+    player.Player_Name,
+    player.Full_Name,
+    player.Squad_Name,
+    player.Team,
+    ...(player.Search_Aliases||[])
+  ].filter(Boolean))];
+}
+function playerMatchesSearch(player,query){
+  const q=normalizeLookupText(query);
+  if(!q)return true;
+  return lookupSearchFields(player).some(field=>normalizeLookupText(field).includes(q));
+}
+function lookupSearchRank(player,query){
+  const q=normalizeLookupText(query);
+  if(!q)return 0;
+  let best=99;
+  lookupSearchFields(player).forEach(field=>{
+    const norm=normalizeLookupText(field);
+    if(!norm)return;
+    if(norm===q)best=Math.min(best,0);
+    else if(norm.split(" ").includes(q))best=Math.min(best,1);
+    else if(norm.startsWith(q))best=Math.min(best,2);
+    else if(norm.includes(q))best=Math.min(best,3);
+  });
+  return best;
+}
 function findLookupPlayer(name,team){
   const n=normalizeLookupText(name), t=normalizeLookupText(team);
   const players=playerIndex().filter(p=>normalizeLookupText(p.Player_Name));
   const sameTeam=p=>!t||normalizeLookupText(p.Team)===t;
   const last=lookupLastName(n), initial=lookupInitial(n);
-  return players.find(p=>normalizeLookupText(p.Player_Name)===n&&sameTeam(p))||
-    players.find(p=>sameTeam(p)&&lookupLastName(normalizeLookupText(p.Player_Name))===last&&lookupInitial(normalizeLookupText(p.Player_Name))===initial)||
-    players.find(p=>sameTeam(p)&&last&&lookupLastName(normalizeLookupText(p.Player_Name))===last)||
-    players.find(p=>{const pn=normalizeLookupText(p.Player_Name);return pn&&n&&(pn.includes(n)||n.includes(pn))});
+  return players.find(p=>sameTeam(p)&&lookupSearchFields(p).some(field=>normalizeLookupText(field)===n))||
+    players.find(p=>sameTeam(p)&&lookupSearchFields(p).some(field=>lookupLastName(normalizeLookupText(field))===last&&lookupInitial(normalizeLookupText(field))===initial))||
+    players.find(p=>sameTeam(p)&&last&&lookupSearchFields(p).some(field=>lookupLastName(normalizeLookupText(field))===last))||
+    players.find(p=>sameTeam(p)&&lookupSearchFields(p).some(field=>{const pn=normalizeLookupText(field);return pn&&n&&(pn.includes(n)||n.includes(pn))}));
 }
 function openLookupById(id){st.selectedLookupId=decodeURIComponent(id||"");st.activeTab="lookup";history.replaceState(null,"",`#lookup/player/${encodeURIComponent(st.selectedLookupId)}`);render()}
 function openLookupByNameEncoded(name,team){const p=findLookupPlayer(decodeURIComponent(name||""),decodeURIComponent(team||""));if(p)openLookupById(p.Lookup_ID);else{st.lookupSearch=decodeURIComponent(name||"");st.activeTab="lookup";render()}}
@@ -1031,7 +1099,7 @@ function statLogValues(player, stat){
 function filteredLookupPlayers(){
   const q=normalizeLookupText(st.lookupSearch);
   const rows=playerIndex().filter(p=>{
-    if(q&&!normalizeLookupText(p.Player_Name).includes(q))return false;
+    if(q&&!playerMatchesSearch(p,q))return false;
     if(st.lookupTeam!=="ALL"&&p.Team!==st.lookupTeam)return false;
     if(st.lookupPosition!=="ALL"&&p.Position!==st.lookupPosition)return false;
     if(st.lookupHideLimited&&toNum(p.Intl_Sample)<5)return false;
@@ -1040,6 +1108,10 @@ function filteredLookupPlayers(){
   });
   const sort=st.lookupSort;
   rows.sort((a,b)=>{
+    if(q){
+      const rank=lookupSearchRank(a,q)-lookupSearchRank(b,q);
+      if(rank)return rank;
+    }
     if(sort==="Sample")return toNum(b.Intl_Sample)-toNum(a.Intl_Sample)||a.Player_Name.localeCompare(b.Player_Name);
     if(sort==="EFP")return toNum(b.EFP_Per_Match)-toNum(a.EFP_Per_Match)||a.Player_Name.localeCompare(b.Player_Name);
     if(sort==="ETFP")return toNum(b.ETFP)-toNum(a.ETFP)||a.Player_Name.localeCompare(b.Player_Name);
