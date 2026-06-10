@@ -32,8 +32,6 @@ PROP_MARKETS_STANDARD = [
     "player_goal_scorer_anytime",
 ]
 PROP_MARKETS_ALTERNATE = [
-    "player_shots_alternate",
-    "player_shots_on_target_alternate",
     "player_tackles_alternate",
     "player_goals_alternate",
 ]
@@ -167,13 +165,14 @@ ANALYSIS FACTORS:
 - Set-piece role for shots and shots on target.
 - Tackles should favor players facing high-possession opponents or wide overloads.
 - Goal Scorer Anytime is a binary scorer market. Treat it as "Yes to score" and emit lean OVER at line 0.5.
-- Alternate markets are milestone lines such as X+ shots, X+ tackles, or X+ goals.
+- Tackles and Goals may be alternate milestone markets such as X+ tackles or X+ goals.
 
 RULES:
 - Only output picks for these five prop types: Shots, Shots on Target, Tackles, Goal Scorer, Goals.
 - Ignore passes, assists, cards, fouls, offsides, saves, corners, fantasy points, and any market not listed above.
 - For Goal Scorer picks, use prop_type "Goal Scorer", line 0.5, and lean "OVER" to mean yes.
-- For alternate markets, keep the milestone line exactly as provided and frame the pick as X+ shots/tackles/goals.
+- Shots and SOT are standard over/under markets. Do not reinterpret a SOT line as total Shots.
+- For Tackles and Goals alternate markets, keep the milestone line exactly as provided and frame the pick as X+ tackles/goals.
 - Tier names must be exactly SMASH, STRONG, or LEAN.
 - Confidence must be an integer from 1 to 10.
 - SMASH should be reserved for the top 3-4 picks only.
@@ -313,6 +312,13 @@ def normalize_prop(prop):
         return "Goals"
     market = PROP_LABEL_TO_MARKET.get(raw.upper()) or PROP_LABEL_TO_MARKET.get(key)
     return PROP_MARKET_LABELS.get(market, raw)
+
+
+def line_key(value):
+    val = safe_float(value)
+    if val is None:
+        return str(value or "").strip()
+    return f"{val:.3f}".rstrip("0").rstrip(".")
 
 
 def safe_float(value, default=None):
@@ -553,6 +559,7 @@ def parse_prop_outcomes(event, market_key, bookmaker_key, market):
                 "commence_time": event.get("commence_time", ""),
                 "player": normalized["player"],
                 "prop_type": metric,
+                "source_market": market_key,
                 "line": normalized["line"],
                 "lean": normalized["side"],
                 "odds": normalized["price"],
@@ -569,7 +576,7 @@ def dedupe_best_props(rows):
             row.get("event_id", ""),
             normalize_player_name(row.get("player")),
             normalize_prop(row.get("prop_type")),
-            str(row.get("line", "")),
+            line_key(row.get("line", "")),
             str(row.get("lean", "")).upper(),
         )
         try:
@@ -630,7 +637,7 @@ def collapse_props_for_prompt(props):
             row.get("event_id", ""),
             normalize_player_name(row.get("player")),
             normalize_prop(row.get("prop_type")),
-            str(row.get("line", "")),
+            line_key(row.get("line", "")),
             row.get("book", ""),
         )
         entry = grouped.setdefault(
@@ -641,6 +648,7 @@ def collapse_props_for_prompt(props):
                 "game_time": row.get("commence_time", ""),
                 "player": row.get("player", ""),
                 "prop_type": normalize_prop(row.get("prop_type")),
+                "source_market": row.get("source_market", ""),
                 "line": row.get("line", ""),
                 "book": row.get("book", ""),
                 "over_odds": "",
@@ -904,16 +912,39 @@ def call_gemini(context, gemini_api_key):
 
 
 def build_prop_lookup(props):
-    lookup = {}
+    lookup = {"exact": {}, "by_player_line_lean": {}, "by_player_prop_lean": {}}
     for row in props:
         key = (
             normalize_player_name(row.get("player")),
             normalize_prop(row.get("prop_type")),
-            str(row.get("line", "")),
+            line_key(row.get("line", "")),
             row.get("lean", "").upper(),
         )
-        lookup.setdefault(key, row)
+        lookup["exact"].setdefault(key, row)
+        line_key_only = (key[0], key[2], key[3])
+        lookup["by_player_line_lean"].setdefault(line_key_only, []).append(row)
+        prop_key_only = (key[0], key[1], key[3])
+        lookup["by_player_prop_lean"].setdefault(prop_key_only, []).append(row)
     return lookup
+
+
+def find_matching_prop_row(prop_lookup, player, prop, line, lean):
+    player_norm = normalize_player_name(player)
+    prop_norm = normalize_prop(prop)
+    lean_norm = lean.upper()
+    exact_key = (player_norm, prop_norm, line_key(line), lean_norm)
+    exact = prop_lookup["exact"].get(exact_key)
+    if exact:
+        return exact, "exact"
+
+    # If Gemini used the wrong prop label but kept the real sportsbook line, correct to the
+    # uniquely matching market rather than writing a misleading row.
+    line_matches = prop_lookup["by_player_line_lean"].get((player_norm, line_key(line), lean_norm), [])
+    unique_props = {normalize_prop(r.get("prop_type")) for r in line_matches}
+    if len(line_matches) == 1 or len(unique_props) == 1:
+        return line_matches[0], "line_market_correction"
+
+    return None, "missing"
 
 
 def validate_and_format_picks(raw_picks, fixtures, props):
@@ -927,16 +958,20 @@ def validate_and_format_picks(raw_picks, fixtures, props):
         line = pick.get("line") if pick.get("line") is not None else pick.get("Line")
         if not player or prop not in {"Shots", "SOT", "Tackles", "Goal Scorer", "Goals"} or line in (None, ""):
             continue
-        key = (normalize_player_name(player), prop, str(line), lean.upper())
-        prop_row = prop_lookup.get(key)
+        prop_row, match_kind = find_matching_prop_row(prop_lookup, player, prop, line, lean)
         if not prop_row:
-            # If Gemini emits an int/float line that stringifies differently, fall back by player/prop/lean.
-            fallback = [
-                r
-                for k, r in prop_lookup.items()
-                if k[0] == normalize_player_name(player) and k[1] == prop and k[3] == lean.upper()
-            ]
-            prop_row = fallback[0] if fallback else {}
+            print(f"   ⚠️ Skipping unanchored Gemini pick: {player} {prop} {lean} {line}")
+            continue
+        canonical_prop = normalize_prop(prop_row.get("prop_type"))
+        canonical_line = prop_row.get("line", line)
+        canonical_lean = normalize_pick(prop_row.get("lean", lean))
+        if match_kind != "exact" or canonical_prop != prop or line_key(canonical_line) != line_key(line):
+            print(
+                "   ⚠️ Corrected Gemini pick to sportsbook market: "
+                f"{player} {prop} {lean} {line} -> "
+                f"{canonical_prop} {canonical_lean} {canonical_line} "
+                f"({prop_row.get('source_market', 'unknown')})"
+            )
         team, opponent, game_time = infer_teams_for_pick(pick, fixtures)
         if prop_row:
             game_time = game_time or prop_row.get("commence_time", "")
@@ -957,19 +992,28 @@ def validate_and_format_picks(raw_picks, fixtures, props):
         confidence = max(1, min(10, confidence))
         form_context = prop_row.get("form_context") or {}
         injury_status = safe_float(prop_row.get("injury_status"), 1.0)
+        avg_shots = safe_float(form_context.get("avg_shots"))
+        numeric_line = safe_float(canonical_line)
+        if canonical_prop == "Shots" and numeric_line is not None and avg_shots is not None:
+            if numeric_line < 1.5 and avg_shots > 1.5:
+                print(
+                    "   ⚠️ Suspect Shots line: "
+                    f"{player} line={numeric_line:g}, avg_shots={avg_shots:g}, "
+                    f"source_market={prop_row.get('source_market', 'unknown')}"
+                )
         rows.append(
             {
                 "Player": player,
                 "Team": team,
                 "Opponent": opponent,
-                "Prop": prop,
-                "Line": line,
-                "Pick": lean,
+                "Prop": canonical_prop,
+                "Line": canonical_line,
+                "Pick": canonical_lean,
                 "Tier": normalize_tier(pick.get("tier") or pick.get("confidence_tier") or pick.get("confidence")),
                 "Confidence": confidence,
                 "Reasoning": str(pick.get("rationale") or pick.get("reasoning") or "")[:500],
                 "Game_Time": game_time,
-                "Book": pick.get("book") or prop_row.get("book", ""),
+                "Book": prop_row.get("book", "") or pick.get("book", ""),
                 "UD_FP": "",
                 "Result": "",
                 "Actual": "",
