@@ -183,6 +183,11 @@ FORM_COLUMNS = [
     "Avg_Tackles",
     "Goals_Per_Match",
     "Goal_Scorer_Rate",
+    "Avg_Saves",
+    "Avg_Goals_Conceded",
+    "Clean_Sheet_Rate",
+    "Total_PK_Saves",
+    "Win_Rate",
     "Last_5_Shots",
     "Last_5_Goals",
     "Last_Updated",
@@ -632,6 +637,22 @@ def summarize_form(player: dict, resolved: dict) -> dict:
     sot = sum(stat_num(row, "shots", "on") for row in stats_rows)
     tackles = sum(stat_num(row, "tackles", "total") for row in stats_rows)
     goals = sum(stat_num(row, "goals", "total") for row in stats_rows)
+    saves = sum(stat_num(row, "goals", "saves") for row in stats_rows)
+    goals_conceded = sum(stat_num(row, "goals", "conceded") for row in stats_rows)
+    penalty_saves = sum(stat_num(row, "penalty", "saved") for row in stats_rows)
+    clean_sheets = sum(
+        stat_num(row, "clean_sheet")
+        or stat_num(row, "games", "clean_sheet")
+        or stat_num(row, "goals", "clean_sheet")
+        or stat_num(row, "goals", "clean_sheets")
+        for row in stats_rows
+    )
+    wins = sum(
+        stat_num(row, "games", "wins")
+        or stat_num(row, "team", "wins")
+        or stat_num(row, "fixtures", "wins")
+        for row in stats_rows
+    )
 
     denom = appearances or 0
     notes = "Limited sample" if denom < 5 else ""
@@ -649,6 +670,13 @@ def summarize_form(player: dict, resolved: dict) -> dict:
         # API-Football season aggregates do not expose per-match goal distribution.
         # This is a capped goals-per-match proxy until match-level form logs are added.
         "Goal_Scorer_Rate": round(goal_rate, 3) if denom else "",
+        "Avg_Saves": round(saves / denom, 2) if denom else "",
+        "Avg_Goals_Conceded": round(goals_conceded / denom, 2) if denom else "",
+        "Clean_Sheet_Rate": round(clean_sheets / denom, 3) if denom else "",
+        "Total_PK_Saves": int(penalty_saves) if denom else "",
+        # API-Football aggregate player rows may omit wins/clean sheets for some leagues.
+        # Keep this best-effort until fixture-level match logs are added.
+        "Win_Rate": round(wins / denom, 3) if denom else "",
         "Last_5_Shots": "",
         "Last_5_Goals": "",
         "Last_Updated": timestamp_utc_iso(),
