@@ -1,8 +1,8 @@
 # World Cup Draft Helper v1
 #
 # Builds Underdog World Pup draft recommendations from the existing Player_Form
-# tab. v1 is intentionally honest: EFP uses shots, SOT, tackles, and goals from
-# Player_Form plus light priors for missing UD scoring fields.
+# tab. EFP uses Player_Form scoring inputs, including goalkeeper saves/goals
+# conceded when WCFormPull has populated the v1.1 GK columns.
 
 from __future__ import annotations
 
@@ -365,11 +365,32 @@ def compute_efp_per_match(form_row: dict, position: str) -> tuple[float, str]:
     goals = safe_float(form_row.get("Goals_Per_Match"))
     sample = safe_float(form_row.get("Intl_Matches_Last_24mo"))
     shots_off = max(shots - sot, 0.0)
+    clean_sheet_rate = safe_float(form_row.get("Clean_Sheet_Rate"))
 
     if position == "G":
-        # Player_Form does not yet include saves, wins, clean sheets, or goals conceded.
-        efp = 4.0
-        note = "GK tie-break: ranked by intl caps (EFP stubbed pending v1.1); v1 excludes saves, wins, goals conceded, and clean sheets"
+        gk_fields = ["Avg_Saves", "Avg_Goals_Conceded", "Clean_Sheet_Rate", "Total_PK_Saves", "Win_Rate"]
+        has_gk_data = any(str(form_row.get(field, "")).strip() != "" for field in gk_fields)
+        if not has_gk_data:
+            efp = 4.0
+            note = "GK fallback baseline: Player_Form missing v1.1 save/GA/win/clean-sheet columns"
+            return round(efp, 2), note
+
+        avg_saves = safe_float(form_row.get("Avg_Saves"))
+        avg_goals_conceded = safe_float(form_row.get("Avg_Goals_Conceded"))
+        pk_saves_per_match = safe_float(form_row.get("Total_PK_Saves")) / sample if sample > 0 else 0.0
+        win_rate = safe_float(form_row.get("Win_Rate"))
+        efp = (
+            avg_saves * 2.0
+            + pk_saves_per_match * 3.0
+            + avg_goals_conceded * -2.0
+            + win_rate * 5.0
+            + clean_sheet_rate * 5.0
+        )
+        note = "GK EFP uses saves, goals conceded, PK saves, win rate, and clean-sheet rate"
+        if not str(form_row.get("Win_Rate", "")).strip():
+            note += "; win rate unavailable in aggregate source"
+        if not str(form_row.get("Clean_Sheet_Rate", "")).strip():
+            note += "; clean-sheet rate unavailable in aggregate source"
         return round(efp, 2), note
 
     assist_proxy = goals * 0.5
@@ -380,7 +401,10 @@ def compute_efp_per_match(form_row: dict, position: str) -> tuple[float, str]:
         + shots_off * 1.0
         + tackles * 0.5
     )
-    notes = ["EFP v1 excludes chances, crosses, passes, and clean-sheet bonuses"]
+    notes = ["EFP excludes chances, crosses, and passes"]
+    if position == "D":
+        efp += clean_sheet_rate * 5.0
+        notes.append("includes defender clean-sheet rate" if str(form_row.get("Clean_Sheet_Rate", "")).strip() else "defender clean-sheet rate unavailable")
     if sample < 5:
         notes.append("limited international sample")
     if not position:
