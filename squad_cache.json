@@ -1,0 +1,7826 @@
+{
+  "algeria": {
+    "players": [
+      {
+        "api_id": 342740,
+        "name": "A. Abada",
+        "name_normalized": "a abada",
+        "position": "Defender"
+      },
+      {
+        "api_id": 292924,
+        "name": "A. Benbouali",
+        "name_normalized": "a benbouali",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 329163,
+        "name": "A. Boulbina",
+        "name_normalized": "a boulbina",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 85041,
+        "name": "A. Gouiri",
+        "name_normalized": "a gouiri",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 326067,
+        "name": "A. Hadj-Moussa",
+        "name_normalized": "a hadj moussa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1567,
+        "name": "A. Mandi",
+        "name_normalized": "a mandi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 276670,
+        "name": "F. Cha\u00efbi",
+        "name_normalized": "f chaibi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 334915,
+        "name": "F. Ghedjemis",
+        "name_normalized": "f ghedjemis",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 658,
+        "name": "H. Aouar",
+        "name_normalized": "h aouar",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 4399,
+        "name": "H. Boudaoui",
+        "name_normalized": "h boudaoui",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 380587,
+        "name": "I. Maza",
+        "name_normalized": "i maza",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 271539,
+        "name": "J. Hadjam",
+        "name_normalized": "j hadjam",
+        "position": "Defender"
+      },
+      {
+        "api_id": 732,
+        "name": "L. Zidane",
+        "name_normalized": "l zidane",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 200139,
+        "name": "M. Amoura",
+        "name_normalized": "m amoura",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 304229,
+        "name": "M. Mastil",
+        "name_normalized": "m mastil",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 4569,
+        "name": "M. Tougai",
+        "name_normalized": "m tougai",
+        "position": "Defender"
+      },
+      {
+        "api_id": 409,
+        "name": "N. Bentaleb",
+        "name_normalized": "n bentaleb",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 4414,
+        "name": "O. Benbot",
+        "name_normalized": "o benbot",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 21138,
+        "name": "R. A\u00eft-Nouri",
+        "name_normalized": "r ait nouri",
+        "position": "Defender"
+      },
+      {
+        "api_id": 303362,
+        "name": "R. Belghali",
+        "name_normalized": "r belghali",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2194,
+        "name": "R. Benseba\u00efni",
+        "name_normalized": "r bensebaini",
+        "position": "Defender"
+      },
+      {
+        "api_id": 635,
+        "name": "R. Mahrez",
+        "name_normalized": "r mahrez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 129047,
+        "name": "R. Zerrouki",
+        "name_normalized": "r zerrouki",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 20869,
+        "name": "S. Chergui",
+        "name_normalized": "s chergui",
+        "position": "Defender"
+      },
+      {
+        "api_id": 327599,
+        "name": "Y. Titraoui",
+        "name_normalized": "y titraoui",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 4561,
+        "name": "Z. Bela\u00efd",
+        "name_normalized": "z belaid",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 1532,
+    "team_name": "Algeria",
+    "team_name_normalized": "algeria"
+  },
+  "argentina": {
+    "players": [
+      {
+        "api_id": 6716,
+        "name": "A. Mac Allister",
+        "name_normalized": "a mac allister",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 30776,
+        "name": "C. Romero",
+        "name_normalized": "c romero",
+        "position": "Defender"
+      },
+      {
+        "api_id": 5996,
+        "name": "E. Fern\u00e1ndez",
+        "name_normalized": "e fernandez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19599,
+        "name": "E. Mart\u00ednez",
+        "name_normalized": "e martinez",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 6002,
+        "name": "E. Palacios",
+        "name_normalized": "e palacios",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6231,
+        "name": "F. Medina",
+        "name_normalized": "f medina",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1578,
+        "name": "G. Lo Celso",
+        "name_normalized": "g lo celso",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2468,
+        "name": "G. Montiel",
+        "name_normalized": "g montiel",
+        "position": "Defender"
+      },
+      {
+        "api_id": 47296,
+        "name": "G. Rulli",
+        "name_normalized": "g rulli",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 323935,
+        "name": "G. Simeone",
+        "name_normalized": "g simeone",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6009,
+        "name": "J. \u00c1lvarez",
+        "name_normalized": "j alvarez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 295513,
+        "name": "J. L\u00f3pez",
+        "name_normalized": "j lopez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2465,
+        "name": "J. Musso",
+        "name_normalized": "j musso",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 6,
+        "name": "L. Balerdi",
+        "name_normalized": "l balerdi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 154,
+        "name": "L. Messi",
+        "name_normalized": "l messi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 271,
+        "name": "L. Paredes",
+        "name_normalized": "l paredes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 217,
+        "name": "Lautaro Mart\u00ednez",
+        "name_normalized": "lautaro martinez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2467,
+        "name": "Lisandro Mart\u00ednez",
+        "name_normalized": "lisandro martinez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 26315,
+        "name": "N. Gonz\u00e1lez",
+        "name_normalized": "n gonzalez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 6503,
+        "name": "N. Molina",
+        "name_normalized": "n molina",
+        "position": "Defender"
+      },
+      {
+        "api_id": 624,
+        "name": "N. Otamendi",
+        "name_normalized": "n otamendi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 350037,
+        "name": "N. Paz",
+        "name_normalized": "n paz",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 529,
+        "name": "N. Tagliafico",
+        "name_normalized": "n tagliafico",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2472,
+        "name": "R. De Paul",
+        "name_normalized": "r de paul",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6067,
+        "name": "T. Almada",
+        "name_normalized": "t almada",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 319572,
+        "name": "V. Barco",
+        "name_normalized": "v barco",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 26,
+    "team_name": "Argentina",
+    "team_name_normalized": "argentina"
+  },
+  "australia": {
+    "players": [
+      {
+        "api_id": 225,
+        "name": "A. Behich",
+        "name_normalized": "a behich",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 348568,
+        "name": "A. Circati",
+        "name_normalized": "a circati",
+        "position": "Defender"
+      },
+      {
+        "api_id": 38123,
+        "name": "A. Hrustic",
+        "name_normalized": "a hrustic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2755,
+        "name": "A. Mabil",
+        "name_normalized": "a mabil",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 7050,
+        "name": "A. O Neill",
+        "name_normalized": "a o neill",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 20457,
+        "name": "C. Burgess",
+        "name_normalized": "c burgess",
+        "position": "Defender"
+      },
+      {
+        "api_id": 6832,
+        "name": "C. Devlin",
+        "name_normalized": "c devlin",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6904,
+        "name": "C. Metcalfe",
+        "name_normalized": "c metcalfe",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 342035,
+        "name": "C. Volpato",
+        "name_normalized": "c volpato",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 20079,
+        "name": "H. Souttar",
+        "name_normalized": "h souttar",
+        "position": "Defender"
+      },
+      {
+        "api_id": 337587,
+        "name": "J. Bos",
+        "name_normalized": "j bos",
+        "position": "Defender"
+      },
+      {
+        "api_id": 33847,
+        "name": "J. Geria",
+        "name_normalized": "j geria",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2749,
+        "name": "J. Irvine",
+        "name_normalized": "j irvine",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6808,
+        "name": "J. Italiano",
+        "name_normalized": "j italiano",
+        "position": "Defender"
+      },
+      {
+        "api_id": 153622,
+        "name": "K. Trewin",
+        "name_normalized": "k trewin",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 426480,
+        "name": "L. Herrington",
+        "name_normalized": "l herrington",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2742,
+        "name": "M. Degenek",
+        "name_normalized": "m degenek",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2751,
+        "name": "M. Leckie",
+        "name_normalized": "m leckie",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2741,
+        "name": "M. Ryan",
+        "name_normalized": "m ryan",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 198352,
+        "name": "M. Tour\u00e9",
+        "name_normalized": "m toure",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 338014,
+        "name": "N. Irankunda",
+        "name_normalized": "n irankunda",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 312459,
+        "name": "N. Velupillay",
+        "name_normalized": "n velupillay",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 353883,
+        "name": "P. Beach",
+        "name_normalized": "p beach",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 6870,
+        "name": "P. Izzo",
+        "name_normalized": "p izzo",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 441269,
+        "name": "Paul Okon-Engstler",
+        "name_normalized": "paul okon engstler",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 296645,
+        "name": "T. Yengi",
+        "name_normalized": "t yengi",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 20,
+    "team_name": "Australia",
+    "team_name_normalized": "australia"
+  },
+  "austria": {
+    "players": [
+      {
+        "api_id": 7327,
+        "name": "A. Prass",
+        "name_normalized": "a prass",
+        "position": "Defender"
+      },
+      {
+        "api_id": 7525,
+        "name": "A. Schlager",
+        "name_normalized": "a schlager",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 417,
+        "name": "A. Sch\u00f6pf",
+        "name_normalized": "a schopf",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 715,
+        "name": "C. Baumgartner",
+        "name_normalized": "c baumgartner",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 138935,
+        "name": "C. Chukwuemeka",
+        "name_normalized": "c chukwuemeka",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 126640,
+        "name": "D. Affengruber",
+        "name_normalized": "d affengruber",
+        "position": "Defender"
+      },
+      {
+        "api_id": 505,
+        "name": "D. Alaba",
+        "name_normalized": "d alaba",
+        "position": "Defender"
+      },
+      {
+        "api_id": 719,
+        "name": "F. Grillitsch",
+        "name_normalized": "f grillitsch",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 221605,
+        "name": "F. Wiegele",
+        "name_normalized": "f wiegele",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 25287,
+        "name": "K. Danso",
+        "name_normalized": "k danso",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1157,
+        "name": "K. Laimer",
+        "name_normalized": "k laimer",
+        "position": "Defender"
+      },
+      {
+        "api_id": 18830,
+        "name": "M. Arnautovic",
+        "name_normalized": "m arnautovic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 25314,
+        "name": "M. Friedl",
+        "name_normalized": "m friedl",
+        "position": "Defender"
+      },
+      {
+        "api_id": 25297,
+        "name": "M. Gregoritsch",
+        "name_normalized": "m gregoritsch",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1159,
+        "name": "M. Sabitzer",
+        "name_normalized": "m sabitzer",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 7090,
+        "name": "M. Svoboda",
+        "name_normalized": "m svoboda",
+        "position": "Defender"
+      },
+      {
+        "api_id": 7328,
+        "name": "N. Seiwald",
+        "name_normalized": "n seiwald",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 26240,
+        "name": "P. Lienhart",
+        "name_normalized": "p lienhart",
+        "position": "Defender"
+      },
+      {
+        "api_id": 25915,
+        "name": "P. Mwene",
+        "name_normalized": "p mwene",
+        "position": "Defender"
+      },
+      {
+        "api_id": 7598,
+        "name": "P. Pentz",
+        "name_normalized": "p pentz",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 327895,
+        "name": "P. Wanner",
+        "name_normalized": "p wanner",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 126642,
+        "name": "P. Wimmer",
+        "name_normalized": "p wimmer",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 7562,
+        "name": "R. Schmid",
+        "name_normalized": "r schmid",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 7722,
+        "name": "S. Kalajdzic",
+        "name_normalized": "s kalajdzic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 711,
+        "name": "S. Posch",
+        "name_normalized": "s posch",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1095,
+        "name": "X. Schlager",
+        "name_normalized": "x schlager",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 775,
+    "team_name": "Austria",
+    "team_name_normalized": "austria"
+  },
+  "belgium": {
+    "players": [
+      {
+        "api_id": 162714,
+        "name": "A. Onana",
+        "name_normalized": "a onana",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1417,
+        "name": "A. Saelemaekers",
+        "name_normalized": "a saelemaekers",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 204043,
+        "name": "A. Theate",
+        "name_normalized": "a theate",
+        "position": "Defender"
+      },
+      {
+        "api_id": 20,
+        "name": "A. Witsel",
+        "name_normalized": "a witsel",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 69,
+        "name": "B. Mechele",
+        "name_normalized": "b mechele",
+        "position": "Defender"
+      },
+      {
+        "api_id": 147859,
+        "name": "C. De Ketelaere",
+        "name_normalized": "c de ketelaere",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 25458,
+        "name": "D. Lukebakio",
+        "name_normalized": "d lukebakio",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 335056,
+        "name": "D. Moreira",
+        "name_normalized": "d moreira",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 78,
+        "name": "H. Vanaken",
+        "name_normalized": "h vanaken",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1422,
+        "name": "J. Doku",
+        "name_normalized": "j doku",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 375974,
+        "name": "J. Seys",
+        "name_normalized": "j seys",
+        "position": "Defender"
+      },
+      {
+        "api_id": 629,
+        "name": "K. De Bruyne",
+        "name_normalized": "k de bruyne",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 162141,
+        "name": "K. De Winter",
+        "name_normalized": "k de winter",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1946,
+        "name": "L. Trossard",
+        "name_normalized": "l trossard",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 162007,
+        "name": "M. De Cuyper",
+        "name_normalized": "m de cuyper",
+        "position": "Defender"
+      },
+      {
+        "api_id": 340077,
+        "name": "M. Fernandez-Pardo",
+        "name_normalized": "m fernandez pardo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 340151,
+        "name": "M. Penders",
+        "name_normalized": "m penders",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 312964,
+        "name": "N. Ngoy",
+        "name_normalized": "n ngoy",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2120,
+        "name": "N. Raskin",
+        "name_normalized": "n raskin",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 907,
+        "name": "R. Lukaku",
+        "name_normalized": "r lukaku",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 162511,
+        "name": "S. Lammens",
+        "name_normalized": "s lammens",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2920,
+        "name": "T. Castagne",
+        "name_normalized": "t castagne",
+        "position": "Defender"
+      },
+      {
+        "api_id": 730,
+        "name": "T. Courtois",
+        "name_normalized": "t courtois",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 264,
+        "name": "T. Meunier",
+        "name_normalized": "t meunier",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2926,
+        "name": "Y. Tielemans",
+        "name_normalized": "y tielemans",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 304228,
+        "name": "Z. Debast",
+        "name_normalized": "z debast",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 1,
+    "team_name": "Belgium",
+    "team_name_normalized": "belgium"
+  },
+  "bosnia herzegovina": {
+    "players": [
+      {
+        "api_id": 7318,
+        "name": "A. Dedic",
+        "name_normalized": "a dedic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 70514,
+        "name": "A. Gigovic",
+        "name_normalized": "a gigovic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 50006,
+        "name": "A. Hadziahmetovic",
+        "name_normalized": "a hadziahmetovic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 322101,
+        "name": "A. Memic",
+        "name_normalized": "a memic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 264094,
+        "name": "B. Tahirovic",
+        "name_normalized": "b tahirovic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 25129,
+        "name": "D. Burnic",
+        "name_normalized": "d burnic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 53517,
+        "name": "D. Hadzikadunic",
+        "name_normalized": "d hadzikadunic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 329409,
+        "name": "E. Bajraktarevic",
+        "name_normalized": "e bajraktarevic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 46930,
+        "name": "E. Demirovic",
+        "name_normalized": "e demirovic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 790,
+        "name": "E. Dzeko",
+        "name_normalized": "e dzeko",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 340173,
+        "name": "Ermin Mahmic",
+        "name_normalized": "ermin mahmic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 28382,
+        "name": "H. Tabakovic",
+        "name_normalized": "h tabakovic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 162222,
+        "name": "I. Basic",
+        "name_normalized": "i basic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1324,
+        "name": "I. Sunjic",
+        "name_normalized": "i sunjic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 77037,
+        "name": "J. Lukic",
+        "name_normalized": "j lukic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 395559,
+        "name": "Kerim-Sam Alajbegovic",
+        "name_normalized": "kerim sam alajbegovic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 446130,
+        "name": "M. Jurkas",
+        "name_normalized": "m jurkas",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 108370,
+        "name": "M. Zlomislic",
+        "name_normalized": "m zlomislic",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 395589,
+        "name": "N. Celik",
+        "name_normalized": "n celik",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1741,
+        "name": "N. Katic",
+        "name_normalized": "n katic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 76867,
+        "name": "N. Mujakic",
+        "name_normalized": "n mujakic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 9026,
+        "name": "N. Vasilj",
+        "name_normalized": "n vasilj",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 314377,
+        "name": "S. Bazdar",
+        "name_normalized": "s bazdar",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1442,
+        "name": "S. Kolasinac",
+        "name_normalized": "s kolasinac",
+        "position": "Defender"
+      },
+      {
+        "api_id": 14301,
+        "name": "S. Radeljic",
+        "name_normalized": "s radeljic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 271350,
+        "name": "T. Muharemovic",
+        "name_normalized": "t muharemovic",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 1113,
+    "team_name": "Bosnia & Herzegovina",
+    "team_name_normalized": "bosnia herzegovina"
+  },
+  "brazil": {
+    "players": [
+      {
+        "api_id": 860,
+        "name": "Alex Sandro",
+        "name_normalized": "alex sandro",
+        "position": "Defender"
+      },
+      {
+        "api_id": 280,
+        "name": "Alisson Becker",
+        "name_normalized": "alisson becker",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 30497,
+        "name": "Bremer",
+        "name_normalized": "bremer",
+        "position": "Defender"
+      },
+      {
+        "api_id": 10135,
+        "name": "Bruno Guimar\u00e3es",
+        "name_normalized": "bruno guimaraes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 747,
+        "name": "Casemiro",
+        "name_normalized": "casemiro",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 618,
+        "name": "Danilo",
+        "name_normalized": "danilo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 275170,
+        "name": "Danilo Santos",
+        "name_normalized": "danilo santos",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 24866,
+        "name": "Douglas Santos",
+        "name_normalized": "douglas santos",
+        "position": "Defender"
+      },
+      {
+        "api_id": 617,
+        "name": "Ederson",
+        "name_normalized": "ederson",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 377122,
+        "name": "Endrick",
+        "name_normalized": "endrick",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 299,
+        "name": "Fabinho",
+        "name_normalized": "fabinho",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 22224,
+        "name": "Gabriel Magalh\u00e3es",
+        "name_normalized": "gabriel magalhaes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 127769,
+        "name": "Gabriel Martinelli",
+        "name_normalized": "gabriel martinelli",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 30424,
+        "name": "Iba\u00f1ez",
+        "name_normalized": "ibanez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 10124,
+        "name": "L\u00e9o Pereira",
+        "name_normalized": "leo pereira",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1646,
+        "name": "Lucas Paquet\u00e1",
+        "name_normalized": "lucas paqueta",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 265785,
+        "name": "Luiz Henrique",
+        "name_normalized": "luiz henrique",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 257,
+        "name": "Marquinhos",
+        "name_normalized": "marquinhos",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1165,
+        "name": "Matheus Cunha",
+        "name_normalized": "matheus cunha",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 276,
+        "name": "Neymar",
+        "name_normalized": "neymar",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1496,
+        "name": "Raphinha",
+        "name_normalized": "raphinha",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 407806,
+        "name": "Rayan",
+        "name_normalized": "rayan",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 196156,
+        "name": "Thiago",
+        "name_normalized": "thiago",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 762,
+        "name": "Vin\u00edcius J\u00fanior",
+        "name_normalized": "vinicius junior",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 349001,
+        "name": "Wesley",
+        "name_normalized": "wesley",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2410,
+        "name": "Weverton",
+        "name_normalized": "weverton",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 6,
+    "team_name": "Brazil",
+    "team_name_normalized": "brazil"
+  },
+  "canada": {
+    "players": [
+      {
+        "api_id": 362145,
+        "name": "A. Ahmed",
+        "name_normalized": "a ahmed",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 509,
+        "name": "A. Davies",
+        "name_normalized": "a davies",
+        "position": "Defender"
+      },
+      {
+        "api_id": 78547,
+        "name": "A. Johnston",
+        "name_normalized": "a johnston",
+        "position": "Defender"
+      },
+      {
+        "api_id": 18938,
+        "name": "A. Jones",
+        "name_normalized": "a jones",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2001,
+        "name": "C. Larin",
+        "name_normalized": "c larin",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 51295,
+        "name": "D. Cornelius",
+        "name_normalized": "d cornelius",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51148,
+        "name": "D. St. Clair",
+        "name_normalized": "d st clair",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 328046,
+        "name": "I. Kon\u00e9",
+        "name_normalized": "i kone",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 8489,
+        "name": "J. David",
+        "name_normalized": "j david",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 50817,
+        "name": "J. Osorio",
+        "name_normalized": "j osorio",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 50826,
+        "name": "J. Shaffelburg",
+        "name_normalized": "j shaffelburg",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 78494,
+        "name": "J. Waterman",
+        "name_normalized": "j waterman",
+        "position": "Defender"
+      },
+      {
+        "api_id": 327738,
+        "name": "L. De Fougerolles",
+        "name_normalized": "l de fougerolles",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44798,
+        "name": "L. Millar",
+        "name_normalized": "l millar",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 407017,
+        "name": "M. Bombito",
+        "name_normalized": "m bombito",
+        "position": "Defender"
+      },
+      {
+        "api_id": 50788,
+        "name": "M. Choini\u00e8re",
+        "name_normalized": "m choiniere",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 51274,
+        "name": "M. Cr\u00e9peau",
+        "name_normalized": "m crepeau",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 284061,
+        "name": "M. Flores",
+        "name_normalized": "m flores",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 294824,
+        "name": "N. Saliba",
+        "name_normalized": "n saliba",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 416901,
+        "name": "N. Sigur",
+        "name_normalized": "n sigur",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 284554,
+        "name": "O. Goodman",
+        "name_normalized": "o goodman",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 313353,
+        "name": "P. David",
+        "name_normalized": "p david",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 50816,
+        "name": "R. Laryea",
+        "name_normalized": "r laryea",
+        "position": "Defender"
+      },
+      {
+        "api_id": 35570,
+        "name": "S. Eust\u00e1quio",
+        "name_normalized": "s eustaquio",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 51016,
+        "name": "T. Buchanan",
+        "name_normalized": "t buchanan",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 351587,
+        "name": "T. Oluwaseyi",
+        "name_normalized": "t oluwaseyi",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 5529,
+    "team_name": "Canada",
+    "team_name_normalized": "canada"
+  },
+  "cape verde islands": {
+    "players": [
+      {
+        "api_id": 163200,
+        "name": "C. dos Santos",
+        "name_normalized": "c dos santos",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 343287,
+        "name": "D. Livramento",
+        "name_normalized": "d livramento",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 37435,
+        "name": "Deroy Duarte",
+        "name_normalized": "deroy duarte",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 41608,
+        "name": "Diney Borges",
+        "name_normalized": "diney borges",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44612,
+        "name": "Garry Rodrigues",
+        "name_normalized": "garry rodrigues",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 309182,
+        "name": "Gilson Benchimol",
+        "name_normalized": "gilson benchimol",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 291024,
+        "name": "H\u00e9lio Varela",
+        "name_normalized": "helio varela",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 50745,
+        "name": "Jamiro Monteiro",
+        "name_normalized": "jamiro monteiro",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 142016,
+        "name": "Jo\u00e3o Paulo",
+        "name_normalized": "joao paulo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1494,
+        "name": "Jovane Cabral",
+        "name_normalized": "jovane cabral",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 268806,
+        "name": "Kelvin Pires",
+        "name_normalized": "kelvin pires",
+        "position": "Defender"
+      },
+      {
+        "api_id": 96512,
+        "name": "Kevin Pina",
+        "name_normalized": "kevin pina",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 37436,
+        "name": "L. Duarte",
+        "name_normalized": "l duarte",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 21997,
+        "name": "Logan Costa",
+        "name_normalized": "logan costa",
+        "position": "Defender"
+      },
+      {
+        "api_id": 41764,
+        "name": "M\u00e1rcio Rosa",
+        "name_normalized": "marcio rosa",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 22265,
+        "name": "Nuno da Costa",
+        "name_normalized": "nuno da costa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 69260,
+        "name": "Pico",
+        "name_normalized": "pico",
+        "position": "Defender"
+      },
+      {
+        "api_id": 50270,
+        "name": "Ryan Mendes",
+        "name_normalized": "ryan mendes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 308689,
+        "name": "S. Lopes Cabral",
+        "name_normalized": "s lopes cabral",
+        "position": "Defender"
+      },
+      {
+        "api_id": 22139,
+        "name": "S. Moreira",
+        "name_normalized": "s moreira",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2331,
+        "name": "Stopira",
+        "name_normalized": "stopira",
+        "position": "Defender"
+      },
+      {
+        "api_id": 265556,
+        "name": "Telmo Arcanjo",
+        "name_normalized": "telmo arcanjo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 15304,
+        "name": "V\u00f3zinha",
+        "name_normalized": "vozinha",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 332056,
+        "name": "Wagner Pina",
+        "name_normalized": "wagner pina",
+        "position": "Defender"
+      },
+      {
+        "api_id": 113580,
+        "name": "Willy Semedo",
+        "name_normalized": "willy semedo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 128007,
+        "name": "Yannick Semedo",
+        "name_normalized": "yannick semedo",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 1533,
+    "team_name": "Cape Verde Islands",
+    "team_name_normalized": "cape verde islands"
+  },
+  "colombia": {
+    "players": [
+      {
+        "api_id": 345748,
+        "name": "A. G\u00f3mez",
+        "name_normalized": "a gomez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2481,
+        "name": "\u00c1. Montero",
+        "name_normalized": "a montero",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 47582,
+        "name": "C. Hern\u00e1ndez",
+        "name_normalized": "c hernandez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2482,
+        "name": "C. Vargas",
+        "name_normalized": "c vargas",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2483,
+        "name": "D. Machado",
+        "name_normalized": "d machado",
+        "position": "Defender"
+      },
+      {
+        "api_id": 13736,
+        "name": "D. Mu\u00f1oz",
+        "name_normalized": "d munoz",
+        "position": "Defender"
+      },
+      {
+        "api_id": 313,
+        "name": "D. Ospina",
+        "name_normalized": "d ospina",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 168,
+        "name": "D. S\u00e1nchez",
+        "name_normalized": "d sanchez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 324034,
+        "name": "G. Puerta",
+        "name_normalized": "g puerta",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 13708,
+        "name": "J. Arias",
+        "name_normalized": "j arias",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 13376,
+        "name": "J. Campaz",
+        "name_normalized": "j campaz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 5994,
+        "name": "J. Carrascal",
+        "name_normalized": "j carrascal",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 24810,
+        "name": "J. C\u00f3rdoba",
+        "name_normalized": "j cordoba",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2490,
+        "name": "J. Lerma",
+        "name_normalized": "j lerma",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1929,
+        "name": "J. Lucum\u00ed",
+        "name_normalized": "j lucumi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 64268,
+        "name": "J. Mojica",
+        "name_normalized": "j mojica",
+        "position": "Defender"
+      },
+      {
+        "api_id": 13151,
+        "name": "J. Portilla",
+        "name_normalized": "j portilla",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6005,
+        "name": "J. Quintero",
+        "name_normalized": "j quintero",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 517,
+        "name": "J. Rodr\u00edguez",
+        "name_normalized": "j rodriguez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 289592,
+        "name": "K. Casta\u00f1o",
+        "name_normalized": "k castano",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2489,
+        "name": "L. D\u00edaz",
+        "name_normalized": "l diaz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47237,
+        "name": "L. Su\u00e1rez",
+        "name_normalized": "l suarez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 195104,
+        "name": "R. Rios",
+        "name_normalized": "r rios",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 30,
+        "name": "S. Arias",
+        "name_normalized": "s arias",
+        "position": "Defender"
+      },
+      {
+        "api_id": 13571,
+        "name": "W. Ditta",
+        "name_normalized": "w ditta",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2484,
+        "name": "Y. Mina",
+        "name_normalized": "y mina",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 8,
+    "team_name": "Colombia",
+    "team_name_normalized": "colombia"
+  },
+  "congo dr": {
+    "players": [
+      {
+        "api_id": 18816,
+        "name": "A. Masuaku",
+        "name_normalized": "a masuaku",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44791,
+        "name": "A. Tshibola",
+        "name_normalized": "a tshibola",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19182,
+        "name": "A. Tuanzebe",
+        "name_normalized": "a tuanzebe",
+        "position": "Defender"
+      },
+      {
+        "api_id": 18846,
+        "name": "A. Wan-Bissaka",
+        "name_normalized": "a wan bissaka",
+        "position": "Defender"
+      },
+      {
+        "api_id": 279482,
+        "name": "B. Cipenga",
+        "name_normalized": "b cipenga",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 3033,
+        "name": "C. Bakambu",
+        "name_normalized": "c bakambu",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 375,
+        "name": "C. Mbemba",
+        "name_normalized": "c mbemba",
+        "position": "Defender"
+      },
+      {
+        "api_id": 48555,
+        "name": "C. Pickel",
+        "name_normalized": "c pickel",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 8445,
+        "name": "D. Batubinsika",
+        "name_normalized": "d batubinsika",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1424,
+        "name": "E. Kayembe",
+        "name_normalized": "e kayembe",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 179699,
+        "name": "F. Mayele",
+        "name_normalized": "f mayele",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 47545,
+        "name": "G. Kakuta",
+        "name_normalized": "g kakuta",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 24245,
+        "name": "G. Kalulu",
+        "name_normalized": "g kalulu",
+        "position": "Defender"
+      },
+      {
+        "api_id": 21098,
+        "name": "J. Kayembe",
+        "name_normalized": "j kayembe",
+        "position": "Defender"
+      },
+      {
+        "api_id": 24012,
+        "name": "L. Mpasi",
+        "name_normalized": "l mpasi",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 3034,
+        "name": "M. Elia",
+        "name_normalized": "m elia",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 314509,
+        "name": "M. Epolo",
+        "name_normalized": "m epolo",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 129670,
+        "name": "N. Mbuku",
+        "name_normalized": "n mbuku",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 375598,
+        "name": "N. Mukau",
+        "name_normalized": "n mukau",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 365331,
+        "name": "N. Sadiki",
+        "name_normalized": "n sadiki",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 20674,
+        "name": "S. Banza",
+        "name_normalized": "s banza",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 199767,
+        "name": "S. Kapuadi",
+        "name_normalized": "s kapuadi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 21101,
+        "name": "S. Moutoussamy",
+        "name_normalized": "s moutoussamy",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 8627,
+        "name": "T. Bongonda",
+        "name_normalized": "t bongonda",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 48501,
+        "name": "T. Fayulu",
+        "name_normalized": "t fayulu",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 20649,
+        "name": "Y. Wissa",
+        "name_normalized": "y wissa",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 1508,
+    "team_name": "Congo DR",
+    "team_name_normalized": "congo dr"
+  },
+  "cote d ivoire": {
+    "players": [
+      {
+        "api_id": 275651,
+        "name": "A. Bonny",
+        "name_normalized": "a bonny",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 157997,
+        "name": "A. Diallo",
+        "name_normalized": "a diallo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 30393,
+        "name": "A. Lafont",
+        "name_normalized": "a lafont",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 387643,
+        "name": "B. Tour\u00e9",
+        "name_normalized": "b toure",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 474591,
+        "name": "C. Inao Oulai",
+        "name_normalized": "c inao oulai",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 20836,
+        "name": "C. Operi",
+        "name_normalized": "c operi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 135068,
+        "name": "E. Agbadou",
+        "name_normalized": "e agbadou",
+        "position": "Defender"
+      },
+      {
+        "api_id": 137303,
+        "name": "E. Guessand",
+        "name_normalized": "e guessand",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1807,
+        "name": "E. Ndicka",
+        "name_normalized": "e ndicka",
+        "position": "Defender"
+      },
+      {
+        "api_id": 162707,
+        "name": "E. Wahi",
+        "name_normalized": "e wahi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1642,
+        "name": "F. Kessi\u00e9",
+        "name_normalized": "f kessie",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 161747,
+        "name": "G. Dou\u00e9",
+        "name_normalized": "g doue",
+        "position": "Defender"
+      },
+      {
+        "api_id": 22002,
+        "name": "G. Konan",
+        "name_normalized": "g konan",
+        "position": "Defender"
+      },
+      {
+        "api_id": 22149,
+        "name": "I. Sangar\u00e9",
+        "name_normalized": "i sangare",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 3243,
+        "name": "J. Seri",
+        "name_normalized": "j seri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 277046,
+        "name": "M. Kon\u00e9",
+        "name_normalized": "m kone",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 3246,
+        "name": "N. P\u00e9p\u00e9",
+        "name_normalized": "n pepe",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 334429,
+        "name": "O. Diakit\u00e9",
+        "name_normalized": "o diakite",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 354753,
+        "name": "O. Diomande",
+        "name_normalized": "o diomande",
+        "position": "Defender"
+      },
+      {
+        "api_id": 48119,
+        "name": "O. Kossounou",
+        "name_normalized": "o kossounou",
+        "position": "Defender"
+      },
+      {
+        "api_id": 263228,
+        "name": "P. Guiagon",
+        "name_normalized": "p guiagon",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 301771,
+        "name": "S. Adingra",
+        "name_normalized": "s adingra",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 30807,
+        "name": "S. Fofana",
+        "name_normalized": "s fofana",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 30504,
+        "name": "W. Singo",
+        "name_normalized": "w singo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 513776,
+        "name": "Y. Diomande",
+        "name_normalized": "y diomande",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 64190,
+        "name": "Y. Fofana",
+        "name_normalized": "y fofana",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 1501,
+    "team_name": "Ivory Coast",
+    "team_name_normalized": "cote d ivoire"
+  },
+  "croatia": {
+    "players": [
+      {
+        "api_id": 46746,
+        "name": "A. Budimir",
+        "name_normalized": "a budimir",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 726,
+        "name": "A. Kramaric",
+        "name_normalized": "a kramaric",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1902,
+        "name": "D. Caleta-Car",
+        "name_normalized": "d caleta car",
+        "position": "Defender"
+      },
+      {
+        "api_id": 524,
+        "name": "D. Kotarski",
+        "name_normalized": "d kotarski",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 1305,
+        "name": "D. Livakovic",
+        "name_normalized": "d livakovic",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 202696,
+        "name": "I. Matanovic",
+        "name_normalized": "i matanovic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 14268,
+        "name": "I. Pandur",
+        "name_normalized": "i pandur",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 207,
+        "name": "I. Perisic",
+        "name_normalized": "i perisic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 129033,
+        "name": "J. Gvardiol",
+        "name_normalized": "j gvardiol",
+        "position": "Defender"
+      },
+      {
+        "api_id": 125171,
+        "name": "J. Stanisic",
+        "name_normalized": "j stanisic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 14701,
+        "name": "J. Sutalo",
+        "name_normalized": "j sutalo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 14395,
+        "name": "K. Jakic",
+        "name_normalized": "k jakic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 754,
+        "name": "L. Modric",
+        "name_normalized": "l modric",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 7332,
+        "name": "L. Sucic",
+        "name_normalized": "l sucic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 387521,
+        "name": "L. Vuskovic",
+        "name_normalized": "l vuskovic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 295026,
+        "name": "M. Baturina",
+        "name_normalized": "m baturina",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 30827,
+        "name": "M. Erlic",
+        "name_normalized": "m erlic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2291,
+        "name": "M. Kovacic",
+        "name_normalized": "m kovacic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2763,
+        "name": "M. Pasalic",
+        "name_normalized": "m pasalic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 260865,
+        "name": "M. Pasalic",
+        "name_normalized": "m pasalic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1084,
+        "name": "M. Pongracic",
+        "name_normalized": "m pongracic",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1322,
+        "name": "N. Moro",
+        "name_normalized": "n moro",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 842,
+        "name": "N. Vlasic",
+        "name_normalized": "n vlasic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 66055,
+        "name": "P. Musa",
+        "name_normalized": "p musa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 348205,
+        "name": "P. Sucic",
+        "name_normalized": "p sucic",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 284869,
+        "name": "T. Fruk",
+        "name_normalized": "t fruk",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 3,
+    "team_name": "Croatia",
+    "team_name_normalized": "croatia"
+  },
+  "curacao": {
+    "players": [
+      {
+        "api_id": 162199,
+        "name": "A. Martha",
+        "name_normalized": "a martha",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 228,
+        "name": "A. Obispo",
+        "name_normalized": "a obispo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 37272,
+        "name": "B. Kuwas",
+        "name_normalized": "b kuwas",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 353808,
+        "name": "Deveron Fonville",
+        "name_normalized": "deveron fonville",
+        "position": "Defender"
+      },
+      {
+        "api_id": 221,
+        "name": "E. Room",
+        "name_normalized": "e room",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 38708,
+        "name": "G. Kastaneer",
+        "name_normalized": "g kastaneer",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 36842,
+        "name": "G. Roemeratoe",
+        "name_normalized": "g roemeratoe",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 163220,
+        "name": "J. Antonisse",
+        "name_normalized": "j antonisse",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 19047,
+        "name": "J. Bacuna",
+        "name_normalized": "j bacuna",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 706,
+        "name": "J. Brenet",
+        "name_normalized": "j brenet",
+        "position": "Defender"
+      },
+      {
+        "api_id": 36857,
+        "name": "J. Gaari",
+        "name_normalized": "j gaari",
+        "position": "Defender"
+      },
+      {
+        "api_id": 18981,
+        "name": "J. Locadia",
+        "name_normalized": "j locadia",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 195067,
+        "name": "J. Margaritha",
+        "name_normalized": "j margaritha",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 37461,
+        "name": "K. Felida",
+        "name_normalized": "k felida",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 41627,
+        "name": "K. Gorr\u00e9",
+        "name_normalized": "k gorre",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 18997,
+        "name": "L. Bacuna",
+        "name_normalized": "l bacuna",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 309763,
+        "name": "L. Comenencia",
+        "name_normalized": "l comenencia",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 37175,
+        "name": "R. Bazoer",
+        "name_normalized": "r bazoer",
+        "position": "Defender"
+      },
+      {
+        "api_id": 37066,
+        "name": "R. van Eijma",
+        "name_normalized": "r van eijma",
+        "position": "Defender"
+      },
+      {
+        "api_id": 36970,
+        "name": "S. Floranus",
+        "name_normalized": "s floranus",
+        "position": "Defender"
+      },
+      {
+        "api_id": 161884,
+        "name": "S. Hansen",
+        "name_normalized": "s hansen",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 194645,
+        "name": "S. Sambo",
+        "name_normalized": "s sambo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 214129,
+        "name": "T. Bodak",
+        "name_normalized": "t bodak",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 906,
+        "name": "T. Chong",
+        "name_normalized": "t chong",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 36967,
+        "name": "T. Doornbusch",
+        "name_normalized": "t doornbusch",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 406846,
+        "name": "T. Noslin",
+        "name_normalized": "t noslin",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 5530,
+    "team_name": "Cura\u00e7ao",
+    "team_name_normalized": "curacao"
+  },
+  "czechia": {
+    "players": [
+      {
+        "api_id": 66019,
+        "name": "A. Hlozek",
+        "name_normalized": "a hlozek",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 386837,
+        "name": "A. Sojka",
+        "name_normalized": "a sojka",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 66214,
+        "name": "D. Doudera",
+        "name_normalized": "d doudera",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 128793,
+        "name": "D. Jur\u00e1sek",
+        "name_normalized": "d jurasek",
+        "position": "Defender"
+      },
+      {
+        "api_id": 290212,
+        "name": "D. Visinsk\u00fd",
+        "name_normalized": "d visinsky",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 128772,
+        "name": "D. Zima",
+        "name_normalized": "d zima",
+        "position": "Defender"
+      },
+      {
+        "api_id": 555437,
+        "name": "H. Sochurek",
+        "name_normalized": "h sochurek",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 66340,
+        "name": "J. Kuchta",
+        "name_normalized": "j kuchta",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 66347,
+        "name": "J. Stanek",
+        "name_normalized": "j stanek",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 1237,
+        "name": "J. Zelen\u00fd",
+        "name_normalized": "j zeleny",
+        "position": "Defender"
+      },
+      {
+        "api_id": 162194,
+        "name": "L. Cerv",
+        "name_normalized": "l cerv",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 269349,
+        "name": "L. Horn\u00edcek",
+        "name_normalized": "l hornicek",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 66407,
+        "name": "L. Krejc\u00ed",
+        "name_normalized": "l krejci",
+        "position": "Defender"
+      },
+      {
+        "api_id": 66353,
+        "name": "L. Provod",
+        "name_normalized": "l provod",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 66275,
+        "name": "M. Chytil",
+        "name_normalized": "m chytil",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 138804,
+        "name": "M. Kov\u00e1r",
+        "name_normalized": "m kovar",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 241,
+        "name": "M. Sad\u00edlek",
+        "name_normalized": "m sadilek",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 794,
+        "name": "P. Schick",
+        "name_normalized": "p schick",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 66387,
+        "name": "P. Sulc",
+        "name_normalized": "p sulc",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 162964,
+        "name": "R. Hran\u00e1c",
+        "name_normalized": "r hranac",
+        "position": "Defender"
+      },
+      {
+        "api_id": 337740,
+        "name": "S. Chaloupek",
+        "name_normalized": "s chaloupek",
+        "position": "Defender"
+      },
+      {
+        "api_id": 818,
+        "name": "T. Chor\u00fd",
+        "name_normalized": "t chory",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2252,
+        "name": "T. Holes",
+        "name_normalized": "t holes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1243,
+        "name": "T. Soucek",
+        "name_normalized": "t soucek",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1231,
+        "name": "V. Coufal",
+        "name_normalized": "v coufal",
+        "position": "Defender"
+      },
+      {
+        "api_id": 25348,
+        "name": "V. Darida",
+        "name_normalized": "v darida",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 770,
+    "team_name": "Czech Republic",
+    "team_name_normalized": "czechia"
+  },
+  "ecuador": {
+    "players": [
+      {
+        "api_id": 16360,
+        "name": "A. Franco",
+        "name_normalized": "a franco",
+        "position": "Defender"
+      },
+      {
+        "api_id": 280695,
+        "name": "A. Minda",
+        "name_normalized": "a minda",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2583,
+        "name": "A. Preciado",
+        "name_normalized": "a preciado",
+        "position": "Defender"
+      },
+      {
+        "api_id": 198347,
+        "name": "A. Valencia",
+        "name_normalized": "a valencia",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 338045,
+        "name": "D. Castillo",
+        "name_normalized": "d castillo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 35533,
+        "name": "E. Valencia",
+        "name_normalized": "e valencia",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 63964,
+        "name": "F. Torres",
+        "name_normalized": "f torres",
+        "position": "Defender"
+      },
+      {
+        "api_id": 16369,
+        "name": "G. Plata",
+        "name_normalized": "g plata",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 16642,
+        "name": "G. Valle",
+        "name_normalized": "g valle",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 16380,
+        "name": "H. Gal\u00edndez",
+        "name_normalized": "h galindez",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 16470,
+        "name": "J. Alc\u00edvar",
+        "name_normalized": "j alcivar",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 16590,
+        "name": "J. Caicedo",
+        "name_normalized": "j caicedo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 354027,
+        "name": "J. Ordo\u00f1ez",
+        "name_normalized": "j ordonez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2575,
+        "name": "J. Porozo",
+        "name_normalized": "j porozo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 25414,
+        "name": "J. Yeboah",
+        "name_normalized": "j yeboah",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 350799,
+        "name": "Jeremy Ar\u00e9valo",
+        "name_normalized": "jeremy arevalo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 406303,
+        "name": "K. P\u00e1ez",
+        "name_normalized": "k paez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 361966,
+        "name": "K. Rodr\u00edguez",
+        "name_normalized": "k rodriguez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 116117,
+        "name": "M. Caicedo",
+        "name_normalized": "m caicedo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 81224,
+        "name": "M. Ram\u00edrez",
+        "name_normalized": "m ramirez",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 311543,
+        "name": "N. Angulo",
+        "name_normalized": "n angulo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 46731,
+        "name": "P. Estupi\u00f1\u00e1n",
+        "name_normalized": "p estupinan",
+        "position": "Defender"
+      },
+      {
+        "api_id": 127817,
+        "name": "P. Hincapi\u00e9",
+        "name_normalized": "p hincapie",
+        "position": "Defender"
+      },
+      {
+        "api_id": 237078,
+        "name": "P. Vite",
+        "name_normalized": "p vite",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 16367,
+        "name": "W. Pacho",
+        "name_normalized": "w pacho",
+        "position": "Defender"
+      },
+      {
+        "api_id": 306940,
+        "name": "Y. Medina",
+        "name_normalized": "y medina",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 2382,
+    "team_name": "Ecuador",
+    "team_name_normalized": "ecuador"
+  },
+  "egypt": {
+    "players": [
+      {
+        "api_id": 2649,
+        "name": "Ahmed Fatouh",
+        "name_normalized": "ahmed fatouh",
+        "position": "Defender"
+      },
+      {
+        "api_id": 664079,
+        "name": "Ahmed Zizo",
+        "name_normalized": "ahmed zizo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 16831,
+        "name": "Al Mahdi Soliman",
+        "name_normalized": "al mahdi soliman",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 17269,
+        "name": "Emam Ashour",
+        "name_normalized": "emam ashour",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 550547,
+        "name": "H. Abdelkarim",
+        "name_normalized": "h abdelkarim",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 20844,
+        "name": "H. Hassan",
+        "name_normalized": "h hassan",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 16813,
+        "name": "Hamdi Fathy",
+        "name_normalized": "hamdi fathy",
+        "position": "Defender"
+      },
+      {
+        "api_id": 269621,
+        "name": "Hossam Abdelmaguid",
+        "name_normalized": "hossam abdelmaguid",
+        "position": "Defender"
+      },
+      {
+        "api_id": 70535,
+        "name": "Ibrahim Adel",
+        "name_normalized": "ibrahim adel",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2656,
+        "name": "Karim Hafez",
+        "name_normalized": "karim hafez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 550469,
+        "name": "M. Alaa",
+        "name_normalized": "m alaa",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 69196,
+        "name": "Mahmoud Saber",
+        "name_normalized": "mahmoud saber",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 190575,
+        "name": "Marwan Attia",
+        "name_normalized": "marwan attia",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 196343,
+        "name": "Mohamed Abdelmonem",
+        "name_normalized": "mohamed abdelmonem",
+        "position": "Defender"
+      },
+      {
+        "api_id": 16797,
+        "name": "Mohamed El Shenawy",
+        "name_normalized": "mohamed el shenawy",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2654,
+        "name": "Mohamed Hany",
+        "name_normalized": "mohamed hany",
+        "position": "Defender"
+      },
+      {
+        "api_id": 306,
+        "name": "Mohamed Salah",
+        "name_normalized": "mohamed salah",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 16841,
+        "name": "Mohanad Lasheen",
+        "name_normalized": "mohanad lasheen",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 269174,
+        "name": "Mostafa Shobeir",
+        "name_normalized": "mostafa shobeir",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 395075,
+        "name": "Mostafa Zico",
+        "name_normalized": "mostafa zico",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2660,
+        "name": "Nabil Emad Dunga",
+        "name_normalized": "nabil emad dunga",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 81573,
+        "name": "Omar Marmoush",
+        "name_normalized": "omar marmoush",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 16805,
+        "name": "Rami Rabia",
+        "name_normalized": "rami rabia",
+        "position": "Defender"
+      },
+      {
+        "api_id": 550371,
+        "name": "T. Alaa",
+        "name_normalized": "t alaa",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2664,
+        "name": "Tr\u00e9z\u00e9guet",
+        "name_normalized": "trezeguet",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 16804,
+        "name": "Yasser Ibrahim",
+        "name_normalized": "yasser ibrahim",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 32,
+    "team_name": "Egypt",
+    "team_name_normalized": "egypt"
+  },
+  "england": {
+    "players": [
+      {
+        "api_id": 138787,
+        "name": "A. Gordon",
+        "name_normalized": "a gordon",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1460,
+        "name": "B. Saka",
+        "name_normalized": "b saka",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 18961,
+        "name": "D. Burn",
+        "name_normalized": "d burn",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19088,
+        "name": "D. Henderson",
+        "name_normalized": "d henderson",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2937,
+        "name": "D. Rice",
+        "name_normalized": "d rice",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19235,
+        "name": "D. Spence",
+        "name_normalized": "d spence",
+        "position": "Defender"
+      },
+      {
+        "api_id": 138908,
+        "name": "E. Anderson",
+        "name_normalized": "e anderson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19586,
+        "name": "E. Eze",
+        "name_normalized": "e eze",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19354,
+        "name": "E. Konsa",
+        "name_normalized": "e konsa",
+        "position": "Defender"
+      },
+      {
+        "api_id": 184,
+        "name": "H. Kane",
+        "name_normalized": "h kane",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 19974,
+        "name": "I. Toney",
+        "name_normalized": "i toney",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 129718,
+        "name": "J. Bellingham",
+        "name_normalized": "j bellingham",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 292,
+        "name": "J. Henderson",
+        "name_normalized": "j henderson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2932,
+        "name": "J. Pickford",
+        "name_normalized": "j pickford",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 158698,
+        "name": "J. Quansah",
+        "name_normalized": "j quansah",
+        "position": "Defender"
+      },
+      {
+        "api_id": 626,
+        "name": "J. Stones",
+        "name_normalized": "j stones",
+        "position": "Defender"
+      },
+      {
+        "api_id": 162489,
+        "name": "J. Trafford",
+        "name_normalized": "j trafford",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 284322,
+        "name": "K. Mainoo",
+        "name_normalized": "k mainoo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 67971,
+        "name": "M. Gu\u00e9hi",
+        "name_normalized": "m guehi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 909,
+        "name": "M. Rashford",
+        "name_normalized": "m rashford",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19170,
+        "name": "M. Rogers",
+        "name_normalized": "m rogers",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 136723,
+        "name": "N. Madueke",
+        "name_normalized": "n madueke",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 307123,
+        "name": "N. Oreilly",
+        "name_normalized": "n oreilly",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19366,
+        "name": "O. Watkins",
+        "name_normalized": "o watkins",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19545,
+        "name": "R. James",
+        "name_normalized": "r james",
+        "position": "Defender"
+      },
+      {
+        "api_id": 158694,
+        "name": "T. Livramento",
+        "name_normalized": "t livramento",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 10,
+    "team_name": "England",
+    "team_name_normalized": "england"
+  },
+  "france": {
+    "players": [
+      {
+        "api_id": 272,
+        "name": "A. Rabiot",
+        "name_normalized": "a rabiot",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1271,
+        "name": "A. Tchouam\u00e9ni",
+        "name_normalized": "a tchouameni",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 161904,
+        "name": "B. Barcola",
+        "name_normalized": "b barcola",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 21628,
+        "name": "B. Samba",
+        "name_normalized": "b samba",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 343027,
+        "name": "D. Dou\u00e9",
+        "name_normalized": "d doue",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1149,
+        "name": "D. Upamecano",
+        "name_normalized": "d upamecano",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1145,
+        "name": "I. Konat\u00e9",
+        "name_normalized": "i konate",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1257,
+        "name": "J. Kound\u00e9",
+        "name_normalized": "j kounde",
+        "position": "Defender"
+      },
+      {
+        "api_id": 25927,
+        "name": "J. Mateta",
+        "name_normalized": "j mateta",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 278,
+        "name": "Kylian Mbapp\u00e9",
+        "name_normalized": "kylian mbappe",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2724,
+        "name": "L. Digne",
+        "name_normalized": "l digne",
+        "position": "Defender"
+      },
+      {
+        "api_id": 33,
+        "name": "L. Hern\u00e1ndez",
+        "name_normalized": "l hernandez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 274300,
+        "name": "M. Akliouche",
+        "name_normalized": "m akliouche",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 161907,
+        "name": "M. Gusto",
+        "name_normalized": "m gusto",
+        "position": "Defender"
+      },
+      {
+        "api_id": 22147,
+        "name": "M. Kon\u00e9",
+        "name_normalized": "m kone",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 20995,
+        "name": "M. Lacroix",
+        "name_normalized": "m lacroix",
+        "position": "Defender"
+      },
+      {
+        "api_id": 22221,
+        "name": "M. Maignan",
+        "name_normalized": "m maignan",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 19617,
+        "name": "M. Olise",
+        "name_normalized": "m olise",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 21509,
+        "name": "M. Thuram",
+        "name_normalized": "m thuram",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2290,
+        "name": "N. Kant\u00e9",
+        "name_normalized": "n kante",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 153,
+        "name": "O. Demb\u00e9l\u00e9",
+        "name_normalized": "o dembele",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 156477,
+        "name": "R. Cherki",
+        "name_normalized": "r cherki",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 347211,
+        "name": "R. Risser",
+        "name_normalized": "r risser",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 47300,
+        "name": "T. Hern\u00e1ndez",
+        "name_normalized": "t hernandez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 22090,
+        "name": "W. Saliba",
+        "name_normalized": "w saliba",
+        "position": "Defender"
+      },
+      {
+        "api_id": 336657,
+        "name": "W. Za\u00efre-Emery",
+        "name_normalized": "w zaire emery",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 2,
+    "team_name": "France",
+    "team_name_normalized": "france"
+  },
+  "germany": {
+    "players": [
+      {
+        "api_id": 399,
+        "name": "A. N\u00fcbel",
+        "name_normalized": "a nubel",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 328033,
+        "name": "A. Pavlovic",
+        "name_normalized": "a pavlovic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2285,
+        "name": "A. R\u00fcdiger",
+        "name_normalized": "a rudiger",
+        "position": "Defender"
+      },
+      {
+        "api_id": 137210,
+        "name": "A. Stiller",
+        "name_normalized": "a stiller",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 25158,
+        "name": "D. Raum",
+        "name_normalized": "d raum",
+        "position": "Defender"
+      },
+      {
+        "api_id": 26475,
+        "name": "D. Undav",
+        "name_normalized": "d undav",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 637,
+        "name": "F. Nmecha",
+        "name_normalized": "f nmecha",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 203224,
+        "name": "F. Wirtz",
+        "name_normalized": "f wirtz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 502,
+        "name": "J. Kimmich",
+        "name_normalized": "j kimmich",
+        "position": "Defender"
+      },
+      {
+        "api_id": 128533,
+        "name": "J. Leweling",
+        "name_normalized": "j leweling",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 181812,
+        "name": "J. Musiala",
+        "name_normalized": "j musiala",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 972,
+        "name": "J. Tah",
+        "name_normalized": "j tah",
+        "position": "Defender"
+      },
+      {
+        "api_id": 978,
+        "name": "K. Havertz",
+        "name_normalized": "k havertz",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 511,
+        "name": "L. Goretzka",
+        "name_normalized": "l goretzka",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 494131,
+        "name": "L. Karl",
+        "name_normalized": "l karl",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 644,
+        "name": "L. San\u00e9",
+        "name_normalized": "l sane",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 158644,
+        "name": "M. Beier",
+        "name_normalized": "m beier",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 497,
+        "name": "M. Neuer",
+        "name_normalized": "m neuer",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 163189,
+        "name": "M. Thiaw",
+        "name_normalized": "m thiaw",
+        "position": "Defender"
+      },
+      {
+        "api_id": 714,
+        "name": "N. Amiri",
+        "name_normalized": "n amiri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 280074,
+        "name": "N. Brown",
+        "name_normalized": "n brown",
+        "position": "Defender"
+      },
+      {
+        "api_id": 26243,
+        "name": "N. Schlotterbeck",
+        "name_normalized": "n schlotterbeck",
+        "position": "Defender"
+      },
+      {
+        "api_id": 158054,
+        "name": "N. Woltemade",
+        "name_normalized": "n woltemade",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 702,
+        "name": "O. Baumann",
+        "name_normalized": "o baumann",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 18970,
+        "name": "P. Gro\u00df",
+        "name_normalized": "p gro",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 25368,
+        "name": "W. Anton",
+        "name_normalized": "w anton",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 25,
+    "team_name": "Germany",
+    "team_name_normalized": "germany"
+  },
+  "ghana": {
+    "players": [
+      {
+        "api_id": 21996,
+        "name": "A. Baba",
+        "name_normalized": "a baba",
+        "position": "Defender"
+      },
+      {
+        "api_id": 337426,
+        "name": "A. Boakye",
+        "name_normalized": "a boakye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 303467,
+        "name": "A. Fatawu",
+        "name_normalized": "a fatawu",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 15900,
+        "name": "A. Mumin",
+        "name_normalized": "a mumin",
+        "position": "Defender"
+      },
+      {
+        "api_id": 196187,
+        "name": "A. Seidu",
+        "name_normalized": "a seidu",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19281,
+        "name": "A. Semenyo",
+        "name_normalized": "a semenyo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 480108,
+        "name": "B. Asare",
+        "name_normalized": "b asare",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 82090,
+        "name": "B. Thomas-Asante",
+        "name_normalized": "b thomas asante",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 411800,
+        "name": "C. Bonsu Baah",
+        "name_normalized": "c bonsu baah",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 475575,
+        "name": "Caleb Marfo Yirenkyi",
+        "name_normalized": "caleb marfo yirenkyi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 25341,
+        "name": "D. Luckassen",
+        "name_normalized": "d luckassen",
+        "position": "Defender"
+      },
+      {
+        "api_id": 350856,
+        "name": "E. Nuamah",
+        "name_normalized": "e nuamah",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 21010,
+        "name": "E. Owusu",
+        "name_normalized": "e owusu",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 7578,
+        "name": "G. Mensah",
+        "name_normalized": "g mensah",
+        "position": "Defender"
+      },
+      {
+        "api_id": 47294,
+        "name": "I. Williams",
+        "name_normalized": "i williams",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 369425,
+        "name": "J. Adjetey",
+        "name_normalized": "j adjetey",
+        "position": "Defender"
+      },
+      {
+        "api_id": 144709,
+        "name": "J. Anang",
+        "name_normalized": "j anang",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 3428,
+        "name": "J. Ayew",
+        "name_normalized": "j ayew",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 137223,
+        "name": "J. Opoku",
+        "name_normalized": "j opoku",
+        "position": "Defender"
+      },
+      {
+        "api_id": 404172,
+        "name": "K. Peprah Oppong",
+        "name_normalized": "k peprah oppong",
+        "position": "Defender"
+      },
+      {
+        "api_id": 3608,
+        "name": "K. Sibo",
+        "name_normalized": "k sibo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 199837,
+        "name": "K. Sulemana",
+        "name_normalized": "k sulemana",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 3412,
+        "name": "L. Zigi",
+        "name_normalized": "l zigi",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 191240,
+        "name": "M. Senaya",
+        "name_normalized": "m senaya",
+        "position": "Defender"
+      },
+      {
+        "api_id": 410016,
+        "name": "P. Adu",
+        "name_normalized": "p adu",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49,
+        "name": "T. Partey",
+        "name_normalized": "t partey",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 1504,
+    "team_name": "Ghana",
+    "team_name_normalized": "ghana"
+  },
+  "haiti": {
+    "players": [
+      {
+        "api_id": 174768,
+        "name": "A. Pierre",
+        "name_normalized": "a pierre",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 20850,
+        "name": "C. Arcus",
+        "name_normalized": "c arcus",
+        "position": "Defender"
+      },
+      {
+        "api_id": 540857,
+        "name": "C. F. Sainte",
+        "name_normalized": "c f sainte",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 50958,
+        "name": "D. Etienne",
+        "name_normalized": "d etienne",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 338367,
+        "name": "D. Jean-Jacques",
+        "name_normalized": "d jean jacques",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 102505,
+        "name": "D. Lacroix",
+        "name_normalized": "d lacroix",
+        "position": "Defender"
+      },
+      {
+        "api_id": 45020,
+        "name": "D. Nazon",
+        "name_normalized": "d nazon",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 194242,
+        "name": "D. Simon",
+        "name_normalized": "d simon",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 8601,
+        "name": "F. Pierrot",
+        "name_normalized": "f pierrot",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1411,
+        "name": "H. Delcroix",
+        "name_normalized": "h delcroix",
+        "position": "Defender"
+      },
+      {
+        "api_id": 20665,
+        "name": "J. Bellegarde",
+        "name_normalized": "j bellegarde",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 174915,
+        "name": "J. Casimir",
+        "name_normalized": "j casimir",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 123742,
+        "name": "J. Duverger",
+        "name_normalized": "j duverger",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 20655,
+        "name": "J. Duverne",
+        "name_normalized": "j duverne",
+        "position": "Defender"
+      },
+      {
+        "api_id": 87789,
+        "name": "J. Placide",
+        "name_normalized": "j placide",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 573613,
+        "name": "K. Thermoncy",
+        "name_normalized": "k thermoncy",
+        "position": "Defender"
+      },
+      {
+        "api_id": 128766,
+        "name": "L. Deedson",
+        "name_normalized": "l deedson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 21613,
+        "name": "L. Joseph",
+        "name_normalized": "l joseph",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 20538,
+        "name": "L. Pierre",
+        "name_normalized": "l pierre",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 190747,
+        "name": "M. Exp\u00e9rience",
+        "name_normalized": "m experience",
+        "position": "Defender"
+      },
+      {
+        "api_id": 162733,
+        "name": "R. Providence",
+        "name_normalized": "r providence",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 12303,
+        "name": "Ricardo Ade",
+        "name_normalized": "ricardo ade",
+        "position": "Defender"
+      },
+      {
+        "api_id": 84087,
+        "name": "W. Isidor",
+        "name_normalized": "w isidor",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 275367,
+        "name": "W. Paugain",
+        "name_normalized": "w paugain",
+        "position": "Defender"
+      },
+      {
+        "api_id": 371050,
+        "name": "W. Pierre",
+        "name_normalized": "w pierre",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 48535,
+        "name": "Y. Fortun\u00e9",
+        "name_normalized": "y fortune",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 2386,
+    "team_name": "Haiti",
+    "team_name_normalized": "haiti"
+  },
+  "iran": {
+    "players": [
+      {
+        "api_id": 29720,
+        "name": "A. Alipour",
+        "name_normalized": "a alipour",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2682,
+        "name": "A. Beiranvand",
+        "name_normalized": "a beiranvand",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 29937,
+        "name": "A. Hosseinzadeh",
+        "name_normalized": "a hosseinzadeh",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2700,
+        "name": "A. Jahanbakhsh",
+        "name_normalized": "a jahanbakhsh",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 533035,
+        "name": "A. Nemati",
+        "name_normalized": "a nemati",
+        "position": "Defender"
+      },
+      {
+        "api_id": 423753,
+        "name": "A. Razzaghinia",
+        "name_normalized": "a razzaghinia",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 343405,
+        "name": "A. Yousefi",
+        "name_normalized": "a yousefi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 37892,
+        "name": "D. Eckert Ayensa",
+        "name_normalized": "d eckert ayensa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 532950,
+        "name": "D. Eiri",
+        "name_normalized": "d eiri",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2685,
+        "name": "E. Hajisafi",
+        "name_normalized": "e hajisafi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 29755,
+        "name": "H. Hosseini",
+        "name_normalized": "h hosseini",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2687,
+        "name": "H. Kanani",
+        "name_normalized": "h kanani",
+        "position": "Defender"
+      },
+      {
+        "api_id": 643918,
+        "name": "M. Ghaedi",
+        "name_normalized": "m ghaedi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 341844,
+        "name": "M. Ghorbani",
+        "name_normalized": "m ghorbani",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2688,
+        "name": "M. Mohammadi",
+        "name_normalized": "m mohammadi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 134217,
+        "name": "M. Mohebi",
+        "name_normalized": "m mohebi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 42315,
+        "name": "M. Taremi",
+        "name_normalized": "m taremi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2697,
+        "name": "M. Torabi",
+        "name_normalized": "m torabi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2681,
+        "name": "P. Niazmand",
+        "name_normalized": "p niazmand",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2683,
+        "name": "R. Cheshmi",
+        "name_normalized": "r cheshmi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2691,
+        "name": "R. Rezaeian",
+        "name_normalized": "r rezaeian",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19614,
+        "name": "S. Ezatolahi",
+        "name_normalized": "s ezatolahi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2699,
+        "name": "S. Ghoddos",
+        "name_normalized": "s ghoddos",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 29704,
+        "name": "S. Khalilzadeh",
+        "name_normalized": "s khalilzadeh",
+        "position": "Defender"
+      },
+      {
+        "api_id": 89982,
+        "name": "S. Moghanlou",
+        "name_normalized": "s moghanlou",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 136880,
+        "name": "Saleh Hardani",
+        "name_normalized": "saleh hardani",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 22,
+    "team_name": "Iran",
+    "team_name_normalized": "iran"
+  },
+  "iraq": {
+    "players": [
+      {
+        "api_id": 542644,
+        "name": "A. Jasim",
+        "name_normalized": "a jasim",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 229112,
+        "name": "A. Qasem",
+        "name_normalized": "a qasem",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 48129,
+        "name": "A. Sher",
+        "name_normalized": "a sher",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 542842,
+        "name": "A. Y. Hashim",
+        "name_normalized": "a y hashim",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 542849,
+        "name": "A. Yahya",
+        "name_normalized": "a yahya",
+        "position": "Defender"
+      },
+      {
+        "api_id": 197933,
+        "name": "Ahmed Basil",
+        "name_normalized": "ahmed basil",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 453073,
+        "name": "Akam Rahman",
+        "name_normalized": "akam rahman",
+        "position": "Defender"
+      },
+      {
+        "api_id": 299813,
+        "name": "Ali Al Hamadi",
+        "name_normalized": "ali al hamadi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 47792,
+        "name": "Amir Al Ammari",
+        "name_normalized": "amir al ammari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49451,
+        "name": "Aymen Hussein",
+        "name_normalized": "aymen hussein",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 123802,
+        "name": "Fahad Talib",
+        "name_normalized": "fahad talib",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 15769,
+        "name": "Frans Putros",
+        "name_normalized": "frans putros",
+        "position": "Defender"
+      },
+      {
+        "api_id": 145465,
+        "name": "Hussein Ali",
+        "name_normalized": "hussein ali",
+        "position": "Defender"
+      },
+      {
+        "api_id": 140747,
+        "name": "Ibraheem Bayesh",
+        "name_normalized": "ibraheem bayesh",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 53886,
+        "name": "Jalal Hassan Hachim",
+        "name_normalized": "jalal hassan hachim",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 48025,
+        "name": "Kevin Yakob",
+        "name_normalized": "kevin yakob",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 265448,
+        "name": "M. Farji",
+        "name_normalized": "m farji",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 542697,
+        "name": "Meme",
+        "name_normalized": "meme",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 271444,
+        "name": "Merchas Doski",
+        "name_normalized": "merchas doski",
+        "position": "Defender"
+      },
+      {
+        "api_id": 295394,
+        "name": "Munaf Younus",
+        "name_normalized": "munaf younus",
+        "position": "Defender"
+      },
+      {
+        "api_id": 427187,
+        "name": "Mustafa Saadoun",
+        "name_normalized": "mustafa saadoun",
+        "position": "Defender"
+      },
+      {
+        "api_id": 42261,
+        "name": "Rebin Solaka",
+        "name_normalized": "rebin solaka",
+        "position": "Defender"
+      },
+      {
+        "api_id": 282065,
+        "name": "Youssef Amyn",
+        "name_normalized": "youssef amyn",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 626479,
+        "name": "Z. Ismaeel",
+        "name_normalized": "z ismaeel",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 296373,
+        "name": "Zayed Tahseen",
+        "name_normalized": "zayed tahseen",
+        "position": "Defender"
+      },
+      {
+        "api_id": 284295,
+        "name": "Zidane Iqbal",
+        "name_normalized": "zidane iqbal",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 1567,
+    "team_name": "Iraq",
+    "team_name_normalized": "iraq"
+  },
+  "japan": {
+    "players": [
+      {
+        "api_id": 33165,
+        "name": "A. Seko",
+        "name_normalized": "a seko",
+        "position": "Defender"
+      },
+      {
+        "api_id": 32966,
+        "name": "A. Tanaka",
+        "name_normalized": "a tanaka",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 72155,
+        "name": "A. Ueda",
+        "name_normalized": "a ueda",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2601,
+        "name": "D. Kamada",
+        "name_normalized": "d kamada",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 33224,
+        "name": "D. Maeda",
+        "name_normalized": "d maeda",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 32893,
+        "name": "H. Ito",
+        "name_normalized": "h ito",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1942,
+        "name": "J. Ito",
+        "name_normalized": "j ito",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 351014,
+        "name": "J. Suzuki",
+        "name_normalized": "j suzuki",
+        "position": "Defender"
+      },
+      {
+        "api_id": 375930,
+        "name": "K. Goto",
+        "name_normalized": "k goto",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 38114,
+        "name": "K. Itakura",
+        "name_normalized": "k itakura",
+        "position": "Defender"
+      },
+      {
+        "api_id": 33034,
+        "name": "K. Osako",
+        "name_normalized": "k osako",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 33889,
+        "name": "K. Sano",
+        "name_normalized": "k sano",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 422572,
+        "name": "K. Shiogai",
+        "name_normalized": "k shiogai",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 33321,
+        "name": "Keito Nakamura",
+        "name_normalized": "keito nakamura",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 33289,
+        "name": "Koki Ogawa",
+        "name_normalized": "koki ogawa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2598,
+        "name": "R. Doan",
+        "name_normalized": "r doan",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 32954,
+        "name": "S. Taniguchi",
+        "name_normalized": "s taniguchi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 304782,
+        "name": "T. Hayakawa",
+        "name_normalized": "t hayakawa",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 32862,
+        "name": "T. Kubo",
+        "name_normalized": "t kubo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2597,
+        "name": "T. Tomiyasu",
+        "name_normalized": "t tomiyasu",
+        "position": "Defender"
+      },
+      {
+        "api_id": 32858,
+        "name": "T. Watanabe",
+        "name_normalized": "t watanabe",
+        "position": "Defender"
+      },
+      {
+        "api_id": 8500,
+        "name": "W. Endo",
+        "name_normalized": "w endo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 440,
+        "name": "Y. Nagatomo",
+        "name_normalized": "y nagatomo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 32887,
+        "name": "Y. Sugawara",
+        "name_normalized": "y sugawara",
+        "position": "Defender"
+      },
+      {
+        "api_id": 199143,
+        "name": "Y. Suzuki",
+        "name_normalized": "y suzuki",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 199578,
+        "name": "Z. Suzuki",
+        "name_normalized": "z suzuki",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 12,
+    "team_name": "Japan",
+    "team_name_normalized": "japan"
+  },
+  "jordan": {
+    "players": [
+      {
+        "api_id": 575283,
+        "name": "A. Azaizeh",
+        "name_normalized": "a azaizeh",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 664028,
+        "name": "A. Badawi",
+        "name_normalized": "a badawi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 163884,
+        "name": "Abdallah Al Fakhouri",
+        "name_normalized": "abdallah al fakhouri",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 310835,
+        "name": "Abdallah Naseeb",
+        "name_normalized": "abdallah naseeb",
+        "position": "Defender"
+      },
+      {
+        "api_id": 164026,
+        "name": "Ali Olwan",
+        "name_normalized": "ali olwan",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 198211,
+        "name": "Amer Jamous",
+        "name_normalized": "amer jamous",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 53902,
+        "name": "Ehsan Haddad",
+        "name_normalized": "ehsan haddad",
+        "position": "Defender"
+      },
+      {
+        "api_id": 542822,
+        "name": "H. Abu Al Dahab",
+        "name_normalized": "h abu al dahab",
+        "position": "Defender"
+      },
+      {
+        "api_id": 432841,
+        "name": "Ibrahim Sabra",
+        "name_normalized": "ibrahim sabra",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 542768,
+        "name": "Ibrahim Sa'deh",
+        "name_normalized": "ibrahim sadeh",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 542710,
+        "name": "M. Abu Hasheesh",
+        "name_normalized": "m abu hasheesh",
+        "position": "Defender"
+      },
+      {
+        "api_id": 102538,
+        "name": "M. Abualnadi",
+        "name_normalized": "m abualnadi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 651096,
+        "name": "M. Al Daoud",
+        "name_normalized": "m al daoud",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 123530,
+        "name": "Mahmoud Al Mardi",
+        "name_normalized": "mahmoud al mardi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 72142,
+        "name": "Mohammed Abu Zurayq",
+        "name_normalized": "mohammed abu zurayq",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 310785,
+        "name": "Mohannad Abu Taha",
+        "name_normalized": "mohannad abu taha",
+        "position": "Defender"
+      },
+      {
+        "api_id": 15286,
+        "name": "Mousa Tamari",
+        "name_normalized": "mousa tamari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 213980,
+        "name": "Nizar Al Rashdan",
+        "name_normalized": "nizar al rashdan",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 140609,
+        "name": "Noor Al Rawabdeh",
+        "name_normalized": "noor al rawabdeh",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 163908,
+        "name": "Noureddin Zaid",
+        "name_normalized": "noureddin zaid",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 568556,
+        "name": "O. Al Fakhouri",
+        "name_normalized": "o al fakhouri",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 104242,
+        "name": "Rajaei Ayed",
+        "name_normalized": "rajaei ayed",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 213978,
+        "name": "Saed Al Rosan",
+        "name_normalized": "saed al rosan",
+        "position": "Defender"
+      },
+      {
+        "api_id": 72140,
+        "name": "Saleem Obaid",
+        "name_normalized": "saleem obaid",
+        "position": "Defender"
+      },
+      {
+        "api_id": 53900,
+        "name": "Yazan Al Arab",
+        "name_normalized": "yazan al arab",
+        "position": "Defender"
+      },
+      {
+        "api_id": 140607,
+        "name": "Yazid Abu Layla",
+        "name_normalized": "yazid abu layla",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 1548,
+    "team_name": "Jordan",
+    "team_name_normalized": "jordan"
+  },
+  "mexico": {
+    "players": [
+      {
+        "api_id": 291713,
+        "name": "A. Gonz\u00e1lez",
+        "name_normalized": "a gonzalez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2889,
+        "name": "A. Vega",
+        "name_normalized": "a vega",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 750,
+        "name": "\u00c1lvaro Fidalgo",
+        "name_normalized": "alvaro fidalgo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 212233,
+        "name": "B. Guti\u00e9rrez",
+        "name_normalized": "b gutierrez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 35769,
+        "name": "C. Acevedo",
+        "name_normalized": "c acevedo",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 36111,
+        "name": "C. Huerta",
+        "name_normalized": "c huerta",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2873,
+        "name": "C. Montes",
+        "name_normalized": "c montes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2869,
+        "name": "E. \u00c1lvarez",
+        "name_normalized": "e alvarez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 266345,
+        "name": "\u00c9. Lira",
+        "name_normalized": "e lira",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 36088,
+        "name": "G. Mart\u00ednez",
+        "name_normalized": "g martinez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 482605,
+        "name": "G. Mora",
+        "name_normalized": "g mora",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2098,
+        "name": "G. Ochoa",
+        "name_normalized": "g ochoa",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 127227,
+        "name": "I. Reyes",
+        "name_normalized": "i reyes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2881,
+        "name": "J. Gallardo",
+        "name_normalized": "j gallardo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 35532,
+        "name": "J. Qui\u00f1ones",
+        "name_normalized": "j quinones",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 270774,
+        "name": "J. Rangel",
+        "name_normalized": "j rangel",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2878,
+        "name": "J. S\u00e1nchez",
+        "name_normalized": "j sanchez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 35544,
+        "name": "J. V\u00e1squez",
+        "name_normalized": "j vasquez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 35690,
+        "name": "L. Ch\u00e1vez",
+        "name_normalized": "l chavez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 35970,
+        "name": "L. Romo",
+        "name_normalized": "l romo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 390002,
+        "name": "M. Ch\u00e1vez",
+        "name_normalized": "m chavez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 35576,
+        "name": "O. Pineda",
+        "name_normalized": "o pineda",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 313383,
+        "name": "O. Vargas",
+        "name_normalized": "o vargas",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2879,
+        "name": "R. Alvarado",
+        "name_normalized": "r alvarado",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2887,
+        "name": "R. Jim\u00e9nez",
+        "name_normalized": "r jimenez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 94562,
+        "name": "S. Gim\u00e9nez",
+        "name_normalized": "s gimenez",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 16,
+    "team_name": "Mexico",
+    "team_name_normalized": "mexico"
+  },
+  "morocco": {
+    "players": [
+      {
+        "api_id": 535046,
+        "name": "A. Amaimouni",
+        "name_normalized": "a amaimouni",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 438688,
+        "name": "A. Bouaddi",
+        "name_normalized": "a bouaddi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2722,
+        "name": "A. El Kaabi",
+        "name_normalized": "a el kaabi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 181421,
+        "name": "A. Ezzalzouli",
+        "name_normalized": "a ezzalzouli",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 9,
+        "name": "A. Hakimi",
+        "name_normalized": "a hakimi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 129678,
+        "name": "A. Ounahi",
+        "name_normalized": "a ounahi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 162451,
+        "name": "A. Salah-Eddine",
+        "name_normalized": "a salah eddine",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2703,
+        "name": "A. Tagnaouti",
+        "name_normalized": "a tagnaouti",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 340573,
+        "name": "B. El Khannouss",
+        "name_normalized": "b el khannouss",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 744,
+        "name": "Brahim D\u00edaz",
+        "name_normalized": "brahim diaz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 278898,
+        "name": "C. Riad",
+        "name_normalized": "c riad",
+        "position": "Defender"
+      },
+      {
+        "api_id": 336659,
+        "name": "C. Talbi",
+        "name_normalized": "c talbi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 369544,
+        "name": "Gessime Yassine",
+        "name_normalized": "gessime yassine",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 18814,
+        "name": "I. Diop",
+        "name_normalized": "i diop",
+        "position": "Defender"
+      },
+      {
+        "api_id": 161897,
+        "name": "I. Saibari",
+        "name_normalized": "i saibari",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2702,
+        "name": "M. Mohamedi",
+        "name_normalized": "m mohamedi",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 21694,
+        "name": "N. Aguerd",
+        "name_normalized": "n aguerd",
+        "position": "Defender"
+      },
+      {
+        "api_id": 277003,
+        "name": "N. El Aynaoui",
+        "name_normalized": "n el aynaoui",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 545,
+        "name": "N. Mazraoui",
+        "name_normalized": "n mazraoui",
+        "position": "Defender"
+      },
+      {
+        "api_id": 326183,
+        "name": "R. Halhal",
+        "name_normalized": "r halhal",
+        "position": "Defender"
+      },
+      {
+        "api_id": 74,
+        "name": "S. Amrabat",
+        "name_normalized": "s amrabat",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 415431,
+        "name": "S. El Mourabet",
+        "name_normalized": "s el mourabet",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 36579,
+        "name": "S. Rahimi",
+        "name_normalized": "s rahimi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 146772,
+        "name": "Y. Belammari",
+        "name_normalized": "y belammari",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2701,
+        "name": "Y. Bounou",
+        "name_normalized": "y bounou",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 283252,
+        "name": "Z. El Ouahdi",
+        "name_normalized": "z el ouahdi",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 31,
+    "team_name": "Morocco",
+    "team_name_normalized": "morocco"
+  },
+  "netherlands": {
+    "players": [
+      {
+        "api_id": 38750,
+        "name": "B. Brobbey",
+        "name_normalized": "b brobbey",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 129058,
+        "name": "B. Verbruggen",
+        "name_normalized": "b verbruggen",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 247,
+        "name": "C. Gakpo",
+        "name_normalized": "c gakpo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 37724,
+        "name": "C. Summerville",
+        "name_normalized": "c summerville",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 226,
+        "name": "D. Dumfries",
+        "name_normalized": "d dumfries",
+        "position": "Defender"
+      },
+      {
+        "api_id": 249,
+        "name": "D. Malen",
+        "name_normalized": "d malen",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 538,
+        "name": "F. de Jong",
+        "name_normalized": "f de jong",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 36905,
+        "name": "G. Til",
+        "name_normalized": "g til",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 341642,
+        "name": "J. Hato",
+        "name_normalized": "j hato",
+        "position": "Defender"
+      },
+      {
+        "api_id": 792,
+        "name": "J. Kluivert",
+        "name_normalized": "j kluivert",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 38746,
+        "name": "J. Timber",
+        "name_normalized": "j timber",
+        "position": "Defender"
+      },
+      {
+        "api_id": 38695,
+        "name": "J. van Hecke",
+        "name_normalized": "j van hecke",
+        "position": "Defender"
+      },
+      {
+        "api_id": 30432,
+        "name": "M. de Roon",
+        "name_normalized": "m de roon",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 667,
+        "name": "M. Depay",
+        "name_normalized": "m depay",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 26232,
+        "name": "M. Flekken",
+        "name_normalized": "m flekken",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 152849,
+        "name": "M. van de Ven",
+        "name_normalized": "m van de ven",
+        "position": "Defender"
+      },
+      {
+        "api_id": 92993,
+        "name": "M. Wieffer",
+        "name_normalized": "m wieffer",
+        "position": "Defender"
+      },
+      {
+        "api_id": 18861,
+        "name": "N. Ak\u00e9",
+        "name_normalized": "n ake",
+        "position": "Defender"
+      },
+      {
+        "api_id": 544,
+        "name": "N. Lang",
+        "name_normalized": "n lang",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 38747,
+        "name": "Q. Timber",
+        "name_normalized": "q timber",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 542,
+        "name": "R. Gravenberch",
+        "name_normalized": "r gravenberch",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 194536,
+        "name": "R. Roefs",
+        "name_normalized": "r roefs",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 36899,
+        "name": "T. Koopmeiners",
+        "name_normalized": "t koopmeiners",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 36902,
+        "name": "T. Reijnders",
+        "name_normalized": "t reijnders",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 290,
+        "name": "V. van Dijk",
+        "name_normalized": "v van dijk",
+        "position": "Defender"
+      },
+      {
+        "api_id": 25416,
+        "name": "W. Weghorst",
+        "name_normalized": "w weghorst",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 1118,
+    "team_name": "Netherlands",
+    "team_name_normalized": "netherlands"
+  },
+  "new zealand": {
+    "players": [
+      {
+        "api_id": 94360,
+        "name": "A. Paulsen",
+        "name_normalized": "a paulsen",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 6934,
+        "name": "A. Rufer",
+        "name_normalized": "a rufer",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 179856,
+        "name": "B. Old",
+        "name_normalized": "b old",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 6938,
+        "name": "B. Waine",
+        "name_normalized": "b waine",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 6932,
+        "name": "C. Elliot",
+        "name_normalized": "c elliot",
+        "position": "Defender"
+      },
+      {
+        "api_id": 94322,
+        "name": "C. McCowatt",
+        "name_normalized": "c mccowatt",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 18931,
+        "name": "C. Wood",
+        "name_normalized": "c wood",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 94333,
+        "name": "E. Just",
+        "name_normalized": "e just",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 94405,
+        "name": "F. de Vries",
+        "name_normalized": "f de vries",
+        "position": "Defender"
+      },
+      {
+        "api_id": 210165,
+        "name": "F. Surman",
+        "name_normalized": "f surman",
+        "position": "Defender"
+      },
+      {
+        "api_id": 94541,
+        "name": "J. Bell",
+        "name_normalized": "j bell",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 158688,
+        "name": "J. Randall",
+        "name_normalized": "j randall",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 6865,
+        "name": "K. Barbarouses",
+        "name_normalized": "k barbarouses",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 405957,
+        "name": "L. Bayliss",
+        "name_normalized": "l bayliss",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6931,
+        "name": "L. Cacace",
+        "name_normalized": "l cacace",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51149,
+        "name": "M. Boxall",
+        "name_normalized": "m boxall",
+        "position": "Defender"
+      },
+      {
+        "api_id": 18110,
+        "name": "M. Crocombe",
+        "name_normalized": "m crocombe",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 180455,
+        "name": "M. Garbett",
+        "name_normalized": "m garbett",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 179862,
+        "name": "M. Stamenic",
+        "name_normalized": "m stamenic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 36777,
+        "name": "M. Woud",
+        "name_normalized": "m woud",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 94344,
+        "name": "N. Pijnaker",
+        "name_normalized": "n pijnaker",
+        "position": "Defender"
+      },
+      {
+        "api_id": 242,
+        "name": "R. Thomas",
+        "name_normalized": "r thomas",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6935,
+        "name": "S. Singh",
+        "name_normalized": "s singh",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 94346,
+        "name": "T. Payne",
+        "name_normalized": "t payne",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51307,
+        "name": "T. Smith",
+        "name_normalized": "t smith",
+        "position": "Defender"
+      },
+      {
+        "api_id": 430835,
+        "name": "Tyler Bindon",
+        "name_normalized": "tyler bindon",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 4673,
+    "team_name": "New Zealand",
+    "team_name_normalized": "new zealand"
+  },
+  "norway": {
+    "players": [
+      {
+        "api_id": 314511,
+        "name": "A. Nusa",
+        "name_normalized": "a nusa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 8492,
+        "name": "A. S\u00f8rloth",
+        "name_normalized": "a s rloth",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 301528,
+        "name": "A. Schjelderup",
+        "name_normalized": "a schjelderup",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 265782,
+        "name": "D. M\u00f8ller Wolfe",
+        "name_normalized": "d m ller wolfe",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1100,
+        "name": "E. Haaland",
+        "name_normalized": "e haaland",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 39082,
+        "name": "E. Selvik",
+        "name_normalized": "e selvik",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 39043,
+        "name": "F. Aursnes",
+        "name_normalized": "f aursnes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 39058,
+        "name": "F. Bj\u00f8rkan",
+        "name_normalized": "f bj rkan",
+        "position": "Defender"
+      },
+      {
+        "api_id": 180937,
+        "name": "H. Falchener",
+        "name_normalized": "h falchener",
+        "position": "Defender"
+      },
+      {
+        "api_id": 39073,
+        "name": "J. Hauge",
+        "name_normalized": "j hauge",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 24845,
+        "name": "J. Ryerson",
+        "name_normalized": "j ryerson",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2032,
+        "name": "J. Strand Larsen",
+        "name_normalized": "j strand larsen",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1119,
+        "name": "K. Ajer",
+        "name_normalized": "k ajer",
+        "position": "Defender"
+      },
+      {
+        "api_id": 39143,
+        "name": "K. Thorstvedt",
+        "name_normalized": "k thorstvedt",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 18967,
+        "name": "L. \u00d8stig\u00e5rd",
+        "name_normalized": "l stigard",
+        "position": "Defender"
+      },
+      {
+        "api_id": 37127,
+        "name": "M. \u00d8degaard",
+        "name_normalized": "m degaard",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 39362,
+        "name": "M. Pedersen",
+        "name_normalized": "m pedersen",
+        "position": "Defender"
+      },
+      {
+        "api_id": 36980,
+        "name": "M. Thorsby",
+        "name_normalized": "m thorsby",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19172,
+        "name": "\u00d8. Nyland",
+        "name_normalized": "nyland",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 278133,
+        "name": "Oscar Bobb",
+        "name_normalized": "oscar bobb",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 39064,
+        "name": "P. Berg",
+        "name_normalized": "p berg",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1934,
+        "name": "S. Berge",
+        "name_normalized": "s berge",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 265444,
+        "name": "S. Lang\u00e5s",
+        "name_normalized": "s langas",
+        "position": "Defender"
+      },
+      {
+        "api_id": 264378,
+        "name": "S. Tangvik",
+        "name_normalized": "s tangvik",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 277930,
+        "name": "T. Aasgaard",
+        "name_normalized": "t aasgaard",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 39254,
+        "name": "T. Heggem",
+        "name_normalized": "t heggem",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 1090,
+    "team_name": "Norway",
+    "team_name_normalized": "norway"
+  },
+  "panama": {
+    "players": [
+      {
+        "api_id": 7197,
+        "name": "A. Andrade",
+        "name_normalized": "a andrade",
+        "position": "Defender"
+      },
+      {
+        "api_id": 57807,
+        "name": "A. Carrasquilla",
+        "name_normalized": "a carrasquilla",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2977,
+        "name": "A. Godoy",
+        "name_normalized": "a godoy",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 292396,
+        "name": "A. Londo\u00f1o",
+        "name_normalized": "a londono",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2973,
+        "name": "A. Murillo",
+        "name_normalized": "a murillo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2978,
+        "name": "A. Quintero",
+        "name_normalized": "a quintero",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2975,
+        "name": "C. Blackman",
+        "name_normalized": "c blackman",
+        "position": "Defender"
+      },
+      {
+        "api_id": 71230,
+        "name": "C. Harvey",
+        "name_normalized": "c harvey",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 554208,
+        "name": "C. Martinez",
+        "name_normalized": "c martinez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 57861,
+        "name": "C. Samudio",
+        "name_normalized": "c samudio",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 51648,
+        "name": "C. Waterman",
+        "name_normalized": "c waterman",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 57875,
+        "name": "C. Yanis",
+        "name_normalized": "c yanis",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2970,
+        "name": "\u00c9. Davis",
+        "name_normalized": "e davis",
+        "position": "Defender"
+      },
+      {
+        "api_id": 328148,
+        "name": "E. Fari\u00f1a",
+        "name_normalized": "e farina",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2971,
+        "name": "F. Escobar",
+        "name_normalized": "f escobar",
+        "position": "Defender"
+      },
+      {
+        "api_id": 96615,
+        "name": "I. D\u00edaz",
+        "name_normalized": "i diaz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 57739,
+        "name": "J. C\u00f3rdoba",
+        "name_normalized": "j cordoba",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2983,
+        "name": "J. Fajardo",
+        "name_normalized": "j fajardo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 57803,
+        "name": "J. Guti\u00e9rrez",
+        "name_normalized": "j gutierrez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 57667,
+        "name": "J. Ramos",
+        "name_normalized": "j ramos",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2979,
+        "name": "J. Rodr\u00edguez",
+        "name_normalized": "j rodriguez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2967,
+        "name": "L. Mej\u00eda",
+        "name_normalized": "l mejia",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2968,
+        "name": "O. Mosquera",
+        "name_normalized": "o mosquera",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 81659,
+        "name": "R. Miller",
+        "name_normalized": "r miller",
+        "position": "Defender"
+      },
+      {
+        "api_id": 57910,
+        "name": "T. Rodr\u00edguez",
+        "name_normalized": "t rodriguez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 46855,
+        "name": "Y. B\u00e1rcenas",
+        "name_normalized": "y barcenas",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 11,
+    "team_name": "Panama",
+    "team_name_normalized": "panama"
+  },
+  "paraguay": {
+    "players": [
+      {
+        "api_id": 95460,
+        "name": "A. Arce",
+        "name_normalized": "a arce",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 6236,
+        "name": "A. Cubas",
+        "name_normalized": "a cubas",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 425020,
+        "name": "A. Maidana",
+        "name_normalized": "a maidana",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2514,
+        "name": "A. Romero",
+        "name_normalized": "a romero",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2522,
+        "name": "A. Sanabria",
+        "name_normalized": "a sanabria",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 70767,
+        "name": "B. Ojeda",
+        "name_normalized": "b ojeda",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 195107,
+        "name": "D. Bobadilla",
+        "name_normalized": "d bobadilla",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 278370,
+        "name": "D. G\u00f3mez",
+        "name_normalized": "d gomez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2500,
+        "name": "F. Balbuena",
+        "name_normalized": "f balbuena",
+        "position": "Defender"
+      },
+      {
+        "api_id": 6483,
+        "name": "G. \u00c1valos",
+        "name_normalized": "g avalos",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 119128,
+        "name": "G. Caballero",
+        "name_normalized": "g caballero",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2502,
+        "name": "G. G\u00f3mez",
+        "name_normalized": "g gomez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51733,
+        "name": "G. Olveira",
+        "name_normalized": "g olveira",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 35808,
+        "name": "G. Vel\u00e1zquez",
+        "name_normalized": "g velazquez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 70670,
+        "name": "I. Pitta",
+        "name_normalized": "i pitta",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2499,
+        "name": "J. Alonso",
+        "name_normalized": "j alonso",
+        "position": "Defender"
+      },
+      {
+        "api_id": 195992,
+        "name": "J. C\u00e1ceres",
+        "name_normalized": "j caceres",
+        "position": "Defender"
+      },
+      {
+        "api_id": 70732,
+        "name": "J. Canale",
+        "name_normalized": "j canale",
+        "position": "Defender"
+      },
+      {
+        "api_id": 70747,
+        "name": "J. Enciso",
+        "name_normalized": "j enciso",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2507,
+        "name": "M. Almir\u00f3n",
+        "name_normalized": "m almiron",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 305832,
+        "name": "M. Galarza",
+        "name_normalized": "m galarza",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 106485,
+        "name": "Maur\u00edcio",
+        "name_normalized": "mauricio",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 6168,
+        "name": "O. Alderete",
+        "name_normalized": "o alderete",
+        "position": "Defender"
+      },
+      {
+        "api_id": 70852,
+        "name": "O. Gill",
+        "name_normalized": "o gill",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 535737,
+        "name": "R. Fernandez",
+        "name_normalized": "r fernandez",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 196298,
+        "name": "R. Sosa",
+        "name_normalized": "r sosa",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 2380,
+    "team_name": "Paraguay",
+    "team_name_normalized": "paraguay"
+  },
+  "portugal": {
+    "players": [
+      {
+        "api_id": 636,
+        "name": "Bernardo Silva",
+        "name_normalized": "bernardo silva",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1485,
+        "name": "Bruno Fernandes",
+        "name_normalized": "bruno fernandes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 874,
+        "name": "Cristiano Ronaldo",
+        "name_normalized": "cristiano ronaldo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 369,
+        "name": "Diogo Costa",
+        "name_normalized": "diogo costa",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 886,
+        "name": "Diogo Dalot",
+        "name_normalized": "diogo dalot",
+        "position": "Defender"
+      },
+      {
+        "api_id": 161585,
+        "name": "Francisco Concei\u00e7\u00e3o",
+        "name_normalized": "francisco conceicao",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 925,
+        "name": "Gon\u00e7alo Guedes",
+        "name_normalized": "goncalo guedes",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 265595,
+        "name": "Gon\u00e7alo In\u00e1cio",
+        "name_normalized": "goncalo inacio",
+        "position": "Defender"
+      },
+      {
+        "api_id": 41585,
+        "name": "Gon\u00e7alo Ramos",
+        "name_normalized": "goncalo ramos",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 855,
+        "name": "Jo\u00e3o Cancelo",
+        "name_normalized": "joao cancelo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 583,
+        "name": "Jo\u00e3o F\u00e9lix",
+        "name_normalized": "joao felix",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 335051,
+        "name": "Jo\u00e3o Neves",
+        "name_normalized": "joao neves",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1590,
+        "name": "Jos\u00e9 S\u00e1",
+        "name_normalized": "jose sa",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 41621,
+        "name": "Matheus Nunes",
+        "name_normalized": "matheus nunes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 130,
+        "name": "N\u00e9lson Semedo",
+        "name_normalized": "nelson semedo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 263482,
+        "name": "Nuno Mendes",
+        "name_normalized": "nuno mendes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1864,
+        "name": "Pedro Neto",
+        "name_normalized": "pedro neto",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 22236,
+        "name": "Rafael Le\u00e3o",
+        "name_normalized": "rafael leao",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 336671,
+        "name": "Renato Veiga",
+        "name_normalized": "renato veiga",
+        "position": "Defender"
+      },
+      {
+        "api_id": 567,
+        "name": "R\u00faben Dias",
+        "name_normalized": "ruben dias",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2676,
+        "name": "R\u00faben Neves",
+        "name_normalized": "ruben neves",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 46672,
+        "name": "Rui Silva",
+        "name_normalized": "rui silva",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 190485,
+        "name": "Sam\u00fa Costa",
+        "name_normalized": "samu costa",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 161939,
+        "name": "Tom\u00e1s Ara\u00fajo",
+        "name_normalized": "tomas araujo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 41112,
+        "name": "Trinc\u00e3o",
+        "name_normalized": "trincao",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 128384,
+        "name": "Vitinha",
+        "name_normalized": "vitinha",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 27,
+    "team_name": "Portugal",
+    "team_name_normalized": "portugal"
+  },
+  "qatar": {
+    "players": [
+      {
+        "api_id": 542542,
+        "name": "A. Al Hussain",
+        "name_normalized": "a al hussain",
+        "position": "Defender"
+      },
+      {
+        "api_id": 542548,
+        "name": "A. Al Oui",
+        "name_normalized": "a al oui",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2533,
+        "name": "Abdulaziz Hatem",
+        "name_normalized": "abdulaziz hatem",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 42286,
+        "name": "Ahmed Al Ganehi",
+        "name_normalized": "ahmed al ganehi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2542,
+        "name": "Ahmed Alaa",
+        "name_normalized": "ahmed alaa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2539,
+        "name": "Ahmed Fathi",
+        "name_normalized": "ahmed fathi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2544,
+        "name": "Akram Afif",
+        "name_normalized": "akram afif",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2543,
+        "name": "Almoez Ali",
+        "name_normalized": "almoez ali",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2535,
+        "name": "Assim Madibo",
+        "name_normalized": "assim madibo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2532,
+        "name": "Boualem Khoukhi",
+        "name_normalized": "boualem khoukhi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 42075,
+        "name": "Edmilson Junior",
+        "name_normalized": "edmilson junior",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 366516,
+        "name": "G. Laye",
+        "name_normalized": "g laye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2545,
+        "name": "Hassan Al Haydos",
+        "name_normalized": "hassan al haydos",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 175439,
+        "name": "Homam Ahmed",
+        "name_normalized": "homam ahmed",
+        "position": "Defender"
+      },
+      {
+        "api_id": 200981,
+        "name": "Jassem Gaber",
+        "name_normalized": "jassem gaber",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2537,
+        "name": "Karim Boudiaf",
+        "name_normalized": "karim boudiaf",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 42288,
+        "name": "Lucas Mendes",
+        "name_normalized": "lucas mendes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 42207,
+        "name": "Mahmud Abunada",
+        "name_normalized": "mahmud abunada",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 42021,
+        "name": "Meshaal Barsham",
+        "name_normalized": "meshaal barsham",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 283174,
+        "name": "Mohamed Al Manai",
+        "name_normalized": "mohamed al manai",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 42089,
+        "name": "Mohammed Muntari",
+        "name_normalized": "mohammed muntari",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2530,
+        "name": "Pedro Miguel",
+        "name_normalized": "pedro miguel",
+        "position": "Defender"
+      },
+      {
+        "api_id": 136503,
+        "name": "Salah Zakaria",
+        "name_normalized": "salah zakaria",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 42060,
+        "name": "Sultan Al Braik",
+        "name_normalized": "sultan al braik",
+        "position": "Defender"
+      },
+      {
+        "api_id": 423737,
+        "name": "Tahsin Jamshid",
+        "name_normalized": "tahsin jamshid",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 542541,
+        "name": "Y. Abdurisag",
+        "name_normalized": "y abdurisag",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 1569,
+    "team_name": "Qatar",
+    "team_name_normalized": "qatar"
+  },
+  "saudi arabia": {
+    "players": [
+      {
+        "api_id": 44475,
+        "name": "Abdulelah Al Amri",
+        "name_normalized": "abdulelah al amri",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44382,
+        "name": "Abdullah Al Hamdan",
+        "name_normalized": "abdullah al hamdan",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44315,
+        "name": "Abdullah Al Khaibari",
+        "name_normalized": "abdullah al khaibari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 44449,
+        "name": "Ahmed Al Kassar",
+        "name_normalized": "ahmed al kassar",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 593759,
+        "name": "Ala Al Haji",
+        "name_normalized": "ala al haji",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 44507,
+        "name": "Ali Lajami",
+        "name_normalized": "ali lajami",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44367,
+        "name": "Ali Majrashi",
+        "name_normalized": "ali majrashi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 147812,
+        "name": "Ayman Yahya",
+        "name_normalized": "ayman yahya",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44324,
+        "name": "Feras Al Brikan",
+        "name_normalized": "feras al brikan",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44335,
+        "name": "Hassan Kadesh",
+        "name_normalized": "hassan kadesh",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44362,
+        "name": "Hassan Tambakti",
+        "name_normalized": "hassan tambakti",
+        "position": "Defender"
+      },
+      {
+        "api_id": 543059,
+        "name": "J. Thakri",
+        "name_normalized": "j thakri",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44701,
+        "name": "Khalid Al Ghannam",
+        "name_normalized": "khalid al ghannam",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44349,
+        "name": "Mohamed Kanno",
+        "name_normalized": "mohamed kanno",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 403087,
+        "name": "Mohammed Abu Al Shamat",
+        "name_normalized": "mohammed abu al shamat",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 44411,
+        "name": "Mohammed Al Owais",
+        "name_normalized": "mohammed al owais",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 202381,
+        "name": "Moteb Al Harbi",
+        "name_normalized": "moteb al harbi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 306380,
+        "name": "Musab Al Juwayr",
+        "name_normalized": "musab al juwayr",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44339,
+        "name": "Nasser Al Dawsari",
+        "name_normalized": "nasser al dawsari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 193288,
+        "name": "Nawaf Al Aqidi",
+        "name_normalized": "nawaf al aqidi",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 134995,
+        "name": "Nawaf Boushal",
+        "name_normalized": "nawaf boushal",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44551,
+        "name": "Saleh Al Shehri",
+        "name_normalized": "saleh al shehri",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44340,
+        "name": "Salem Al Dawsari",
+        "name_normalized": "salem al dawsari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 44594,
+        "name": "Saud Abdulhamid",
+        "name_normalized": "saud abdulhamid",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2639,
+        "name": "Sultan Mandash",
+        "name_normalized": "sultan mandash",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 269172,
+        "name": "Ziyad Al Johani",
+        "name_normalized": "ziyad al johani",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 23,
+    "team_name": "Saudi Arabia",
+    "team_name_normalized": "saudi arabia"
+  },
+  "scotland": {
+    "players": [
+      {
+        "api_id": 18933,
+        "name": "A. Gunn",
+        "name_normalized": "a gunn",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 44871,
+        "name": "A. Hickey",
+        "name_normalized": "a hickey",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1115,
+        "name": "A. Ralston",
+        "name_normalized": "a ralston",
+        "position": "Defender"
+      },
+      {
+        "api_id": 289,
+        "name": "A. Robertson",
+        "name_normalized": "a robertson",
+        "position": "Defender"
+      },
+      {
+        "api_id": 343576,
+        "name": "B. Doak",
+        "name_normalized": "b doak",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19524,
+        "name": "C. Adams",
+        "name_normalized": "c adams",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1106,
+        "name": "C. Gordon",
+        "name_normalized": "c gordon",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 19987,
+        "name": "D. Hyam",
+        "name_normalized": "d hyam",
+        "position": "Defender"
+      },
+      {
+        "api_id": 433272,
+        "name": "Findlay Curtis",
+        "name_normalized": "findlay curtis",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 19066,
+        "name": "G. Hanley",
+        "name_normalized": "g hanley",
+        "position": "Defender"
+      },
+      {
+        "api_id": 8794,
+        "name": "G. Hirst",
+        "name_normalized": "g hirst",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1111,
+        "name": "J. Hendry",
+        "name_normalized": "j hendry",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19191,
+        "name": "J.  McGinn",
+        "name_normalized": "j mcginn",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 44865,
+        "name": "J. Souttar",
+        "name_normalized": "j souttar",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19077,
+        "name": "K. McLean",
+        "name_normalized": "k mclean",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1117,
+        "name": "K. Tierney",
+        "name_normalized": "k tierney",
+        "position": "Defender"
+      },
+      {
+        "api_id": 45307,
+        "name": "L. Dykes",
+        "name_normalized": "l dykes",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44814,
+        "name": "L. Ferguson",
+        "name_normalized": "l ferguson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 44937,
+        "name": "L. Kelly",
+        "name_normalized": "l kelly",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 45175,
+        "name": "L. Shankland",
+        "name_normalized": "l shankland",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 138417,
+        "name": "N. Patterson",
+        "name_normalized": "n patterson",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1125,
+        "name": "R. Christie",
+        "name_normalized": "r christie",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 45078,
+        "name": "R. Stewart",
+        "name_normalized": "r stewart",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 44811,
+        "name": "S. McKenna",
+        "name_normalized": "s mckenna",
+        "position": "Defender"
+      },
+      {
+        "api_id": 903,
+        "name": "S. McTominay",
+        "name_normalized": "s mctominay",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 557460,
+        "name": "T. Fletcher",
+        "name_normalized": "t fletcher",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 1108,
+    "team_name": "Scotland",
+    "team_name_normalized": "scotland"
+  },
+  "senegal": {
+    "players": [
+      {
+        "api_id": 313937,
+        "name": "A. Mendy",
+        "name_normalized": "a mendy",
+        "position": "Defender"
+      },
+      {
+        "api_id": 8450,
+        "name": "A. Seck",
+        "name_normalized": "a seck",
+        "position": "Defender"
+      },
+      {
+        "api_id": 400948,
+        "name": "Assane Diao",
+        "name_normalized": "assane diao",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 284072,
+        "name": "B. Dieng",
+        "name_normalized": "b dieng",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 630895,
+        "name": "Bara Ndiaye",
+        "name_normalized": "bara ndiaye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 14379,
+        "name": "C. Ndiaye",
+        "name_normalized": "c ndiaye",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 409303,
+        "name": "E. Diouf",
+        "name_normalized": "e diouf",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2986,
+        "name": "\u00c9. Mendy",
+        "name_normalized": "e mendy",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 327631,
+        "name": "H. Diarra",
+        "name_normalized": "h diarra",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2990,
+        "name": "I. Gueye",
+        "name_normalized": "i gueye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 158121,
+        "name": "I. Jakobs",
+        "name_normalized": "i jakobs",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 446249,
+        "name": "I. Mbaye",
+        "name_normalized": "i mbaye",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 18592,
+        "name": "I. Ndiaye",
+        "name_normalized": "i ndiaye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2218,
+        "name": "I. Sarr",
+        "name_normalized": "i sarr",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 81,
+        "name": "K. Diatta",
+        "name_normalized": "k diatta",
+        "position": "Defender"
+      },
+      {
+        "api_id": 318,
+        "name": "K. Koulibaly",
+        "name_normalized": "k koulibaly",
+        "position": "Defender"
+      },
+      {
+        "api_id": 374058,
+        "name": "L. Camara",
+        "name_normalized": "l camara",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 119853,
+        "name": "M. Diaw",
+        "name_normalized": "m diaw",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 25916,
+        "name": "M. Niakhat\u00e9",
+        "name_normalized": "m niakhate",
+        "position": "Defender"
+      },
+      {
+        "api_id": 276184,
+        "name": "M. Sarr",
+        "name_normalized": "m sarr",
+        "position": "Defender"
+      },
+      {
+        "api_id": 283058,
+        "name": "N. Jackson",
+        "name_normalized": "n jackson",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 41552,
+        "name": "P. Ciss",
+        "name_normalized": "p ciss",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 20696,
+        "name": "P. Gueye",
+        "name_normalized": "p gueye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 237129,
+        "name": "P. Sarr",
+        "name_normalized": "p sarr",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 304,
+        "name": "S. Man\u00e9",
+        "name_normalized": "s mane",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 20566,
+        "name": "Y. Diouf",
+        "name_normalized": "y diouf",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 13,
+    "team_name": "Senegal",
+    "team_name_normalized": "senegal"
+  },
+  "south africa": {
+    "players": [
+      {
+        "api_id": 46334,
+        "name": "A. Modiba",
+        "name_normalized": "a modiba",
+        "position": "Defender"
+      },
+      {
+        "api_id": 163041,
+        "name": "B. Cross",
+        "name_normalized": "b cross",
+        "position": "Defender"
+      },
+      {
+        "api_id": 201354,
+        "name": "E. Makgopa",
+        "name_normalized": "e makgopa",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 406752,
+        "name": "I. Okon",
+        "name_normalized": "i okon",
+        "position": "Defender"
+      },
+      {
+        "api_id": 127429,
+        "name": "I. Rayners",
+        "name_normalized": "i rayners",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 268710,
+        "name": "J. Adams",
+        "name_normalized": "j adams",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 46601,
+        "name": "K. Mudau",
+        "name_normalized": "k mudau",
+        "position": "Defender"
+      },
+      {
+        "api_id": 474630,
+        "name": "K. Ndamane",
+        "name_normalized": "k ndamane",
+        "position": "Defender"
+      },
+      {
+        "api_id": 359561,
+        "name": "K. Sebelebele",
+        "name_normalized": "k sebelebele",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 98936,
+        "name": "L. Foster",
+        "name_normalized": "l foster",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 510799,
+        "name": "M. Mbokazi",
+        "name_normalized": "m mbokazi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 46458,
+        "name": "N. Sibisi",
+        "name_normalized": "n sibisi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 179893,
+        "name": "O. Appollis",
+        "name_normalized": "o appollis",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 392387,
+        "name": "O. Makhanya",
+        "name_normalized": "o makhanya",
+        "position": "Defender"
+      },
+      {
+        "api_id": 46245,
+        "name": "R. Goss",
+        "name_normalized": "r goss",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 414149,
+        "name": "R. Mofokeng",
+        "name_normalized": "r mofokeng",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 3275,
+        "name": "R. Williams",
+        "name_normalized": "r williams",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 46417,
+        "name": "S. Chaine",
+        "name_normalized": "s chaine",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 430078,
+        "name": "S. Kabini",
+        "name_normalized": "s kabini",
+        "position": "Defender"
+      },
+      {
+        "api_id": 158433,
+        "name": "S. Sithole",
+        "name_normalized": "s sithole",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 354831,
+        "name": "T. Maseko",
+        "name_normalized": "t maseko",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 330174,
+        "name": "T. Matuludi",
+        "name_normalized": "t matuludi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 194430,
+        "name": "T. Mbatha",
+        "name_normalized": "t mbatha",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 3287,
+        "name": "T. Mokoena",
+        "name_normalized": "t mokoena",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 295977,
+        "name": "T. Moremi",
+        "name_normalized": "t moremi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 3289,
+        "name": "T. Zwane",
+        "name_normalized": "t zwane",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 1531,
+    "team_name": "South Africa",
+    "team_name_normalized": "south africa"
+  },
+  "south korea": {
+    "players": [
+      {
+        "api_id": 357286,
+        "name": "Bae Jun-Ho",
+        "name_normalized": "bae jun ho",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 34211,
+        "name": "Cho Gue-Sung",
+        "name_normalized": "cho gue sung",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 547307,
+        "name": "Cho Wi-Je",
+        "name_normalized": "cho wi je",
+        "position": "Defender"
+      },
+      {
+        "api_id": 237050,
+        "name": "Eom Ji-Sung",
+        "name_normalized": "eom ji sung",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 24888,
+        "name": "Hwang Hee-Chan",
+        "name_normalized": "hwang hee chan",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2901,
+        "name": "Hwang In-Beom",
+        "name_normalized": "hwang in beom",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 280358,
+        "name": "J. Castrop",
+        "name_normalized": "j castrop",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2890,
+        "name": "Jo Hyeon-Woo",
+        "name_normalized": "jo hyeon woo",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 34168,
+        "name": "Kim Jin-Gyu",
+        "name_normalized": "kim jin gyu",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2897,
+        "name": "Kim Min-Jae",
+        "name_normalized": "kim min jae",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2912,
+        "name": "Kim Moon-Hwan",
+        "name_normalized": "kim moon hwan",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2892,
+        "name": "Kim Seung-Gyu",
+        "name_normalized": "kim seung gyu",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 34418,
+        "name": "Kim Tae-Hyeon",
+        "name_normalized": "kim tae hyeon",
+        "position": "Defender"
+      },
+      {
+        "api_id": 34431,
+        "name": "Lee Dong-Gyeong",
+        "name_normalized": "lee dong gyeong",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 304951,
+        "name": "Lee Gi-Hyuk",
+        "name_normalized": "lee gi hyuk",
+        "position": "Defender"
+      },
+      {
+        "api_id": 237218,
+        "name": "Lee Han-Beom",
+        "name_normalized": "lee han beom",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2906,
+        "name": "Lee Jae-Sung",
+        "name_normalized": "lee jae sung",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 927,
+        "name": "Lee Kang-In",
+        "name_normalized": "lee kang in",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 237220,
+        "name": "Lee Tae-Seok",
+        "name_normalized": "lee tae seok",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 34710,
+        "name": "Oh Hyeon-Gyu",
+        "name_normalized": "oh hyeon gyu",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2909,
+        "name": "Paik Seung-Ho",
+        "name_normalized": "paik seung ho",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 99211,
+        "name": "Park Jin-Seop",
+        "name_normalized": "park jin seop",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 197985,
+        "name": "Seol Young-Woo",
+        "name_normalized": "seol young woo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 186,
+        "name": "Son Heung-Min",
+        "name_normalized": "son heung min",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 34374,
+        "name": "Song Bum-Keun",
+        "name_normalized": "song bum keun",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 304958,
+        "name": "Yang Hyun-Jun",
+        "name_normalized": "yang hyun jun",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 17,
+    "team_name": "South Korea",
+    "team_name_normalized": "south korea"
+  },
+  "spain": {
+    "players": [
+      {
+        "api_id": 182219,
+        "name": "\u00c1lex Baena",
+        "name_normalized": "alex baena",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 563,
+        "name": "\u00c1lex Grimaldo",
+        "name_normalized": "alex grimaldo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 622,
+        "name": "Aymeric Laporte",
+        "name_normalized": "aymeric laporte",
+        "position": "Defender"
+      },
+      {
+        "api_id": 47348,
+        "name": "Borja Iglesias",
+        "name_normalized": "borja iglesias",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 1323,
+        "name": "Dani Olmo",
+        "name_normalized": "dani olmo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19465,
+        "name": "David Raya",
+        "name_normalized": "david raya",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 619,
+        "name": "Eric Garc\u00eda",
+        "name_normalized": "eric garcia",
+        "position": "Defender"
+      },
+      {
+        "api_id": 328,
+        "name": "Fabi\u00e1n Ruiz",
+        "name_normalized": "fabian ruiz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 931,
+        "name": "Ferran Torres",
+        "name_normalized": "ferran torres",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 296667,
+        "name": "Gavi",
+        "name_normalized": "gavi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 182718,
+        "name": "Joan Garc\u00eda",
+        "name_normalized": "joan garcia",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 386828,
+        "name": "Lamine Yamal",
+        "name_normalized": "lamine yamal",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 47380,
+        "name": "Marc Cucurella",
+        "name_normalized": "marc cucurella",
+        "position": "Defender"
+      },
+      {
+        "api_id": 295793,
+        "name": "Marc Pubill",
+        "name_normalized": "marc pubill",
+        "position": "Defender"
+      },
+      {
+        "api_id": 753,
+        "name": "Marcos Llorente",
+        "name_normalized": "marcos llorente",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47315,
+        "name": "Mart\u00edn Zubimendi",
+        "name_normalized": "martin zubimendi",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47311,
+        "name": "Mikel Merino",
+        "name_normalized": "mikel merino",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47323,
+        "name": "Mikel Oyarzabal",
+        "name_normalized": "mikel oyarzabal",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 183799,
+        "name": "Nico Williams",
+        "name_normalized": "nico williams",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 396623,
+        "name": "Pau Cubars\u00ed Paredes",
+        "name_normalized": "pau cubarsi paredes",
+        "position": "Defender"
+      },
+      {
+        "api_id": 133609,
+        "name": "Pedri",
+        "name_normalized": "pedri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47519,
+        "name": "Pedro Porro",
+        "name_normalized": "pedro porro",
+        "position": "Defender"
+      },
+      {
+        "api_id": 44,
+        "name": "Rodri",
+        "name_normalized": "rodri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47270,
+        "name": "Unai Sim\u00f3n",
+        "name_normalized": "unai simon",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 338751,
+        "name": "V\u00edctor Mu\u00f1oz",
+        "name_normalized": "victor munoz",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 184226,
+        "name": "Yeremy Pino",
+        "name_normalized": "yeremy pino",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 9,
+    "team_name": "Spain",
+    "team_name_normalized": "spain"
+  },
+  "sweden": {
+    "players": [
+      {
+        "api_id": 47696,
+        "name": "A. Bernhardsson",
+        "name_normalized": "a bernhardsson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 153430,
+        "name": "A. Elanga",
+        "name_normalized": "a elanga",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2864,
+        "name": "A. Isak",
+        "name_normalized": "a isak",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 48002,
+        "name": "B. Nygren",
+        "name_normalized": "b nygren",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 350850,
+        "name": "B. Zeneli",
+        "name_normalized": "b zeneli",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47988,
+        "name": "C. Starfelt",
+        "name_normalized": "c starfelt",
+        "position": "Defender"
+      },
+      {
+        "api_id": 198654,
+        "name": "D. Svensson",
+        "name_normalized": "d svensson",
+        "position": "Defender"
+      },
+      {
+        "api_id": 8486,
+        "name": "E. Smith",
+        "name_normalized": "e smith",
+        "position": "Defender"
+      },
+      {
+        "api_id": 226765,
+        "name": "E. Stroud",
+        "name_normalized": "e stroud",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47969,
+        "name": "G. Gudmundsson",
+        "name_normalized": "g gudmundsson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 137721,
+        "name": "G. Lagerbielke",
+        "name_normalized": "g lagerbielke",
+        "position": "Defender"
+      },
+      {
+        "api_id": 15683,
+        "name": "G. Nilsson",
+        "name_normalized": "g nilsson",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 47903,
+        "name": "H. Ekdal",
+        "name_normalized": "h ekdal",
+        "position": "Defender"
+      },
+      {
+        "api_id": 161504,
+        "name": "H. Johansson",
+        "name_normalized": "h johansson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 137976,
+        "name": "I. Hien",
+        "name_normalized": "i hien",
+        "position": "Defender"
+      },
+      {
+        "api_id": 48047,
+        "name": "J. Karlstr\u00f6m",
+        "name_normalized": "j karlstrom",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 48033,
+        "name": "J. Widell Zetterstr\u00f6m",
+        "name_normalized": "j widell zetterstrom",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2851,
+        "name": "K. Nordfeldt",
+        "name_normalized": "k nordfeldt",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2860,
+        "name": "K. Sema",
+        "name_normalized": "k sema",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 347316,
+        "name": "L. Bergvall",
+        "name_normalized": "l bergvall",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 30484,
+        "name": "M. Svanberg",
+        "name_normalized": "m svanberg",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 160925,
+        "name": "T. Ali",
+        "name_normalized": "t ali",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 18979,
+        "name": "V. Gy\u00f6keres",
+        "name_normalized": "v gyokeres",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 158700,
+        "name": "V. Johansson",
+        "name_normalized": "v johansson",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 889,
+        "name": "V. Lindel\u00f6f",
+        "name_normalized": "v lindelof",
+        "position": "Defender"
+      },
+      {
+        "api_id": 265820,
+        "name": "Y. Ayari",
+        "name_normalized": "y ayari",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 5,
+    "team_name": "Sweden",
+    "team_name_normalized": "sweden"
+  },
+  "switzerland": {
+    "players": [
+      {
+        "api_id": 162414,
+        "name": "A. Amenda",
+        "name_normalized": "a amenda",
+        "position": "Defender"
+      },
+      {
+        "api_id": 264705,
+        "name": "A. Jashari",
+        "name_normalized": "a jashari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 421,
+        "name": "B. Embolo",
+        "name_normalized": "b embolo",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 952,
+        "name": "C. Fassnacht",
+        "name_normalized": "c fassnacht",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 48497,
+        "name": "C. Itten",
+        "name_normalized": "c itten",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 48648,
+        "name": "D. Ndoye",
+        "name_normalized": "d ndoye",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 957,
+        "name": "D. Sow",
+        "name_normalized": "d sow",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2810,
+        "name": "D. Zakaria",
+        "name_normalized": "d zakaria",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 48372,
+        "name": "E. C\u00f6mert",
+        "name_normalized": "e comert",
+        "position": "Defender"
+      },
+      {
+        "api_id": 163032,
+        "name": "F. Rieder",
+        "name_normalized": "f rieder",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 25282,
+        "name": "G. Kobel",
+        "name_normalized": "g kobel",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 1464,
+        "name": "G. Xhaka",
+        "name_normalized": "g xhaka",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 406244,
+        "name": "J. Manzambi",
+        "name_normalized": "j manzambi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 349344,
+        "name": "L. Jaquez",
+        "name_normalized": "l jaquez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 951,
+        "name": "M. Aebischer",
+        "name_normalized": "m aebischer",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 5,
+        "name": "M. Akanji",
+        "name_normalized": "m akanji",
+        "position": "Defender"
+      },
+      {
+        "api_id": 123468,
+        "name": "M. Keller",
+        "name_normalized": "m keller",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 48489,
+        "name": "M. Muheim",
+        "name_normalized": "m muheim",
+        "position": "Defender"
+      },
+      {
+        "api_id": 2803,
+        "name": "N. Elvedi",
+        "name_normalized": "n elvedi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 48389,
+        "name": "N. Okafor",
+        "name_normalized": "n okafor",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2807,
+        "name": "R. Freuler",
+        "name_normalized": "r freuler",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1631,
+        "name": "R. Rodr\u00edguez",
+        "name_normalized": "r rodriguez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 48471,
+        "name": "R. Vargas",
+        "name_normalized": "r vargas",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 48378,
+        "name": "S. Widmer",
+        "name_normalized": "s widmer",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1142,
+        "name": "Y. Mvogo",
+        "name_normalized": "y mvogo",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 123469,
+        "name": "Z. Amdouni",
+        "name_normalized": "z amdouni",
+        "position": "Attacker"
+      }
+    ],
+    "team_id": 15,
+    "team_name": "Switzerland",
+    "team_name_normalized": "switzerland"
+  },
+  "tunisia": {
+    "players": [
+      {
+        "api_id": 49583,
+        "name": "A. Abdi",
+        "name_normalized": "a abdi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 393977,
+        "name": "A. Arous",
+        "name_normalized": "a arous",
+        "position": "Defender"
+      },
+      {
+        "api_id": 135059,
+        "name": "A. Ben Hmida",
+        "name_normalized": "a ben hmida",
+        "position": "Defender"
+      },
+      {
+        "api_id": 199310,
+        "name": "A. Ben Slimane",
+        "name_normalized": "a ben slimane",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49424,
+        "name": "A. Dahmen",
+        "name_normalized": "a dahmen",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 533394,
+        "name": "C. Abdelmouhib",
+        "name_normalized": "c abdelmouhib",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 2945,
+        "name": "D. Bronn",
+        "name_normalized": "d bronn",
+        "position": "Defender"
+      },
+      {
+        "api_id": 42012,
+        "name": "E. Achouri",
+        "name_normalized": "e achouri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 323974,
+        "name": "E. Saad",
+        "name_normalized": "e saad",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 21587,
+        "name": "E. Skhiri",
+        "name_normalized": "e skhiri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 2962,
+        "name": "F. Chaouat",
+        "name_normalized": "f chaouat",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 67195,
+        "name": "H. Mahmoud",
+        "name_normalized": "h mahmoud",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 344862,
+        "name": "H. Mastouri",
+        "name_normalized": "h mastouri",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 180560,
+        "name": "H. Mejbri",
+        "name_normalized": "h mejbri",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 310196,
+        "name": "Isma\u00ebl Gharbi",
+        "name_normalized": "ismael gharbi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 533295,
+        "name": "K. Ayari",
+        "name_normalized": "k ayari",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49469,
+        "name": "M. Ben Ouanes",
+        "name_normalized": "m ben ouanes",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 375608,
+        "name": "M. Neffati",
+        "name_normalized": "m neffati",
+        "position": "Defender"
+      },
+      {
+        "api_id": 50030,
+        "name": "M. Talbi",
+        "name_normalized": "m talbi",
+        "position": "Defender"
+      },
+      {
+        "api_id": 163068,
+        "name": "O. Rekik",
+        "name_normalized": "o rekik",
+        "position": "Defender"
+      },
+      {
+        "api_id": 533360,
+        "name": "R. Chikhaoui",
+        "name_normalized": "r chikhaoui",
+        "position": "Defender"
+      },
+      {
+        "api_id": 566059,
+        "name": "R. Elloumi",
+        "name_normalized": "r elloumi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 25300,
+        "name": "R. Khedira",
+        "name_normalized": "r khedira",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49423,
+        "name": "S. Ben Hsan",
+        "name_normalized": "s ben hsan",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 57518,
+        "name": "S. Tounekti",
+        "name_normalized": "s tounekti",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 18942,
+        "name": "Y. Valery",
+        "name_normalized": "y valery",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 28,
+    "team_name": "Tunisia",
+    "team_name_normalized": "tunisia"
+  },
+  "turkiye": {
+    "players": [
+      {
+        "api_id": 61837,
+        "name": "A. Bardakci",
+        "name_normalized": "a bardakci",
+        "position": "Defender"
+      },
+      {
+        "api_id": 50132,
+        "name": "A. Bayindir",
+        "name_normalized": "a bayindir",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 291964,
+        "name": "A. G\u00fcler",
+        "name_normalized": "a guler",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 63274,
+        "name": "B. Yilmaz",
+        "name_normalized": "b yilmaz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 18776,
+        "name": "\u00c7. S\u00f6y\u00fcnc\u00fc",
+        "name_normalized": "c soyuncu",
+        "position": "Defender"
+      },
+      {
+        "api_id": 339887,
+        "name": "C. Uzun",
+        "name_normalized": "c uzun",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 388570,
+        "name": "D. G\u00fcl",
+        "name_normalized": "d gul",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 50057,
+        "name": "E. Elmali",
+        "name_normalized": "e elmali",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1361,
+        "name": "F. Kadioglu",
+        "name_normalized": "f kadioglu",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1640,
+        "name": "H. \u00c7alhanoglu",
+        "name_normalized": "h calhanoglu",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49857,
+        "name": "I. Kahveci",
+        "name_normalized": "i kahveci",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 214463,
+        "name": "I. Y\u00fcksek",
+        "name_normalized": "i yuksek",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 142959,
+        "name": "K. Akt\u00fcrkoglu",
+        "name_normalized": "k akturkoglu",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 25448,
+        "name": "K. Ayhan",
+        "name_normalized": "k ayhan",
+        "position": "Defender"
+      },
+      {
+        "api_id": 339883,
+        "name": "K. Yildiz",
+        "name_normalized": "k yildiz",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 30521,
+        "name": "M. Demiral",
+        "name_normalized": "m demiral",
+        "position": "Defender"
+      },
+      {
+        "api_id": 49837,
+        "name": "M. G\u00fcnok",
+        "name_normalized": "m gunok",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 1719,
+        "name": "M. M\u00fcld\u00fcr",
+        "name_normalized": "m muldur",
+        "position": "Defender"
+      },
+      {
+        "api_id": 134590,
+        "name": "O. Aydin",
+        "name_normalized": "o aydin",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 26300,
+        "name": "O. Kabak",
+        "name_normalized": "o kabak",
+        "position": "Defender"
+      },
+      {
+        "api_id": 37155,
+        "name": "O. Kok\u00e7u",
+        "name_normalized": "o kokcu",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 62490,
+        "name": "S. Akaydin",
+        "name_normalized": "s akaydin",
+        "position": "Defender"
+      },
+      {
+        "api_id": 24807,
+        "name": "S. \u00d6zcan",
+        "name_normalized": "s ozcan",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 49866,
+        "name": "U. \u00c7akir",
+        "name_normalized": "u cakir",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 454,
+        "name": "Y. Akg\u00fcn",
+        "name_normalized": "y akgun",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 22222,
+        "name": "Z. \u00c7elik",
+        "name_normalized": "z celik",
+        "position": "Defender"
+      }
+    ],
+    "team_id": 777,
+    "team_name": "T\u00fcrkiye",
+    "team_name_normalized": "turkiye"
+  },
+  "uruguay": {
+    "players": [
+      {
+        "api_id": 51603,
+        "name": "A. Canobbio",
+        "name_normalized": "a canobbio",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 51618,
+        "name": "B. Rodr\u00edguez",
+        "name_normalized": "b rodriguez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 51617,
+        "name": "D. N\u00fa\u00f1ez",
+        "name_normalized": "d nunez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 153083,
+        "name": "E. Mart\u00ednez",
+        "name_normalized": "e martinez",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 429,
+        "name": "F. Muslera",
+        "name_normalized": "f muslera",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 70078,
+        "name": "F. Pellistri",
+        "name_normalized": "f pellistri",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 756,
+        "name": "F. Valverde",
+        "name_normalized": "f valverde",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 51530,
+        "name": "F. Vi\u00f1as",
+        "name_normalized": "f vinas",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 2612,
+        "name": "G. de Arrascaeta",
+        "name_normalized": "g de arrascaeta",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1290,
+        "name": "G. Varela",
+        "name_normalized": "g varela",
+        "position": "Defender"
+      },
+      {
+        "api_id": 31,
+        "name": "J. Gim\u00e9nez",
+        "name_normalized": "j gimenez",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51466,
+        "name": "J. Piquerez",
+        "name_normalized": "j piquerez",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 162891,
+        "name": "J. Sanabria",
+        "name_normalized": "j sanabria",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 51776,
+        "name": "M. Ara\u00fajo",
+        "name_normalized": "m araujo",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 47254,
+        "name": "M. Olivera",
+        "name_normalized": "m olivera",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51494,
+        "name": "M. Ugarte",
+        "name_normalized": "m ugarte",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 51572,
+        "name": "M. Vi\u00f1a",
+        "name_normalized": "m vina",
+        "position": "Defender"
+      },
+      {
+        "api_id": 5995,
+        "name": "N. de la Cruz",
+        "name_normalized": "n de la cruz",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 16482,
+        "name": "R. Aguirre",
+        "name_normalized": "r aguirre",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 101814,
+        "name": "R. Ara\u00fajo",
+        "name_normalized": "r araujo",
+        "position": "Defender"
+      },
+      {
+        "api_id": 863,
+        "name": "R. Bentancur",
+        "name_normalized": "r bentancur",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 108563,
+        "name": "R. Zalazar",
+        "name_normalized": "r zalazar",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 135334,
+        "name": "S. Bueno",
+        "name_normalized": "s bueno",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51535,
+        "name": "S. C\u00e1ceres",
+        "name_normalized": "s caceres",
+        "position": "Defender"
+      },
+      {
+        "api_id": 61895,
+        "name": "S. Mele",
+        "name_normalized": "s mele",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 50077,
+        "name": "S. Rochet",
+        "name_normalized": "s rochet",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 7,
+    "team_name": "Uruguay",
+    "team_name_normalized": "uruguay"
+  },
+  "usa": {
+    "players": [
+      {
+        "api_id": 355994,
+        "name": "A. Freeman",
+        "name_normalized": "a freeman",
+        "position": "Defender"
+      },
+      {
+        "api_id": 19549,
+        "name": "A. Robinson",
+        "name_normalized": "a robinson",
+        "position": "Defender"
+      },
+      {
+        "api_id": 50737,
+        "name": "A. Trusty",
+        "name_normalized": "a trusty",
+        "position": "Defender"
+      },
+      {
+        "api_id": 35885,
+        "name": "A. Zendejas",
+        "name_normalized": "a zendejas",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 50739,
+        "name": "B. Aaronson",
+        "name_normalized": "b aaronson",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 266606,
+        "name": "C. Brady",
+        "name_normalized": "c brady",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 17,
+        "name": "C. Pulisic",
+        "name_normalized": "c pulisic",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 126949,
+        "name": "C. Richards",
+        "name_normalized": "c richards",
+        "position": "Defender"
+      },
+      {
+        "api_id": 51114,
+        "name": "C. Roldan",
+        "name_normalized": "c roldan",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 138835,
+        "name": "F. Balogun",
+        "name_normalized": "f balogun",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 161921,
+        "name": "G. Reyna",
+        "name_normalized": "g reyna",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 427,
+        "name": "H. Wright",
+        "name_normalized": "h wright",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 50852,
+        "name": "J. Scally",
+        "name_normalized": "j scally",
+        "position": "Defender"
+      },
+      {
+        "api_id": 362400,
+        "name": "M. Arfsten",
+        "name_normalized": "m arfsten",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 50728,
+        "name": "M. Freese",
+        "name_normalized": "m freese",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 50735,
+        "name": "M. McKenzie",
+        "name_normalized": "m mckenzie",
+        "position": "Defender"
+      },
+      {
+        "api_id": 50879,
+        "name": "M. Robinson",
+        "name_normalized": "m robinson",
+        "position": "Defender"
+      },
+      {
+        "api_id": 162037,
+        "name": "M. Tillman",
+        "name_normalized": "m tillman",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 50999,
+        "name": "M. Turner",
+        "name_normalized": "m turner",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 73868,
+        "name": "R. Pepi",
+        "name_normalized": "r pepi",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 201713,
+        "name": "S. Berhalter",
+        "name_normalized": "s berhalter",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 38735,
+        "name": "S. Dest",
+        "name_normalized": "s dest",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 1150,
+        "name": "T. Adams",
+        "name_normalized": "t adams",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 19023,
+        "name": "T. Ream",
+        "name_normalized": "t ream",
+        "position": "Defender"
+      },
+      {
+        "api_id": 1138,
+        "name": "T. Weah",
+        "name_normalized": "t weah",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 415,
+        "name": "W. McKennie",
+        "name_normalized": "w mckennie",
+        "position": "Midfielder"
+      }
+    ],
+    "team_id": 2384,
+    "team_name": "USA",
+    "team_name_normalized": "usa"
+  },
+  "uzbekistan": {
+    "players": [
+      {
+        "api_id": 416952,
+        "name": "A. Abdullaev",
+        "name_normalized": "a abdullaev",
+        "position": "Defender"
+      },
+      {
+        "api_id": 65584,
+        "name": "A. Amonov",
+        "name_normalized": "a amonov",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 263676,
+        "name": "A. Fayzullaev",
+        "name_normalized": "a fayzullaev",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 73520,
+        "name": "A. Ganiyev",
+        "name_normalized": "a ganiyev",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 360114,
+        "name": "A. Khusanov",
+        "name_normalized": "a khusanov",
+        "position": "Defender"
+      },
+      {
+        "api_id": 73522,
+        "name": "A. Mozgovoy",
+        "name_normalized": "a mozgovoy",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 73507,
+        "name": "A. Nematov",
+        "name_normalized": "a nematov",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 65571,
+        "name": "A. Ulmasaliev",
+        "name_normalized": "a ulmasaliev",
+        "position": "Defender"
+      },
+      {
+        "api_id": 72120,
+        "name": "B. Ergashev",
+        "name_normalized": "b ergashev",
+        "position": "Goalkeeper"
+      },
+      {
+        "api_id": 416964,
+        "name": "B. Karimov",
+        "name_normalized": "b karimov",
+        "position": "Defender"
+      },
+      {
+        "api_id": 53834,
+        "name": "D. Khamdamov",
+        "name_normalized": "d khamdamov",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 53535,
+        "name": "E. Shomurodov",
+        "name_normalized": "e shomurodov",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 532759,
+        "name": "F. Sayfiev",
+        "name_normalized": "f sayfiev",
+        "position": "Defender"
+      },
+      {
+        "api_id": 72128,
+        "name": "I. Sergeev",
+        "name_normalized": "i sergeev",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 65576,
+        "name": "J. Iskanderov",
+        "name_normalized": "j iskanderov",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 53836,
+        "name": "J. Masharipov",
+        "name_normalized": "j masharipov",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 358427,
+        "name": "J. Urozov",
+        "name_normalized": "j urozov",
+        "position": "Defender"
+      },
+      {
+        "api_id": 72122,
+        "name": "K. Alijonov",
+        "name_normalized": "k alijonov",
+        "position": "Defender"
+      },
+      {
+        "api_id": 53835,
+        "name": "O. Hamrobekov",
+        "name_normalized": "o hamrobekov",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 72127,
+        "name": "O. Orunov",
+        "name_normalized": "o orunov",
+        "position": "Attacker"
+      },
+      {
+        "api_id": 50272,
+        "name": "O. Shukurov",
+        "name_normalized": "o shukurov",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 34121,
+        "name": "R. Ashurmatov",
+        "name_normalized": "r ashurmatov",
+        "position": "Defender"
+      },
+      {
+        "api_id": 363723,
+        "name": "S. Esanov",
+        "name_normalized": "s esanov",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 73514,
+        "name": "S. Nasrullayev",
+        "name_normalized": "s nasrullayev",
+        "position": "Midfielder"
+      },
+      {
+        "api_id": 73510,
+        "name": "U. Eshmurodov",
+        "name_normalized": "u eshmurodov",
+        "position": "Defender"
+      },
+      {
+        "api_id": 73534,
+        "name": "U. Yusupov",
+        "name_normalized": "u yusupov",
+        "position": "Goalkeeper"
+      }
+    ],
+    "team_id": 1568,
+    "team_name": "Uzbekistan",
+    "team_name_normalized": "uzbekistan"
+  }
+}
