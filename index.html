@@ -598,9 +598,18 @@ function playerIndex(){
     if(!map.has(key))map.set(key,{Lookup_ID:key,API_Football_ID:id||"",Player_Name:name||"",Full_Name:"",Squad_Name:"",Search_Aliases:[],Team:team||"",Position:"",Intl_Sample:"",Avg_Minutes:"",Avg_Shots:"",Avg_SOT:"",Avg_Tackles:"",Goals_Per_Match:"",Goal_Scorer_Rate:"",Last_5_Shots:"",Last_5_Goals:"",EFP_Per_Match:"",Expected_Matches:"",ETFP:"",Notes:"",Injury_Status:"",Injury_Reason:"",Injury_Updated:""});
     return map.get(key);
   }
+  Object.values(st.squadCache||{}).forEach(team=>{
+    (team.players||[]).forEach(player=>{
+      const id=String(player.api_id||player.API_Football_ID||"").trim();
+      const base=ensure(id,player.name||"",team.team_name||"");
+      base.Team=team.team_name||base.Team;
+      base.Squad_Name=player.name||base.Squad_Name;
+      base.Position=player.position==="Attacker"?"FW":player.position==="Midfielder"?"MD":player.position==="Defender"?"D":player.position==="Goalkeeper"?"G":base.Position;
+    });
+  });
   st.playerForm.forEach(row=>{
     const base=ensure(row.API_Football_ID,row.Player_Name,row.Nationality);
-    Object.assign(base,row,{Team:base.Team||row.Nationality||""});
+    Object.assign(base,row,{Player_Name:base.Player_Name||row.Player_Name,Team:base.Team||row.Nationality||""});
   });
   st.playerEfp.forEach(row=>{
     const base=ensure(row.API_Football_ID,row.Player_Name,row.Team);
