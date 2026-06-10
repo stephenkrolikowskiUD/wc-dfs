@@ -247,7 +247,18 @@ function normalizeLookupText(v){return String(v||"").normalize("NFKD").replace(/
 function switchTab(tab){st.activeTab=tab;if(tab!=="lookup"){st.selectedLookupId="";history.replaceState(null,"",location.pathname+location.search)}render()}
 function setPropFilter(prop){st.propFilter=prop;render()}
 function setSelectedGame(gameId){st.selectedGame=gameId;st.activeTab="entry";render()}
-function setLookupSearch(v){st.lookupSearch=v;render()}
+function setLookupSearch(v,el){
+  const cursor=el&&Number.isFinite(el.selectionStart)?el.selectionStart:String(v||"").length;
+  st.lookupSearch=v;
+  render();
+  requestAnimationFrame(()=>{
+    const input=document.getElementById("lookup-search");
+    if(input){
+      input.focus();
+      input.setSelectionRange(cursor,cursor);
+    }
+  });
+}
 function setLookupTeam(v){st.lookupTeam=v;render()}
 function setLookupPosition(v){st.lookupPosition=v;render()}
 function setLookupSort(v){st.lookupSort=v;render()}
@@ -1044,7 +1055,7 @@ function renderLookupBrowse(){
     <div class="card">
       <div class="card-title">🔍 Player Lookup</div>
       <div class="lookup-controls">
-        <input class="lookup-input" value="${esc(st.lookupSearch)}" oninput="setLookupSearch(this.value)" placeholder="Search player"/>
+        <input id="lookup-search" class="lookup-input" value="${esc(st.lookupSearch)}" oninput="setLookupSearch(this.value,this)" placeholder="Search player"/>
         <select class="lookup-select" onchange="setLookupTeam(this.value)"><option value="ALL">All teams</option>${teams.map(t=>`<option value="${esc(t)}" ${st.lookupTeam===t?"selected":""}>${esc(teamWithFlag(t))}</option>`).join("")}</select>
         <select class="lookup-select" onchange="setLookupPosition(this.value)">${["ALL","G","D","MD","FW"].map(p=>`<option value="${p}" ${st.lookupPosition===p?"selected":""}>${p==="ALL"?"All positions":p}</option>`).join("")}</select>
         <select class="lookup-select" onchange="setLookupSort(this.value)">${[["ETFP","Sort: ETFP"],["EFP","Sort: EFP"],["Sample","Sort: Sample"],["Name","Sort: Name"]].map(([v,l])=>`<option value="${v}" ${st.lookupSort===v?"selected":""}>${l}</option>`).join("")}</select>
