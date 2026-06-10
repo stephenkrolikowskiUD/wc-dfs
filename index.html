@@ -118,6 +118,39 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .weak-link{color:var(--wc-red);font-size:9px;font-weight:1000;margin-top:3px}
 .copy-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
 .copy-status{font-size:10px;color:var(--accent2);font-weight:900}
+.player-link{display:inline;color:inherit;background:none;border:0;padding:0;font:inherit;font-weight:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.lookup-controls{display:grid;grid-template-columns:1fr;gap:8px}
+.lookup-input,.lookup-select{width:100%;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 10px;font-size:12px;font-weight:800}
+.lookup-toggles{display:flex;flex-wrap:wrap;gap:8px}
+.lookup-toggle{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;color:var(--muted)}
+.lookup-table{min-width:720px}
+.lookup-row{cursor:pointer}
+.lookup-row:hover{background:rgba(42,157,143,.07)}
+.status-dot{font-size:10px;font-weight:1000;border-radius:999px;padding:3px 7px;white-space:nowrap}
+.status-healthy{background:rgba(42,157,143,.12);color:var(--wc-green);border:1px solid rgba(42,157,143,.24)}
+.lookup-detail-grid{display:grid;gap:12px}
+.lookup-hero{display:grid;gap:10px;background:linear-gradient(135deg,rgba(244,196,48,.16),rgba(42,157,143,.10)),var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.lookup-name{font-size:22px;font-weight:1000;line-height:1.1;word-break:break-word;overflow-wrap:anywhere}
+.lookup-subline{font-size:12px;color:var(--muted);font-weight:900;margin-top:4px}
+.lookup-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lookup-card{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.bar-chart{display:grid;grid-template-columns:repeat(5,minmax(28px,1fr));gap:8px;align-items:end;min-height:150px;padding-top:18px}
+.bar-wrap{display:grid;grid-template-rows:auto 1fr auto;gap:5px;align-items:end;text-align:center}
+.bar-val{font-size:10px;font-weight:1000;color:var(--accent)}
+.bar{height:calc(var(--h,0) * 1%);min-height:2px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--wc-green),var(--wc-pitch));box-shadow:0 6px 14px rgba(27,94,32,.18)}
+.bar-label{font-size:9px;color:var(--muted);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lookup-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lookup-kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+.lookup-kpi .val{font-size:18px;font-weight:1000;color:var(--accent)}
+.lookup-kpi .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:900;margin-top:2px}
+.split-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.split-chip{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:11px;font-weight:900;line-height:1.6}
+.lookup-prop-row,.history-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid rgba(148,163,184,.16)}
+.lookup-prop-row:first-child,.history-row:first-child{border-top:none}
+.injury-banner{background:rgba(244,196,48,.18);border:1px solid rgba(244,196,48,.45);border-radius:12px;padding:11px 12px;font-size:12px;font-weight:900;color:#8a5d00}
+.injury-banner.out{background:rgba(230,57,70,.12);border-color:rgba(230,57,70,.38);color:var(--wc-red)}
+.teammate-strip{display:flex;gap:7px;overflow-x:auto;padding-top:4px}
+.teammate-chip{flex:0 0 auto;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer}
 .timestamp{text-align:center;color:var(--muted);font-size:10px;padding:18px 12px}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:11px;min-width:440px}
@@ -140,6 +173,10 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
   .slip-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .daily-layout{grid-template-columns:minmax(0,1fr) 320px;align-items:start}
   .daily-columns{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .lookup-controls{grid-template-columns:2fr 1fr 1fr 1fr;align-items:center}
+  .lookup-detail-grid{grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr)}
+  .lookup-hero{grid-template-columns:1fr 360px;align-items:center}
+  .lookup-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media(min-width:1200px){.pick-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
@@ -154,10 +191,16 @@ const SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g";
 const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 const SPORT = "WC";
 const PICKS_TAB = "Picks_Current";
+const PICKS_HISTORY_TAB = "Picks_History";
 const DRAFT_TAB = "Draft_Recommendations";
 const DAILY_SLATE_TAB = "Daily_Slate";
 const SLIPS_TAB = "Slip_Recommendations";
+const FORM_TAB = "Player_Form";
+const EFP_TAB = "Player_EFP";
+const SURVIVAL_TAB = "Team_Survival";
+const INJURY_TAB = "Player_Injuries";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
+const LOOKUP_STATS = ["Shots","SOT","Tackles","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
 const STATS_PLACEHOLDER = "Stats reads from Picks_History — grader populates Result + Actual columns after each WC match completes. Aggregate hit rate / ROI shown here after the first matches finish (June 11 onward).";
 const TEAM_FLAG = {
@@ -169,10 +212,24 @@ const st = {
   draftRecommendations: [],
   dailySlate: [],
   slipRecommendations: [],
+  playerForm: [],
+  playerEfp: [],
+  teamSurvival: [],
+  playerInjuries: [],
+  picksHistory: [],
   dailyDrafted: new Set(),
   dailyRoster: [],
   activeTab: "picks",
   propFilter: "ALL",
+  lookupSearch: "",
+  lookupTeam: "ALL",
+  lookupPosition: "ALL",
+  lookupHideLimited: false,
+  lookupHideInjured: false,
+  lookupSort: "ETFP",
+  lookupStat: "Shots",
+  lookupLine: "",
+  selectedLookupId: "",
   selectedGame: "",
   loadedAt: "",
   loading: true,
@@ -186,9 +243,18 @@ function normalizeProp(v){const s=String(v||"").trim().toUpperCase().replace(/\s
 function normalizeTier(v){const s=String(v||"").trim().toUpperCase();return ["SMASH","STRONG","LEAN"].includes(s)?s:"LEAN"}
 function normalizePick(v){const s=String(v||"").trim().toUpperCase();return s==="UNDER"||s==="U"?"Under":"Over"}
 function toNum(v){const n=Number(String(v??"").replace(/[^0-9+\-.]/g,""));return Number.isFinite(n)?n:0}
-function switchTab(tab){st.activeTab=tab;render()}
+function normalizeLookupText(v){return String(v||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
+function switchTab(tab){st.activeTab=tab;if(tab!=="lookup"){st.selectedLookupId="";history.replaceState(null,"",location.pathname+location.search)}render()}
 function setPropFilter(prop){st.propFilter=prop;render()}
 function setSelectedGame(gameId){st.selectedGame=gameId;st.activeTab="entry";render()}
+function setLookupSearch(v){st.lookupSearch=v;render()}
+function setLookupTeam(v){st.lookupTeam=v;render()}
+function setLookupPosition(v){st.lookupPosition=v;render()}
+function setLookupSort(v){st.lookupSort=v;render()}
+function setLookupStat(v){st.lookupStat=v;render()}
+function setLookupLine(v){st.lookupLine=v;render()}
+function toggleLookupLimited(){st.lookupHideLimited=!st.lookupHideLimited;render()}
+function toggleLookupInjured(){st.lookupHideInjured=!st.lookupHideInjured;render()}
 function dailyKey(p){return `${p.API_Football_ID||p.Player_Name}|${p.Team}|${p.Position}`}
 function toggleDailyDrafted(key){if(st.dailyDrafted.has(key))st.dailyDrafted.delete(key);else st.dailyDrafted.add(key);st.dailyRoster=st.dailyRoster.filter(k=>k!==key);render()}
 function resetDailyDraft(){st.dailyDrafted=new Set();st.dailyRoster=[];render()}
@@ -260,7 +326,7 @@ function getGames(){
   return [...map.values()].sort((a,b)=>(Date.parse(a.time||"")||Infinity)-(Date.parse(b.time||"")||Infinity));
 }
 
-function hydratePick(row, idx){
+function hydratePick(row, idx=0){
   return {
     rank: idx+1,
     Player: row.Player || row.player || "",
@@ -345,19 +411,86 @@ function hydrateSlipRow(row){
   };
 }
 
+function hydrateFormRow(row){
+  return {
+    Player_Name: row.Player_Name || "",
+    API_Football_ID: row.API_Football_ID || "",
+    Nationality: row.Nationality || row.Team || "",
+    Intl_Sample: row.Intl_Matches_Last_24mo || row.Intl_Sample || "",
+    Avg_Minutes: row.Avg_Minutes || "",
+    Avg_Shots: row.Avg_Shots || "",
+    Avg_SOT: row.Avg_SOT || "",
+    Avg_Tackles: row.Avg_Tackles || "",
+    Goals_Per_Match: row.Goals_Per_Match || "",
+    Goal_Scorer_Rate: row.Goal_Scorer_Rate || "",
+    Last_5_Shots: row.Last_5_Shots || "",
+    Last_5_Goals: row.Last_5_Goals || "",
+    Last_Updated: row.Last_Updated || "",
+    Notes: row.Notes || "",
+  };
+}
+
+function hydrateEfpRow(row){
+  return {
+    Player_Name: row.Player_Name || "",
+    API_Football_ID: row.API_Football_ID || "",
+    Team: row.Team || "",
+    Position: row.Position || "",
+    EFP_Per_Match: row.EFP_Per_Match || row.EFP_Regressed || "",
+    EFP_Raw: row.EFP_Raw || "",
+    Intl_Sample: row.Intl_Sample || "",
+    Notes: row.Notes || "",
+  };
+}
+
+function hydrateSurvivalRow(row){
+  return {
+    Team: row.Team || "",
+    API_Football_ID: row.API_Football_ID || "",
+    Expected_Matches_Remaining: row.Expected_Matches_Remaining || "",
+    Confidence: row.Confidence || "",
+    Source: row.Source || "",
+  };
+}
+
+function hydrateInjuryRow(row){
+  return {
+    Player_Name: row.Player_Name || "",
+    API_Football_ID: row.API_Football_ID || "",
+    Team: row.Team || "",
+    Injury_Type: row.Injury_Type || "",
+    Reason: row.Reason || "",
+    Affected_Fixture_ID: row.Affected_Fixture_ID || "",
+    Affected_Fixture_Date: row.Affected_Fixture_Date || "",
+    Status_Score: row.Status_Score || "",
+    Last_Updated: row.Last_Updated || "",
+    Notes: row.Notes || "",
+  };
+}
+
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const [picks,draft,daily,slips]=await Promise.all([
+    const [picks,draft,daily,slips,form,efp,survival,history,injuries]=await Promise.all([
       fetchSheet(PICKS_TAB),
       fetchSheet(DRAFT_TAB).catch(()=>[]),
       fetchSheet(DAILY_SLATE_TAB).catch(()=>[]),
-      fetchSheet(SLIPS_TAB).catch(()=>[])
+      fetchSheet(SLIPS_TAB).catch(()=>[]),
+      fetchSheet(FORM_TAB).catch(()=>[]),
+      fetchSheet(EFP_TAB).catch(()=>[]),
+      fetchSheet(SURVIVAL_TAB).catch(()=>[]),
+      fetchSheet(PICKS_HISTORY_TAB).catch(()=>[]),
+      fetchSheet(INJURY_TAB).catch(()=>[])
     ]);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
     st.draftRecommendations=draft.map(hydrateDraftRow).filter(r=>r.Player);
     st.dailySlate=daily.map(hydrateDailyRow).filter(r=>r.Player_Name);
     st.slipRecommendations=slips.map(hydrateSlipRow).filter(r=>r.Player);
+    st.playerForm=form.map(hydrateFormRow).filter(r=>r.Player_Name);
+    st.playerEfp=efp.map(hydrateEfpRow).filter(r=>r.Player_Name);
+    st.teamSurvival=survival.map(hydrateSurvivalRow).filter(r=>r.Team);
+    st.picksHistory=history.map(hydratePick).filter(p=>p.Player);
+    st.playerInjuries=injuries.map(hydrateInjuryRow).filter(r=>r.Player_Name||r.API_Football_ID);
     const validKeys=new Set(st.dailySlate.map(dailyKey));
     st.dailyDrafted=new Set([...st.dailyDrafted].filter(k=>validKeys.has(k)));
     st.dailyRoster=st.dailyRoster.filter(k=>validKeys.has(k));
@@ -368,7 +501,13 @@ async function loadAllData(){
     st.draftRecommendations=[];
     st.dailySlate=[];
     st.slipRecommendations=[];
+    st.playerForm=[];
+    st.playerEfp=[];
+    st.teamSurvival=[];
+    st.picksHistory=[];
+    st.playerInjuries=[];
   }finally{
+    applyHashRoute();
     st.loading=false;render();
   }
 }
@@ -386,6 +525,87 @@ function injuryBadge(row){
   const cls=out?"out":"questionable";
   const reason=row.Injury_Reason||label;
   return `<span class="injury-badge ${cls}" title="${esc(reason)}">${out?"🔴":"🟡"} ${label}</span>`;
+}
+function playerKeyFrom(id,name,team){return String(id||"").trim()||`${normalizeLookupText(name)}|${normalizeLookupText(team)}`}
+function teamKey(team){return normalizeLookupText(team)}
+function parseList(v){return String(v||"").split(",").map(x=>toNum(x)).filter(x=>Number.isFinite(x))}
+function avg(nums){return nums.length?nums.reduce((a,b)=>a+b,0)/nums.length:NaN}
+function injuryMap(){
+  const map=new Map();
+  st.playerInjuries.forEach(row=>{
+    const key=playerKeyFrom(row.API_Football_ID,row.Player_Name,row.Team);
+    const status=String(row.Status_Score||"").trim()===""?1:toNum(row.Status_Score);
+    const current=map.get(key);
+    const currentStatus=current&&String(current.Status_Score||"").trim()!==""?toNum(current.Status_Score):1;
+    if(!current||status<currentStatus)map.set(key,row);
+  });
+  return map;
+}
+function efpMap(){
+  const map=new Map();
+  st.playerEfp.forEach(row=>map.set(playerKeyFrom(row.API_Football_ID,row.Player_Name,row.Team),row));
+  return map;
+}
+function survivalMap(){
+  const map=new Map();
+  st.teamSurvival.forEach(row=>map.set(teamKey(row.Team),row));
+  return map;
+}
+function playerIndex(){
+  const efps=efpMap(), injuries=injuryMap(), survival=survivalMap(), map=new Map();
+  function ensure(id,name,team){
+    const key=playerKeyFrom(id,name,team);
+    if(!map.has(key))map.set(key,{Lookup_ID:key,API_Football_ID:id||"",Player_Name:name||"",Team:team||"",Position:"",Intl_Sample:"",Avg_Minutes:"",Avg_Shots:"",Avg_SOT:"",Avg_Tackles:"",Goals_Per_Match:"",Goal_Scorer_Rate:"",Last_5_Shots:"",Last_5_Goals:"",EFP_Per_Match:"",Expected_Matches:"",ETFP:"",Notes:"",Injury_Status:"",Injury_Reason:"",Injury_Updated:""});
+    return map.get(key);
+  }
+  st.playerForm.forEach(row=>{
+    const base=ensure(row.API_Football_ID,row.Player_Name,row.Nationality);
+    Object.assign(base,row,{Team:base.Team||row.Nationality||""});
+  });
+  st.playerEfp.forEach(row=>{
+    const base=ensure(row.API_Football_ID,row.Player_Name,row.Team);
+    base.Team=row.Team||base.Team;
+    base.Position=row.Position||base.Position;
+    base.EFP_Per_Match=row.EFP_Per_Match||base.EFP_Per_Match;
+    base.Intl_Sample=row.Intl_Sample||base.Intl_Sample;
+    base.Notes=row.Notes||base.Notes;
+  });
+  for(const [key,p] of map.entries()){
+    const efp=efps.get(key)||efps.get(playerKeyFrom(p.API_Football_ID,p.Player_Name,p.Team));
+    if(efp){
+      p.Team=efp.Team||p.Team;p.Position=efp.Position||p.Position;p.EFP_Per_Match=efp.EFP_Per_Match||p.EFP_Per_Match;p.Intl_Sample=efp.Intl_Sample||p.Intl_Sample;p.Notes=efp.Notes||p.Notes;
+    }
+    const surv=survival.get(teamKey(p.Team));
+    p.Expected_Matches=surv?.Expected_Matches_Remaining||"";
+    p.ETFP=toNum(p.EFP_Per_Match)*toNum(p.Expected_Matches);
+    const inj=injuries.get(key)||injuries.get(playerKeyFrom(p.API_Football_ID,p.Player_Name,p.Team));
+    if(inj){p.Injury_Status=inj.Status_Score;p.Injury_Reason=inj.Reason||inj.Injury_Type;p.Injury_Updated=inj.Last_Updated;p.Injury_Type=inj.Injury_Type}
+  }
+  return [...map.values()].filter(p=>p.Player_Name&&normalizeLookupText(p.Player_Name));
+}
+function lookupTeams(){return [...new Set(playerIndex().map(p=>p.Team).filter(Boolean))].sort()}
+function selectedLookupPlayer(){const players=playerIndex();return players.find(p=>String(p.Lookup_ID)===String(st.selectedLookupId))||players[0]||null}
+function lookupLastName(norm){const parts=norm.split(" ").filter(Boolean);return parts[parts.length-1]||""}
+function lookupInitial(norm){const parts=norm.split(" ").filter(Boolean);return parts[0]?.[0]||""}
+function findLookupPlayer(name,team){
+  const n=normalizeLookupText(name), t=normalizeLookupText(team);
+  const players=playerIndex().filter(p=>normalizeLookupText(p.Player_Name));
+  const sameTeam=p=>!t||normalizeLookupText(p.Team)===t;
+  const last=lookupLastName(n), initial=lookupInitial(n);
+  return players.find(p=>normalizeLookupText(p.Player_Name)===n&&sameTeam(p))||
+    players.find(p=>sameTeam(p)&&lookupLastName(normalizeLookupText(p.Player_Name))===last&&lookupInitial(normalizeLookupText(p.Player_Name))===initial)||
+    players.find(p=>sameTeam(p)&&last&&lookupLastName(normalizeLookupText(p.Player_Name))===last)||
+    players.find(p=>{const pn=normalizeLookupText(p.Player_Name);return pn&&n&&(pn.includes(n)||n.includes(pn))});
+}
+function openLookupById(id){st.selectedLookupId=decodeURIComponent(id||"");st.activeTab="lookup";history.replaceState(null,"",`#lookup/player/${encodeURIComponent(st.selectedLookupId)}`);render()}
+function openLookupByNameEncoded(name,team){const p=findLookupPlayer(decodeURIComponent(name||""),decodeURIComponent(team||""));if(p)openLookupById(p.Lookup_ID);else{st.lookupSearch=decodeURIComponent(name||"");st.activeTab="lookup";render()}}
+function backToLookupList(){st.selectedLookupId="";history.replaceState(null,"",location.pathname+location.search);render()}
+function applyHashRoute(){
+  const m=location.hash.match(/^#lookup\/player\/(.+)$/);
+  if(m){st.activeTab="lookup";st.selectedLookupId=decodeURIComponent(m[1])}
+}
+function playerLinkHtml(name,team,cls="player-link"){
+  return `<button class="${cls}" onclick="openLookupByNameEncoded('${encodeURIComponent(name||"")}','${encodeURIComponent(team||"")}')">${esc(name||"Player")}</button>`;
 }
 function renderFormRow(p){
   const sample=Number(p.Intl_Sample||0);
@@ -405,7 +625,7 @@ function renderPickCard(p){
   return `<div class="pick-card ${pickClass(p.Tier)}">
     <div class="pick-top">
       <div>
-        <div class="player-name"><span class="rank-pill">#${esc(p.rank)}</span>${esc(p.Player)} ${injuryBadge(p)}</div>
+        <div class="player-name"><span class="rank-pill">#${esc(p.rank)}</span>${playerLinkHtml(p.Player,p.Team)} ${injuryBadge(p)}</div>
         <div class="team-line">${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))}${p.Game_Time?` · ${esc(fmtTime(p.Game_Time))}`:""}</div>
       </div>
       ${tierPill(p.Tier)}
@@ -494,7 +714,7 @@ function renderDraftPlayer(row){
   return `<div class="draft-player">
     <div class="slot-badge">${esc(row.Slot||row.Position||"")}</div>
     <div>
-      <div class="draft-name">${esc(row.Player)}</div>
+      <div class="draft-name">${playerLinkHtml(row.Player,row.Team)}</div>
       <div class="draft-meta">${esc(teamWithFlag(row.Team))} · ${esc(row.Position||"—")} · ${esc(fmtOne(row.EFP_Per_Match))} EFP × ${esc(fmtOne(row.Expected_Matches))} matches ${injuryBadge(row)}</div>
       ${row.Notes?`<div class="draft-note">${esc(row.Notes).split(";")[0]}</div>`:""}
     </div>
@@ -562,7 +782,7 @@ function renderDailyPlayer(p){
   const addable=canAddDailyPlayer(p);
   return `<div class="daily-player ${unavailable?"out":""}">
     <div>
-      <div class="daily-name"><span class="tier-letter tier-${tierLetter(p.Tier).toLowerCase()}">${esc(tierLetter(p.Tier))}</span>${esc(p.Player_Name)} ${injuryBadge(p)}</div>
+      <div class="daily-name"><span class="tier-letter tier-${tierLetter(p.Tier).toLowerCase()}">${esc(tierLetter(p.Tier))}</span>${playerLinkHtml(p.Player_Name,p.Team)} ${injuryBadge(p)}</div>
       <div class="daily-metrics">${esc(teamWithFlag(p.Team))} · ${esc(fmtOne(p.EFP_Per_Match))} EFP · ${(toNum(p.Start_Prob)*100).toFixed(0)}% start · <strong>${esc(fmtOne(p.Adjusted_EFP))} adj</strong></div>
       ${p.Notes?`<div class="draft-note">${esc(p.Notes).split(";")[0]}</div>`:""}
     </div>
@@ -629,7 +849,7 @@ function renderDailyRoster(){
         const encoded=encodeURIComponent(dailyKey(p));
         return `<div class="roster-slot">
           <div class="slot-badge">${esc(item.slot)}</div>
-          <div><div class="draft-name">${esc(p.Player_Name)}</div><div class="draft-meta">${esc(teamWithFlag(p.Team))} · ${esc(p.Position)} · ${esc(fmtOne(p.Adjusted_EFP))} adj</div></div>
+          <div><div class="draft-name">${playerLinkHtml(p.Player_Name,p.Team)}</div><div class="draft-meta">${esc(teamWithFlag(p.Team))} · ${esc(p.Position)} · ${esc(fmtOne(p.Adjusted_EFP))} adj</div></div>
           <button class="icon-btn" onclick="removeFromRosterEncoded('${encoded}')">×</button>
         </div>`;
       }).join("")}
@@ -730,7 +950,7 @@ function renderSlipLeg(row, group){
   const isWeak=group.avg&&legScore <= group.avg*0.72;
   return `<div class="slip-leg">
     <div>
-      <div class="slip-player">${esc(row.Player)}</div>
+      <div class="slip-player">${playerLinkHtml(row.Player,row.Team)}</div>
       <div class="slip-meta">${esc(teamWithFlag(row.Team))} · ${esc(row.Prop)} ${esc(row.Pick)} ${esc(row.Line)} · ${esc(row.Confidence)}/10</div>
       ${isWeak?`<div class="weak-link">Weak-link leg · ${fmtOne(legScore)} conviction</div>`:""}
     </div>
@@ -777,6 +997,189 @@ function renderSlipsView(){
   <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(SLIPS_TAB)}</div>`;
 }
 
+function statusBadge(row){
+  const status=injuryStatusValue(row);
+  if(status>=1)return `<span class="status-dot status-healthy">🟢 Healthy</span>`;
+  return injuryBadge(row);
+}
+
+function statValue(player, stat){
+  if(stat==="Shots")return toNum(player.Avg_Shots);
+  if(stat==="SOT")return toNum(player.Avg_SOT);
+  if(stat==="Tackles")return toNum(player.Avg_Tackles);
+  if(stat==="Goals")return toNum(player.Goals_Per_Match);
+  return 0;
+}
+
+function statLogValues(player, stat){
+  if(stat==="Shots")return parseList(player.Last_5_Shots);
+  if(stat==="Goals")return parseList(player.Last_5_Goals);
+  return [];
+}
+
+function filteredLookupPlayers(){
+  const q=normalizeLookupText(st.lookupSearch);
+  const rows=playerIndex().filter(p=>{
+    if(q&&!normalizeLookupText(p.Player_Name).includes(q))return false;
+    if(st.lookupTeam!=="ALL"&&p.Team!==st.lookupTeam)return false;
+    if(st.lookupPosition!=="ALL"&&p.Position!==st.lookupPosition)return false;
+    if(st.lookupHideLimited&&toNum(p.Intl_Sample)<5)return false;
+    if(st.lookupHideInjured&&injuryStatusValue(p)<=0)return false;
+    return true;
+  });
+  const sort=st.lookupSort;
+  rows.sort((a,b)=>{
+    if(sort==="Sample")return toNum(b.Intl_Sample)-toNum(a.Intl_Sample)||a.Player_Name.localeCompare(b.Player_Name);
+    if(sort==="EFP")return toNum(b.EFP_Per_Match)-toNum(a.EFP_Per_Match)||a.Player_Name.localeCompare(b.Player_Name);
+    if(sort==="ETFP")return toNum(b.ETFP)-toNum(a.ETFP)||a.Player_Name.localeCompare(b.Player_Name);
+    return a.Player_Name.localeCompare(b.Player_Name);
+  });
+  return rows;
+}
+
+function renderLookupBrowse(){
+  const teams=lookupTeams();
+  const rows=filteredLookupPlayers();
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">🔍 Player Lookup</div>
+      <div class="lookup-controls">
+        <input class="lookup-input" value="${esc(st.lookupSearch)}" oninput="setLookupSearch(this.value)" placeholder="Search player"/>
+        <select class="lookup-select" onchange="setLookupTeam(this.value)"><option value="ALL">All teams</option>${teams.map(t=>`<option value="${esc(t)}" ${st.lookupTeam===t?"selected":""}>${esc(teamWithFlag(t))}</option>`).join("")}</select>
+        <select class="lookup-select" onchange="setLookupPosition(this.value)">${["ALL","G","D","MD","FW"].map(p=>`<option value="${p}" ${st.lookupPosition===p?"selected":""}>${p==="ALL"?"All positions":p}</option>`).join("")}</select>
+        <select class="lookup-select" onchange="setLookupSort(this.value)">${[["ETFP","Sort: ETFP"],["EFP","Sort: EFP"],["Sample","Sort: Sample"],["Name","Sort: Name"]].map(([v,l])=>`<option value="${v}" ${st.lookupSort===v?"selected":""}>${l}</option>`).join("")}</select>
+      </div>
+      <div class="lookup-toggles" style="margin-top:9px">
+        <label class="lookup-toggle"><input type="checkbox" ${st.lookupHideLimited?"checked":""} onchange="toggleLookupLimited()"/> Hide limited samples</label>
+        <label class="lookup-toggle"><input type="checkbox" ${st.lookupHideInjured?"checked":""} onchange="toggleLookupInjured()"/> Hide out players</label>
+      </div>
+    </div>
+  </div>
+  <div class="section"><div class="card">
+    <div class="small muted" style="margin-bottom:8px">${rows.length} player(s) · data from ${esc(FORM_TAB)}, ${esc(EFP_TAB)}, ${esc(SURVIVAL_TAB)}, ${esc(INJURY_TAB)}</div>
+    <div class="table-wrap"><table class="lookup-table"><thead><tr><th>Player</th><th>Team</th><th>Pos</th><th>Sample</th><th>EFP</th><th>ETFP</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(p=>`<tr class="lookup-row" onclick="openLookupById('${encodeURIComponent(p.Lookup_ID)}')"><td><strong>${esc(p.Player_Name)}</strong></td><td>${esc(teamWithFlag(p.Team))}</td><td>${esc(p.Position||"—")}</td><td>${esc(p.Intl_Sample||"—")}</td><td>${esc(fmtOne(p.EFP_Per_Match))}</td><td>${esc(fmtOne(p.ETFP))}</td><td>${statusBadge(p)}</td></tr>`).join("")}
+    </tbody></table></div>
+  </div></div>`;
+}
+
+function renderGameLog(player, stat){
+  const vals=statLogValues(player,stat);
+  if(!vals.length)return `<div class="empty">Per-match ${esc(stat)} log pending v1.1. Current lookup uses aggregate form until Player_Match_Log ships.</div>`;
+  const max=Math.max(...vals,1);
+  return `<div class="bar-chart">${vals.map((v,i)=>`<div class="bar-wrap"><div class="bar-val">${esc(v)}</div><div class="bar" style="--h:${Math.max(6,(v/max)*100)}"></div><div class="bar-label">M-${i+1}</div></div>`).join("")}</div>`;
+}
+
+function renderAverageTiles(player, stat){
+  const vals=statLogValues(player,stat);
+  const career=statValue(player,stat);
+  const l5=avg(vals.slice(0,5));
+  const last=vals.length?vals[0]:NaN;
+  const l10=vals.length>=10?avg(vals.slice(0,10)):NaN;
+  const l10Label=vals.length>=10?"L10":"L10";
+  return `<div class="lookup-kpis">
+    <div class="lookup-kpi"><div class="val">${fmtOne(career)}</div><div class="lbl">Career intl</div></div>
+    <div class="lookup-kpi"><div class="val">${Number.isFinite(l10)?fmtOne(l10):"—"}</div><div class="lbl">${l10Label}</div></div>
+    <div class="lookup-kpi"><div class="val">${Number.isFinite(l5)?fmtOne(l5):"—"}</div><div class="lbl">L${Math.min(vals.length,5)||5}</div></div>
+    <div class="lookup-kpi"><div class="val">${Number.isFinite(last)?fmtOne(last):"—"}</div><div class="lbl">Last</div></div>
+  </div>`;
+}
+
+function playerCurrentProps(player){
+  const n=normalizeLookupText(player.Player_Name), t=normalizeLookupText(player.Team), last=lookupLastName(n), initial=lookupInitial(n);
+  return st.picks.filter(p=>{
+    const pn=normalizeLookupText(p.Player), pt=normalizeLookupText(p.Team);
+    if(t&&pt!==t)return false;
+    return pn===n || (last&&lookupLastName(pn)===last&&lookupInitial(pn)===initial) || (last&&lookupLastName(pn)===last);
+  });
+}
+
+function playerHistory(player){
+  const n=normalizeLookupText(player.Player_Name), t=normalizeLookupText(player.Team), last=lookupLastName(n), initial=lookupInitial(n);
+  return st.picksHistory.filter(p=>{
+    const pn=normalizeLookupText(p.Player), pt=normalizeLookupText(p.Team);
+    if(t&&pt!==t)return false;
+    return pn===n || (last&&lookupLastName(pn)===last&&lookupInitial(pn)===initial) || (last&&lookupLastName(pn)===last);
+  }).sort((a,b)=>(Date.parse(b.Timestamp||"")||0)-(Date.parse(a.Timestamp||"")||0));
+}
+
+function renderLookupDetail(player){
+  const stat=st.lookupStat;
+  const props=playerCurrentProps(player);
+  const history=playerHistory(player);
+  const teammates=playerIndex().filter(p=>p.Team===player.Team&&p.Lookup_ID!==player.Lookup_ID).sort((a,b)=>toNum(b.EFP_Per_Match)-toNum(a.EFP_Per_Match)).slice(0,18);
+  const status=injuryStatusValue(player);
+  const injClass=status<=0?"out":"";
+  return `<div class="section">
+    <button class="pill-btn" onclick="backToLookupList()">← Back to list</button>
+  </div>
+  <div class="section">
+    <div class="lookup-hero">
+      <div>
+        <div class="lookup-name">${esc(flagForTeam(player.Team))} ${esc(player.Player_Name)} ${injuryBadge(player)}</div>
+        <div class="lookup-subline">${esc(teamWithFlag(player.Team))} · ${esc(player.Position||"Position pending")} · Intl sample ${esc(player.Intl_Sample||"—")}</div>
+      </div>
+      <div class="lookup-actions">
+        <select class="lookup-select" onchange="setLookupStat(this.value)">${LOOKUP_STATS.map(s=>`<option value="${s}" ${stat===s?"selected":""}>${s==="Shots"?"🎯 Shots":s==="SOT"?"⚡ SOT":s==="Tackles"?"🛡 Tackles":"⚽ Goals"}</option>`).join("")}</select>
+        <input class="lookup-input" value="${esc(st.lookupLine)}" oninput="setLookupLine(this.value)" placeholder="Line"/>
+      </div>
+    </div>
+  </div>
+  ${status<1?`<div class="section"><div class="injury-banner ${injClass}">${status<=0?"🔴 Out":"🟡 Questionable"}: ${esc(player.Injury_Reason||player.Injury_Type||"Status flagged")} ${player.Injury_Updated?`· Updated ${esc(fmtDate(player.Injury_Updated))}`:""}</div></div>`:""}
+  <div class="section"><div class="lookup-detail-grid">
+    <div class="lookup-card">
+      <div class="card-title">GAME LOG — ${esc(stat)}</div>
+      ${renderGameLog(player,stat)}
+    </div>
+    <div class="lookup-card">
+      <div class="card-title">AVERAGES</div>
+      ${renderAverageTiles(player,stat)}
+    </div>
+  </div></div>
+  <div class="section"><div class="lookup-detail-grid">
+    <div class="lookup-card">
+      <div class="card-title">vs POSITION GROUP Splits</div>
+      ${player.Position==="G"?`<div class="empty">Saves data pending v1.1.</div>`:`<div class="split-strip">
+        <div class="split-chip">🎯 Avg Shots<br/><strong>${fmtOne(player.Avg_Shots)}</strong></div>
+        <div class="split-chip">⚡ Avg SOT<br/><strong>${fmtOne(player.Avg_SOT)}</strong></div>
+        <div class="split-chip">🛡 Tackles<br/><strong>${fmtOne(player.Avg_Tackles)}</strong></div>
+        <div class="split-chip">⚽ Goal Rate<br/><strong>${fmtRate(player.Goal_Scorer_Rate)}</strong></div>
+      </div>`}
+    </div>
+    <div class="lookup-card">
+      <div class="card-title">Home / Away / Neutral</div>
+      <div class="empty">Home/Away split data pending v1.1.</div>
+    </div>
+  </div></div>
+  <div class="section"><div class="lookup-detail-grid">
+    <div class="lookup-card">
+      <div class="card-title">⚽ vs Upcoming Opponent</div>
+      <div class="empty">Head-to-head data pending v1.1.</div>
+    </div>
+    <div class="lookup-card">
+      <div class="card-title">📊 Sportsbook Props</div>
+      ${props.length?props.map(p=>`<div class="lookup-prop-row"><div><strong>${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</strong><div class="small muted">${esc(p.Book||"—")} · ${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No current props/picks for this player in Picks_Current.</div>`}
+    </div>
+  </div></div>
+  <div class="section"><div class="lookup-card">
+    <div class="card-title">Pick History</div>
+    ${history.length?history.map(p=>`<div class="history-row"><div><strong>${esc(fmtDate(p.Timestamp)||"—")}</strong> · ${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}<div class="small muted">${esc(p.Tier)} · confidence ${esc(p.Confidence||"—")}</div></div><div class="slot-badge">${esc(p.Result||"—")}</div></div>`).join(""):`<div class="empty">No prior picks for this player.</div>`}
+  </div></div>
+  <div class="section"><div class="lookup-card">
+    <div class="card-title">🏆 Tournament Outlook</div>
+    <div class="small muted" style="line-height:1.7">${esc(teamWithFlag(player.Team))} projected for <strong>${esc(fmtOne(player.Expected_Matches))}</strong> expected matches. ${esc(fmtOne(player.Expected_Matches))} × ${esc(fmtOne(player.EFP_Per_Match))} EFP/match = <strong>${esc(fmtOne(player.ETFP))}</strong> expected tournament fantasy points.</div>
+  </div></div>
+  <div class="section"><div class="lookup-card">
+    <div class="card-title">Teammates</div>
+    <div class="teammate-strip">${teammates.map(p=>`<button class="teammate-chip" onclick="openLookupById('${encodeURIComponent(p.Lookup_ID)}')">${esc(p.Player_Name)}</button>`).join("")||`<span class="small muted">No teammates loaded.</span>`}</div>
+  </div></div>`;
+}
+
+function renderLookupView(){
+  const player=st.selectedLookupId?selectedLookupPlayer():null;
+  return player?renderLookupDetail(player):renderLookupBrowse();
+}
+
 function renderEntryView(){
   const games=getGames();
   const selected=games.find(g=>g.id===st.selectedGame)||games[0];
@@ -790,7 +1193,7 @@ function renderEntryView(){
   ${selected?`<div class="section">
     <div class="card">
       <div class="card-title">${esc(selected.label)}</div>
-      ${gamePicks.length?gamePicks.map(p=>`<div class="entry-row"><div><div class="entry-player">${esc(p.Player)}</div><div class="small muted">${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))} · ${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No picks logged for this fixture yet.</div>`}
+      ${gamePicks.length?gamePicks.map(p=>`<div class="entry-row"><div><div class="entry-player">${playerLinkHtml(p.Player,p.Team)}</div><div class="small muted">${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))} · ${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No picks logged for this fixture yet.</div>`}
     </div>
   </div>`:""}`;
 }
@@ -835,6 +1238,7 @@ function render(){
     ["draft","🏆 Draft"],
     ["daily","🎯 Daily Draft"],
     ["slips","🎫 Slips"],
+    ["lookup","🔍 Lookup"],
     ["stats","📊 Stats"],
     ["entry","📋 Game Entry"],
     ["method","ℹ️ Info"],
@@ -851,6 +1255,7 @@ function render(){
   <div class="page ${st.activeTab==="draft"?"active":""}">${renderDraftView()}</div>
   <div class="page ${st.activeTab==="daily"?"active":""}">${renderDailyDraftView()}</div>
   <div class="page ${st.activeTab==="slips"?"active":""}">${renderSlipsView()}</div>
+  <div class="page ${st.activeTab==="lookup"?"active":""}">${renderLookupView()}</div>
   <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
   <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
   <div class="page ${st.activeTab==="method"?"active":""}">${renderMethodView()}</div>
@@ -858,6 +1263,7 @@ function render(){
 }
 
 applyTheme();
+window.addEventListener("hashchange",()=>{applyHashRoute();render()});
 loadAllData();
 </script>
 </body>
