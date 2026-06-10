@@ -28,6 +28,7 @@ EFP_SHEET_NAME = "Player_EFP"
 SURVIVAL_SHEET_NAME = "Team_Survival"
 DRAFT_SHEET_NAME = "Draft_Recommendations"
 INJURY_SHEET_NAME = "Player_Injuries"
+UD_POOL_SHEET_NAME = "UD_Player_Pool"
 SQUAD_CACHE_PATH = "squad_cache.json"
 
 ROSTER_SIZE = 12
@@ -45,6 +46,9 @@ EFP_COLUMNS = [
     "EFP_Regressed",
     "EFP_Per_Match",
     "Intl_Sample",
+    "UD_Available",
+    "UD_Player_ID",
+    "UD_Name",
     "Notes",
 ]
 
@@ -202,6 +206,68 @@ POSITION_MAP = {
     "fw": "FW",
 }
 
+TEAM_ABBR = {
+    "algeria": "ALG",
+    "argentina": "ARG",
+    "australia": "AUS",
+    "austria": "AUT",
+    "belgium": "BEL",
+    "bosnia herzegovina": "BIH",
+    "brazil": "BRA",
+    "canada": "CAN",
+    "chile": "CHI",
+    "colombia": "COL",
+    "costa rica": "CRC",
+    "croatia": "CRO",
+    "czech republic": "CZE",
+    "czechia": "CZE",
+    "denmark": "DEN",
+    "ecuador": "ECU",
+    "egypt": "EGY",
+    "england": "ENG",
+    "france": "FRA",
+    "germany": "GER",
+    "ghana": "GHA",
+    "greece": "GRE",
+    "iran": "IRN",
+    "italy": "ITA",
+    "ivory coast": "CIV",
+    "cote d ivoire": "CIV",
+    "japan": "JPN",
+    "south korea": "KOR",
+    "korea republic": "KOR",
+    "mexico": "MEX",
+    "morocco": "MAR",
+    "netherlands": "NED",
+    "new zealand": "NZL",
+    "nigeria": "NGA",
+    "norway": "NOR",
+    "panama": "PAN",
+    "paraguay": "PAR",
+    "peru": "PER",
+    "poland": "POL",
+    "portugal": "POR",
+    "qatar": "QAT",
+    "saudi arabia": "KSA",
+    "scotland": "SCO",
+    "senegal": "SEN",
+    "serbia": "SRB",
+    "slovakia": "SVK",
+    "slovenia": "SVN",
+    "south africa": "RSA",
+    "spain": "ESP",
+    "sweden": "SWE",
+    "switzerland": "SUI",
+    "tunisia": "TUN",
+    "turkiye": "TUR",
+    "turkey": "TUR",
+    "ukraine": "UKR",
+    "usa": "USA",
+    "united states": "USA",
+    "uruguay": "URU",
+    "wales": "WAL",
+}
+
 
 def timestamp_utc_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -247,6 +313,20 @@ def safe_float(value: Any, default: float = 0.0) -> float:
 
 def position_code(raw: str) -> str:
     return POSITION_MAP.get(normalize_name(raw), "")
+
+
+def team_abbr(team: str) -> str:
+    canonical = canonical_team_name(team)
+    return TEAM_ABBR.get(canonical, canonical[:3].upper())
+
+
+def name_tokens(name: str) -> list[str]:
+    return normalize_name(name).split()
+
+
+def last_name(name: str) -> str:
+    tokens = name_tokens(name)
+    return tokens[-1] if tokens else ""
 
 
 def load_secret(name: str, prompt_text: str | None = None) -> str:
@@ -358,6 +438,72 @@ def infer_position_from_form(row: dict) -> str:
     return "MD"
 
 
+def normalize_ud_row(row: dict) -> dict:
+    first = str(row.get("first_name") or row.get("First_Name") or "").strip()
+    last = str(row.get("last_name") or row.get("Last_Name") or "").strip()
+    full_name = f"{first} {last}".strip() or str(row.get("name") or row.get("Player") or "").strip()
+    return {
+        "player_id": str(row.get("player_id") or row.get("Player_ID") or "").strip(),
+        "name": full_name,
+        "name_norm": normalize_name(full_name),
+        "last": last_name(full_name),
+        "team_abbr": str(row.get("team_abbr") or row.get("Team_Abbr") or row.get("team") or "").strip().upper(),
+        "position": position_code(str(row.get("position") or row.get("Position") or "")),
+    }
+
+
+def build_ud_lookup(ud_pool_rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
+    lookup: dict[tuple[str, str], list[dict]] = {}
+    for row in ud_pool_rows or []:
+        item = normalize_ud_row(row)
+        if not item["name_norm"] or not item["team_abbr"]:
+            continue
+        lookup.setdefault((item["team_abbr"], item["last"]), []).append(item)
+    return lookup
+
+
+def find_ud_pool_match(player: dict, ud_lookup: dict[tuple[str, str], list[dict]]) -> dict | None:
+    abbr = team_abbr(player.get("Team", ""))
+    player_norm = normalize_name(player.get("Player_Name", ""))
+    player_last = last_name(player.get("Player_Name", ""))
+    position = position_code(player.get("Position", ""))
+    candidates = list(ud_lookup.get((abbr, player_last), []))
+    if not candidates:
+        return None
+
+    exact = [c for c in candidates if c["name_norm"] == player_norm]
+    if len(exact) == 1:
+        return exact[0]
+    if exact:
+        candidates = exact
+
+    if position:
+        positioned = [c for c in candidates if c.get("position") == position]
+        if positioned:
+            candidates = positioned
+
+    if len(candidates) > 1:
+        names = ", ".join(c["name"] for c in candidates[:5])
+        print(f"   ⚠️ Ambiguous UD pool match for {player.get('Player_Name')} ({abbr}, {position}): {names}")
+    return candidates[0] if candidates else None
+
+
+def annotate_ud_availability(player_rows: list[dict], ud_pool_rows: list[dict]) -> list[dict]:
+    ud_lookup = build_ud_lookup(ud_pool_rows)
+    matched = 0
+    for row in player_rows:
+        match = find_ud_pool_match(row, ud_lookup)
+        row["UD_Available"] = "TRUE" if match else "FALSE"
+        row["UD_Player_ID"] = match.get("player_id", "") if match else ""
+        row["UD_Name"] = match.get("name", "") if match else ""
+        if match:
+            matched += 1
+        else:
+            row["Notes"] = f"{row.get('Notes', '')}; not in UD player pool".strip("; ")
+    print(f"✅ UD pool availability matched {matched}/{len(player_rows)} Player_EFP row(s)")
+    return player_rows
+
+
 def compute_efp_per_match(form_row: dict, position: str) -> tuple[float, str]:
     shots = safe_float(form_row.get("Avg_Shots"))
     sot = safe_float(form_row.get("Avg_SOT"))
@@ -438,7 +584,7 @@ def compute_position_means(rows: list[dict]) -> dict[str, float]:
     return means
 
 
-def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict]) -> list[dict]:
+def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict], ud_pool_rows: list[dict] | None = None) -> list[dict]:
     raw_rows = []
     for row in form_rows:
         api_id = str(row.get("API_Football_ID") or "").strip()
@@ -456,11 +602,17 @@ def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict])
                 "EFP_Regressed": raw_efp,
                 "EFP_Per_Match": raw_efp,
                 "Intl_Sample": int(safe_float(row.get("Intl_Matches_Last_24mo"))),
+                "UD_Available": "",
+                "UD_Player_ID": "",
+                "UD_Name": "",
                 "Notes": notes,
             }
         )
     rows = [r for r in raw_rows if r["Player_Name"]]
-    position_means = compute_position_means(rows)
+    if ud_pool_rows is not None:
+        annotate_ud_availability(rows, ud_pool_rows)
+    mean_rows = [r for r in rows if str(r.get("UD_Available", "")).upper() == "TRUE"] if ud_pool_rows is not None else rows
+    position_means = compute_position_means(mean_rows or rows)
     for row in rows:
         pos = row.get("Position", "")
         sample = int(safe_float(row.get("Intl_Sample")))
@@ -881,16 +1033,22 @@ def run(args: argparse.Namespace) -> list[dict]:
     if not form_rows:
         raise RuntimeError("Player_Form is empty. Run WCFormPull.py before WCDraftHelper.py.")
 
-    efp_rows = compute_player_efp_rows(form_rows, squad_by_id)
+    ud_pool_rows = [] if args.sample else get_sheet_rows(UD_POOL_SHEET_NAME)
+    if not args.sample and not ud_pool_rows:
+        raise RuntimeError(f"{UD_POOL_SHEET_NAME} is empty or missing. Upload the UD CSV before running draft recommendations.")
+
+    efp_rows = compute_player_efp_rows(form_rows, squad_by_id, ud_pool_rows if not args.sample else None)
     survival_rows = compute_team_survival_rows(squad_teams, efp_rows)
     survival = team_survival_map(survival_rows)
     injuries = {} if args.sample else load_injury_map()
-    candidates = [candidate_from_efp(row, survival, injuries) for row in efp_rows]
+    draftable_efp_rows = [row for row in efp_rows if args.sample or str(row.get("UD_Available", "")).upper() == "TRUE"]
+    candidates = [candidate_from_efp(row, survival, injuries) for row in draftable_efp_rows]
     recommendations = build_recommendations(candidates, args.simulations, args.seeds)
     draft_rows = recommendation_rows(recommendations)
 
     print("\n📊 Draft helper summary")
     print(f"   Player_EFP rows: {len(efp_rows)}")
+    print(f"   UD-available candidates: {len(draftable_efp_rows)}")
     print(f"   Team_Survival rows: {len(survival_rows)}")
     print(f"   Draft recommendation rows: {len(draft_rows)}")
     if draft_rows:
