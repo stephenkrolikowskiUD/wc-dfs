@@ -699,6 +699,29 @@ def safe_upload_form(rows: list[dict]) -> None:
     print(f"✅ Wrote {len(rows)} player form row(s) to {FORM_SHEET_NAME}")
 
 
+def load_existing_player_form() -> list[dict]:
+    return get_sheet_rows(FORM_SHEET_NAME)
+
+
+def upsert_player_form(existing_rows: list[dict], new_rows: list[dict]) -> list[dict]:
+    """Update existing rows by API_Football_ID; append new rows."""
+    merged: dict[str, dict] = {}
+    no_id_rows: list[dict] = []
+    for row in existing_rows:
+        api_id = str(row.get("API_Football_ID", "")).strip()
+        if api_id:
+            merged[api_id] = row
+        else:
+            no_id_rows.append(row)
+    for row in new_rows:
+        api_id = str(row.get("API_Football_ID", "")).strip()
+        if api_id:
+            merged[api_id] = row
+        else:
+            no_id_rows.append(row)
+    return sorted([*no_id_rows, *merged.values()], key=lambda r: normalize_name(r.get("Player_Name", "")))
+
+
 def clear_player_form_sheet() -> None:
     gc = get_gspread_client()
     sh = gc.open_by_key(SHEET_ID)
@@ -738,12 +761,20 @@ def run(args: argparse.Namespace) -> list[dict]:
         if not args.all and not args.picks_only:
             return []
 
-    if not args.dry_run:
-        clear_player_form_sheet()
+    if args.destructive and args.picks_only:
+        raise ValueError("destructive=true is not valid with mode=picks-only")
+    if args.all and not args.destructive:
+        raise ValueError("--all requires --destructive so Player_Form cannot be cleared accidentally")
 
     squad_cache = ensure_squad_cache()
     players = fetch_wc_squad_players(squad_cache) if args.all else players_from_picks_sheet()
     print(f"📋 Form candidates: {len(players)}")
+    if not players:
+        print(
+            f"⚠️ No form candidates for mode={'all' if args.all else 'picks-only'} "
+            f"— exiting without modifying {FORM_SHEET_NAME}"
+        )
+        return []
     rows = []
     fallback_count = 0
     for idx, player in enumerate(players, start=1):
@@ -766,7 +797,14 @@ def run(args: argparse.Namespace) -> list[dict]:
         if rows:
             print(json.dumps(rows[0], indent=2))
     else:
-        safe_upload_form(rows)
+        if args.all:
+            clear_player_form_sheet()
+            safe_upload_form(rows)
+        else:
+            existing = load_existing_player_form()
+            merged = upsert_player_form(existing, rows)
+            safe_upload_form(merged)
+            print(f"🔁 Upserted {len(rows)} row(s); preserved {max(len(merged) - len(rows), 0)} existing row(s)")
     return rows
 
 
@@ -778,6 +816,7 @@ def parse_args() -> argparse.Namespace:
     mode.add_argument("--picks-only", action="store_true", help="Pull only players currently present in Picks.")
     parser.add_argument("--verify-leagues", action="store_true", help="Print World-country league ids for audit.")
     parser.add_argument("--clear-form", action="store_true", help="Clear Player_Form to headers only.")
+    parser.add_argument("--destructive", action="store_true", help="Allow all-mode clear-and-rebuild of Player_Form.")
     parser.add_argument("--dry-run", action="store_true", help="Do not write Player_Form.")
     args = parser.parse_args()
     if not args.verify_leagues and not args.build_squads and not args.all and not args.picks_only and not args.clear_form:
