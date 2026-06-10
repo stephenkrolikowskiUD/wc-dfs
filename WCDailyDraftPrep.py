@@ -18,6 +18,7 @@ import requests
 
 from WCDraftHelper import (
     FORM_SHEET_NAME,
+    UD_POOL_SHEET_NAME,
     build_squad_indexes,
     canonical_team_name,
     compute_player_efp_rows,
@@ -258,10 +259,15 @@ def load_player_pool(slate_games: list[tuple[str, str]]) -> tuple[list[dict], di
     squad_cache = load_squad_cache()
     squad_by_id, squad_teams = build_squad_indexes(squad_cache)
     form_rows = get_sheet_rows(FORM_SHEET_NAME)
-    efp_rows = compute_player_efp_rows(form_rows, squad_by_id)
+    ud_pool_rows = get_sheet_rows(UD_POOL_SHEET_NAME)
+    if not ud_pool_rows:
+        raise RuntimeError(f"{UD_POOL_SHEET_NAME} is empty or missing. Upload the UD CSV before running Daily Draft.")
+    efp_rows = compute_player_efp_rows(form_rows, squad_by_id, ud_pool_rows)
     slate_teams = set(opponent_map_from_games(slate_games).keys())
     players = []
     for row in efp_rows:
+        if str(row.get("UD_Available", "")).upper() != "TRUE":
+            continue
         api_id = str(row.get("API_Football_ID") or "").strip()
         squad = squad_by_id.get(api_id, {})
         team = squad.get("Team") or row.get("Team") or row.get("Nationality") or ""
