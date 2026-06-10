@@ -18,6 +18,11 @@ on:
           - picks-only
           - all
           - build-squads
+      destructive:
+        description: 'Allow clear-and-rebuild; only valid with mode=all'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   run-world-cup-form:
@@ -38,7 +43,12 @@ jobs:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: |
           MODE="${{ github.event.inputs.mode || 'picks-only' }}"
-          python -u WCFormPull.py --$MODE
+          DESTRUCTIVE="${{ github.event.inputs.destructive || 'false' }}"
+          EXTRA_ARGS=""
+          if [ "$DESTRUCTIVE" = "true" ]; then
+            EXTRA_ARGS="--destructive"
+          fi
+          python -u WCFormPull.py --$MODE $EXTRA_ARGS
       - name: Commit squad cache
         if: ${{ github.event.inputs.mode == 'build-squads' }}
         run: |
