@@ -178,6 +178,7 @@ RULES:
 - SMASH should be reserved for the top 3-4 picks only.
 - STRONG should require multiple confirming signals: positive price/line context, strong role expectation, and supportive matchup or possession context. If only one signal is strong, use LEAN instead.
 - Prefer players whose role is stable for the full match. Downgrade rotation-risk players.
+- Select the 3-7 best picks from the provided fixture data. If fewer than 3 picks are viable, return fewer.
 - Include at least one pick from each available prop type when there are enough props.
 - Do not invent players, teams, opponents, books, prop types, or lines.
 - For each prop, you have the current sportsbook line and may have form_context with last 24 months of international form.
@@ -888,8 +889,8 @@ def infer_teams_for_pick(pick, fixtures):
     return team, opponent, game_time
 
 
-def build_gemini_context(fixtures, props):
-    enriched_props = enrich_with_form(props)
+def build_gemini_context(fixtures, props, already_enriched=False):
+    enriched_props = props if already_enriched else enrich_with_form(props)
     prompt_props = collapse_props_for_prompt(enriched_props)
     context = WC_PROMPT_V1.format(
         today_est=timestamp_est(),
@@ -899,12 +900,13 @@ def build_gemini_context(fixtures, props):
     return context, enriched_props
 
 
-def call_gemini(context, gemini_api_key):
+def call_gemini(context, gemini_api_key, label=""):
     if not gemini_api_key:
         print("⚠️ No GEMINI_API_KEY — using no AI picks")
         return []
     client = genai.Client(api_key=gemini_api_key)
-    print(f"🤖 Calling Gemini model {GEMINI_MODEL}...")
+    suffix = f" for {label}" if label else ""
+    print(f"🤖 Calling Gemini model {GEMINI_MODEL}{suffix}...")
     response = client.models.generate_content(
         model=GEMINI_MODEL,
         contents=context,
@@ -916,6 +918,32 @@ def call_gemini(context, gemini_api_key):
     )
     raw = response.text or ""
     return parse_gemini_json_array(raw)
+
+
+def props_for_fixture(props, fixture):
+    event_id = str(fixture.get("event_id", "")).strip()
+    return [row for row in props if str(row.get("event_id", "")).strip() == event_id]
+
+
+def generate_picks_per_fixture(fixtures, props, gemini_api_key):
+    """Call Gemini once per fixture to avoid global favorite bias across the slate."""
+    enriched_props = enrich_with_form(props)
+    raw_picks = []
+    for fixture in fixtures:
+        fixture_props = props_for_fixture(enriched_props, fixture)
+        if not fixture_props:
+            print(f"   ⚠️ No props available for {fixture.get('matchup', fixture.get('event_id', 'fixture'))}; skipping Gemini")
+            continue
+        label = fixture.get("matchup") or fixture.get("event_id", "")
+        print(f"   🎯 Fixture prompt: {label} ({len(fixture_props)} prop row(s))")
+        context, _ = build_gemini_context([fixture], fixture_props, already_enriched=True)
+        fixture_picks = call_gemini(context, gemini_api_key, label=label)
+        for pick in fixture_picks:
+            pick["source_fixture_id"] = fixture.get("event_id", "")
+            pick["source_matchup"] = label
+        raw_picks.extend(fixture_picks)
+        time.sleep(0.5)
+    return raw_picks, enriched_props
 
 
 def build_prop_lookup(props):
@@ -957,6 +985,7 @@ def find_matching_prop_row(prop_lookup, player, prop, line, lean):
 def validate_and_format_picks(raw_picks, fixtures, props):
     # TODO: AI v1 extension
     prop_lookup = build_prop_lookup(props)
+    prop_lookup_by_event = {}
     rows = []
     for idx, pick in enumerate(raw_picks or [], start=1):
         player = str(pick.get("player") or pick.get("Player") or "").strip()
@@ -965,7 +994,14 @@ def validate_and_format_picks(raw_picks, fixtures, props):
         line = pick.get("line") if pick.get("line") is not None else pick.get("Line")
         if not player or prop not in {"Shots", "SOT", "Tackles", "Goal Scorer", "Goals"} or line in (None, ""):
             continue
-        prop_row, match_kind = find_matching_prop_row(prop_lookup, player, prop, line, lean)
+        source_fixture_id = str(pick.get("source_fixture_id") or "").strip()
+        active_lookup = prop_lookup
+        if source_fixture_id:
+            if source_fixture_id not in prop_lookup_by_event:
+                event_props = [row for row in props if str(row.get("event_id", "")).strip() == source_fixture_id]
+                prop_lookup_by_event[source_fixture_id] = build_prop_lookup(event_props)
+            active_lookup = prop_lookup_by_event[source_fixture_id]
+        prop_row, match_kind = find_matching_prop_row(active_lookup, player, prop, line, lean)
         if not prop_row:
             print(f"   ⚠️ Skipping unanchored Gemini pick: {player} {prop} {lean} {line}")
             continue
@@ -1249,8 +1285,7 @@ def run_engine(args):
             save_422_cache(market_422_cache)
             print(f"✅ Parsed {len(props)} prop outcome row(s)")
             if fixtures and props and gemini_api_key:
-                context, props = build_gemini_context(fixtures, props)
-                raw_picks = call_gemini(context, gemini_api_key)
+                raw_picks, props = generate_picks_per_fixture(fixtures, props, gemini_api_key)
             else:
                 raw_picks = []
 
