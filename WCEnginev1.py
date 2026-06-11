@@ -190,6 +190,13 @@ AVAILABLE FIXTURES:
 AVAILABLE PLAYER PROPS:
 {props_json}
 
+IMPORTANT: You may only suggest picks for the exact (player, prop_type, line)
+combinations listed in AVAILABLE PLAYER PROPS. Do not propose alternate lines
+such as 1.36, 1.5, 1.6, or 1.75 unless that exact line appears in the data for
+that exact player and prop_type. If a player has multiple lines available across
+markets, choose from those exact listed lines only. The valid slate combinations
+are listed above; pick from that set.
+
 OUTPUT FORMAT:
 Return ONLY a JSON array. No markdown. No prose outside JSON.
 Each object must have exactly these keys:
