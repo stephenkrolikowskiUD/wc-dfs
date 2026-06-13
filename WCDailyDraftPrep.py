@@ -11,7 +11,7 @@ import os
 import re
 import time
 import unicodedata
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import requests
@@ -34,9 +34,13 @@ from WCDraftHelper import (
 API_BASE = "https://v3.football.api-sports.io"
 API_FOOTBALL_LEAGUE_ID = 1
 API_FOOTBALL_SEASON = 2026
+ODDS_API_BASE = "https://api.the-odds-api.com/v4"
+ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
 REQUEST_TIMEOUT = 15
 MAX_RETRIES = 3
 DAILY_SLATE_SHEET_NAME = "Daily_Slate"
+DEFAULT_AUTO_SLATE_WINDOW_HOURS = 24
+CONFIRMED_MODE_THRESHOLD_MINUTES = 90
 
 DAILY_SLATE_COLUMNS = [
     "Player_Name",
@@ -53,6 +57,7 @@ DAILY_SLATE_COLUMNS = [
     "Notes",
     "Injury_Status",
     "Injury_Reason",
+    "Updated_At",
 ]
 
 TEAM_ALIASES = {
@@ -225,6 +230,131 @@ def api_get(path: str, params: dict | None = None, max_retries: int = MAX_RETRIE
 def team_key(raw: str) -> str:
     norm = normalize_name(raw)
     return TEAM_ALIASES.get(norm, canonical_team_name(raw))
+
+
+TEAM_ABBR_BY_KEY = {
+    "argentina": "ARG",
+    "australia": "AUS",
+    "austria": "AUT",
+    "belgium": "BEL",
+    "brazil": "BRA",
+    "canada": "CAN",
+    "chile": "CHI",
+    "colombia": "COL",
+    "costa rica": "CRC",
+    "croatia": "CRO",
+    "czechia": "CZE",
+    "denmark": "DEN",
+    "ecuador": "ECU",
+    "egypt": "EGY",
+    "england": "ENG",
+    "france": "FRA",
+    "germany": "GER",
+    "ghana": "GHA",
+    "greece": "GRE",
+    "iran": "IRN",
+    "italy": "ITA",
+    "japan": "JPN",
+    "south korea": "KOR",
+    "mexico": "MEX",
+    "morocco": "MAR",
+    "netherlands": "NED",
+    "new zealand": "NZL",
+    "nigeria": "NGA",
+    "norway": "NOR",
+    "panama": "PAN",
+    "paraguay": "PAR",
+    "peru": "PER",
+    "poland": "POL",
+    "portugal": "POR",
+    "qatar": "QAT",
+    "saudi arabia": "KSA",
+    "scotland": "SCO",
+    "senegal": "SEN",
+    "serbia": "SRB",
+    "slovakia": "SVK",
+    "slovenia": "SVN",
+    "south africa": "RSA",
+    "spain": "ESP",
+    "sweden": "SWE",
+    "switzerland": "SUI",
+    "tunisia": "TUN",
+    "turkiye": "TUR",
+    "ukraine": "UKR",
+    "usa": "USA",
+    "uruguay": "URU",
+    "wales": "WAL",
+}
+
+
+def team_abbreviation(raw: str) -> str:
+    canonical = team_key(raw)
+    return TEAM_ABBR_BY_KEY.get(canonical, canonical[:3].upper())
+
+
+def parse_utc_datetime(value: Any) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def timestamp_utc_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def fetch_wc_fixtures(odds_api_key: str) -> list[dict]:
+    url = f"{ODDS_API_BASE}/sports/{ODDS_API_SPORT_KEY}/events"
+    resp = requests.get(url, params={"apiKey": odds_api_key}, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    events = resp.json()
+    fixtures = []
+    for event in events if isinstance(events, list) else []:
+        kickoff = parse_utc_datetime(event.get("commence_time"))
+        if not kickoff:
+            continue
+        fixtures.append(
+            {
+                "id": event.get("id", ""),
+                "home": team_key(event.get("home_team", "")),
+                "away": team_key(event.get("away_team", "")),
+                "home_abbr": team_abbreviation(event.get("home_team", "")),
+                "away_abbr": team_abbreviation(event.get("away_team", "")),
+                "kickoff": kickoff,
+            }
+        )
+    return fixtures
+
+
+def get_todays_slate(window_hours: int = DEFAULT_AUTO_SLATE_WINDOW_HOURS) -> list[dict]:
+    odds_api_key = load_secret("ODDS_API_KEY", "🔑 Paste your Odds API Key: ", allow_missing=True)
+    if not odds_api_key:
+        raise RuntimeError("ODDS_API_KEY is required for --auto-slate")
+    now = datetime.now(timezone.utc)
+    cutoff = now + timedelta(hours=window_hours)
+    fixtures = fetch_wc_fixtures(odds_api_key)
+    todays = [f for f in fixtures if now <= f["kickoff"] <= cutoff]
+    todays.sort(key=lambda f: f["kickoff"])
+    return todays
+
+
+def build_slate_string(fixtures: list[dict]) -> str:
+    return ",".join(f"{fixture['away_abbr']}@{fixture['home_abbr']}" for fixture in fixtures)
+
+
+def auto_select_mode(fixtures: list[dict]) -> str:
+    if not fixtures:
+        return "pre-xi"
+    now = datetime.now(timezone.utc)
+    first_kickoff = min(f["kickoff"] for f in fixtures)
+    minutes_to_first = (first_kickoff - now).total_seconds() / 60
+    return "pre-xi" if minutes_to_first >= CONFIRMED_MODE_THRESHOLD_MINUTES else "confirmed"
 
 
 def parse_slate(slate: str) -> list[tuple[str, str]]:
@@ -429,6 +559,7 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
             print(f"   ✅ Loaded lineups for fixture {fixture_id}: {len(lineup_by_fixture[fixture_id])} player keys")
 
     rows = []
+    updated_at = timestamp_utc_iso()
     for player in players:
         team = player["Team_Key"]
         opponent = opponent_map.get(team, "")
@@ -461,6 +592,7 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
                 "Notes": notes,
                 "Injury_Status": safe_float((injury or {}).get("Status_Score"), 1.0) if injury else "",
                 "Injury_Reason": (injury or {}).get("Reason", "") if injury else "",
+                "Updated_At": updated_at,
                 "Intl_Sample": player.get("Intl_Sample", 0),
             }
         )
@@ -469,13 +601,14 @@ def build_daily_slate_rows(slate: str, mode: str) -> list[dict]:
 
 
 def sample_rows() -> list[dict]:
+    updated_at = timestamp_utc_iso()
     rows = [
-        {"Player_Name": "Luis Malagon", "API_Football_ID": "1", "Team": "Mexico", "Opponent": "South Africa", "Position": "G", "EFP_Per_Match": 4.0, "Start_Prob": 0.95, "Adjusted_EFP": 4.0, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample"},
-        {"Player_Name": "Edson Alvarez", "API_Football_ID": "2", "Team": "Mexico", "Opponent": "South Africa", "Position": "MD", "EFP_Per_Match": 3.1, "Start_Prob": 0.95, "Adjusted_EFP": 3.1, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample"},
-        {"Player_Name": "Santiago Gimenez", "API_Football_ID": "3", "Team": "Mexico", "Opponent": "South Africa", "Position": "FW", "EFP_Per_Match": 5.8, "Start_Prob": 0.75, "Adjusted_EFP": 4.93, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample"},
-        {"Player_Name": "Cesar Montes", "API_Football_ID": "4", "Team": "Mexico", "Opponent": "South Africa", "Position": "D", "EFP_Per_Match": 2.2, "Start_Prob": 0.95, "Adjusted_EFP": 2.2, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample"},
-        {"Player_Name": "Teboho Mokoena", "API_Football_ID": "5", "Team": "South Africa", "Opponent": "Mexico", "Position": "MD", "EFP_Per_Match": 3.4, "Start_Prob": 0.95, "Adjusted_EFP": 3.4, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample"},
-        {"Player_Name": "Percy Tau", "API_Football_ID": "6", "Team": "South Africa", "Opponent": "Mexico", "Position": "FW", "EFP_Per_Match": 4.6, "Start_Prob": 0.75, "Adjusted_EFP": 3.91, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample"},
+        {"Player_Name": "Luis Malagon", "API_Football_ID": "1", "Team": "Mexico", "Opponent": "South Africa", "Position": "G", "EFP_Per_Match": 4.0, "Start_Prob": 0.95, "Adjusted_EFP": 4.0, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample", "Updated_At": updated_at},
+        {"Player_Name": "Edson Alvarez", "API_Football_ID": "2", "Team": "Mexico", "Opponent": "South Africa", "Position": "MD", "EFP_Per_Match": 3.1, "Start_Prob": 0.95, "Adjusted_EFP": 3.1, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample", "Updated_At": updated_at},
+        {"Player_Name": "Santiago Gimenez", "API_Football_ID": "3", "Team": "Mexico", "Opponent": "South Africa", "Position": "FW", "EFP_Per_Match": 5.8, "Start_Prob": 0.75, "Adjusted_EFP": 4.93, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample", "Updated_At": updated_at},
+        {"Player_Name": "Cesar Montes", "API_Football_ID": "4", "Team": "Mexico", "Opponent": "South Africa", "Position": "D", "EFP_Per_Match": 2.2, "Start_Prob": 0.95, "Adjusted_EFP": 2.2, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample", "Updated_At": updated_at},
+        {"Player_Name": "Teboho Mokoena", "API_Football_ID": "5", "Team": "South Africa", "Opponent": "Mexico", "Position": "MD", "EFP_Per_Match": 3.4, "Start_Prob": 0.95, "Adjusted_EFP": 3.4, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample", "Updated_At": updated_at},
+        {"Player_Name": "Percy Tau", "API_Football_ID": "6", "Team": "South Africa", "Opponent": "Mexico", "Position": "FW", "EFP_Per_Match": 4.6, "Start_Prob": 0.75, "Adjusted_EFP": 3.91, "Tier": "S", "Kickoff_Time": "2026-06-11T19:00:00+00:00", "Source": "pre-xi", "Notes": "sample", "Updated_At": updated_at},
     ]
     return rows
 
@@ -484,9 +617,26 @@ def run(args: argparse.Namespace) -> list[dict]:
     if args.sample:
         rows = sample_rows()
     else:
-        rows = build_daily_slate_rows(args.slate, args.mode)
+        slate = args.slate
+        mode = args.mode
+        if args.auto_slate:
+            fixtures = get_todays_slate(args.window_hours)
+            if not fixtures:
+                print(f"⏭️ No WC fixtures in next {args.window_hours} hour(s) — leaving {DAILY_SLATE_SHEET_NAME} unchanged")
+                return []
+            slate = build_slate_string(fixtures)
+            print(f"🗓️ Auto-detected slate: {slate}")
+            for fixture in fixtures:
+                print(f"   {fixture['away_abbr']}@{fixture['home_abbr']} — {fixture['kickoff'].isoformat()}")
+            if mode == "auto":
+                mode = auto_select_mode(fixtures)
+                print(f"🧭 Auto-selected mode: {mode}")
+        elif mode == "auto":
+            print("🧭 --mode auto without --auto-slate defaults to pre-xi")
+            mode = "pre-xi"
+        rows = build_daily_slate_rows(slate, mode)
     print("\n📊 Daily draft summary")
-    print(f"   Mode: {args.mode}")
+    print(f"   Mode: {rows[0].get('Source') if rows else args.mode}")
     print(f"   Players: {len(rows)}")
     print(f"   Teams: {sorted({r['Team'] for r in rows})}")
     by_pos: dict[str, int] = {}
@@ -507,12 +657,14 @@ def run(args: argparse.Namespace) -> list[dict]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare World Cup daily draft slate")
     parser.add_argument("--slate", default="", help='Slate games, e.g. "RSA@MEX,CZE@KOR"')
-    parser.add_argument("--mode", choices=["pre-xi", "confirmed"], default="pre-xi")
+    parser.add_argument("--auto-slate", action="store_true", help="Auto-detect fixtures kicking off soon from The Odds API.")
+    parser.add_argument("--window-hours", type=int, default=DEFAULT_AUTO_SLATE_WINDOW_HOURS, help="Lookahead window for --auto-slate.")
+    parser.add_argument("--mode", choices=["auto", "pre-xi", "confirmed"], default="auto")
     parser.add_argument("--dry-run", action="store_true", help="Compute without writing Daily_Slate.")
     parser.add_argument("--sample", action="store_true", help="Use built-in sample rows for offline smoke testing.")
     args = parser.parse_args()
-    if not args.sample and not args.slate:
-        parser.error("--slate is required unless --sample is used")
+    if not args.sample and not args.slate and not args.auto_slate:
+        parser.error("--slate or --auto-slate is required unless --sample is used")
     return args
 
 

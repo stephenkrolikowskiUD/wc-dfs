@@ -4,16 +4,25 @@ on:
   workflow_dispatch:
     inputs:
       slate:
-        description: 'Slate games, e.g. RSA@MEX,CZE@KOR'
-        required: true
+        description: 'Slate games, e.g. RSA@MEX,CZE@KOR. Leave blank for auto-slate.'
+        required: false
+        type: string
       mode:
         description: 'Lineup mode'
         required: true
-        default: 'pre-xi'
+        default: 'auto'
         type: choice
         options:
+          - auto
           - pre-xi
           - confirmed
+      window_hours:
+        description: 'Auto-slate lookahead window'
+        required: true
+        default: '24'
+        type: string
+  schedule:
+    - cron: '0 12,16,20,0 * * *'
 
 jobs:
   run-world-cup-daily-draft-prep:
@@ -32,4 +41,13 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
-        run: python WCDailyDraftPrep.py --slate "${{ github.event.inputs.slate }}" --mode "${{ github.event.inputs.mode }}"
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          SLATE="${{ github.event.inputs.slate }}"
+          MODE="${{ github.event.inputs.mode || 'auto' }}"
+          WINDOW_HOURS="${{ github.event.inputs.window_hours || '24' }}"
+          if [ -n "$SLATE" ]; then
+            python WCDailyDraftPrep.py --slate "$SLATE" --mode "$MODE"
+          else
+            python WCDailyDraftPrep.py --auto-slate --window-hours "$WINDOW_HOURS" --mode "$MODE"
+          fi

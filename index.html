@@ -424,6 +424,7 @@ function hydrateDailyRow(row){
     Notes: row.Notes || "",
     Injury_Status: row.Injury_Status || "",
     Injury_Reason: row.Injury_Reason || "",
+    Updated_At: row.Updated_At || "",
   };
 }
 
@@ -962,6 +963,15 @@ function dailyLineupStatus(){
   return "Daily slate pending";
 }
 
+function dailyFreshness(){
+  const updated=(st.dailySlate[0]&&st.dailySlate[0].Updated_At)||"";
+  if(!updated)return {text:"Last updated: —", stale:false};
+  const dt=new Date(updated);
+  if(Number.isNaN(dt.getTime()))return {text:`Last updated: ${updated}`, stale:false};
+  const stale=(Date.now()-dt.getTime())>4*60*60*1000;
+  return {text:`Last updated: ${dt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZoneName:"short"})} · ${st.dailySlate[0]?.Source||"mode unknown"}`, stale};
+}
+
 function dailyPositionPlayers(pos){
   return st.dailySlate
     .filter(p=>p.Position===pos)
@@ -1052,10 +1062,12 @@ function renderDailyRoster(){
 }
 
 function renderDailyDraftView(){
+  const fresh=dailyFreshness();
   return `<div class="section">
     <div class="card">
       <div class="card-title">🎯 Match Day Mania Draft Board</div>
       <div class="small muted" style="line-height:1.6">${esc(dailySlateHeader())}</div>
+      <div class="small muted" style="margin-top:5px">${esc(fresh.text)} ${fresh.stale?`<span class="injury-badge questionable">stale</span>`:""}</div>
       <div class="daily-status">
         <span class="daily-badge">${esc(dailyLineupStatus())}</span>
         <span class="daily-badge">${st.dailySlate.length} players</span>
