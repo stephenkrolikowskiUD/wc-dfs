@@ -195,6 +195,7 @@ const PICKS_HISTORY_TAB = "Picks_History";
 const DRAFT_TAB = "Draft_Recommendations";
 const DAILY_SLATE_TAB = "Daily_Slate";
 const SLIPS_TAB = "Slip_Recommendations";
+const SAME_GAME_SLIPS_TAB = "Same_Game_Slip_Recommendations";
 const FORM_TAB = "Player_Form";
 const EFP_TAB = "Player_EFP";
 const SURVIVAL_TAB = "Team_Survival";
@@ -226,6 +227,7 @@ const st = {
   draftRecommendations: [],
   dailySlate: [],
   slipRecommendations: [],
+  sameGameSlipRecommendations: [],
   playerForm: [],
   playerEfp: [],
   teamSurvival: [],
@@ -235,6 +237,7 @@ const st = {
   picksHistory: [],
   dailyDrafted: new Set(),
   dailyRoster: [],
+  slipsMode: "cross",
   activeTab: "picks",
   propFilter: "ALL",
   lookupSearch: "",
@@ -284,6 +287,7 @@ function setLookupLine(v){st.lookupLine=v;render()}
 function toggleLookupLimited(){st.lookupHideLimited=!st.lookupHideLimited;render()}
 function toggleLookupInjured(){st.lookupHideInjured=!st.lookupHideInjured;render()}
 function toggleLookupUnavailable(){st.lookupHideUnavailable=!st.lookupHideUnavailable;render()}
+function setSlipsMode(mode){st.slipsMode=mode;render()}
 function dailyKey(p){return `${p.API_Football_ID||p.Player_Name}|${p.Team}|${p.Position}`}
 function toggleDailyDrafted(key){if(st.dailyDrafted.has(key))st.dailyDrafted.delete(key);else st.dailyDrafted.add(key);st.dailyRoster=st.dailyRoster.filter(k=>k!==key);render()}
 function resetDailyDraft(){st.dailyDrafted=new Set();st.dailyRoster=[];render()}
@@ -445,6 +449,26 @@ function hydrateSlipRow(row){
   };
 }
 
+function hydrateSameGameSlipRow(row){
+  return {
+    Fixture: row.Fixture || "",
+    Slip_Rank: row.Slip_Rank || "",
+    Slip_Size: row.Slip_Size || "",
+    Avg_Conviction: row.Avg_Conviction || "",
+    Min_Conviction: row.Min_Conviction || "",
+    SMASH_Count: row.SMASH_Count || "",
+    Slot_Number: row.Slot_Number || "",
+    Player: row.Player || "",
+    Team: row.Team || "",
+    Prop: normalizeProp(row.Prop || ""),
+    Line: row.Line || "",
+    Pick: normalizePick(row.Pick || ""),
+    Tier: normalizeTier(row.Tier || ""),
+    Confidence: row.Confidence || "",
+    Generated_At: row.Generated_At || "",
+  };
+}
+
 function hydrateFormRow(row){
   return {
     Player_Name: row.Player_Name || "",
@@ -522,11 +546,12 @@ function hydrateInjuryRow(row){
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const [picks,draft,daily,slips,form,efp,survival,history,injuries,udPool,squadCache]=await Promise.all([
+    const [picks,draft,daily,slips,sameGameSlips,form,efp,survival,history,injuries,udPool,squadCache]=await Promise.all([
       fetchSheet(PICKS_TAB),
       fetchSheet(DRAFT_TAB).catch(()=>[]),
       fetchSheet(DAILY_SLATE_TAB).catch(()=>[]),
       fetchSheet(SLIPS_TAB).catch(()=>[]),
+      fetchSheet(SAME_GAME_SLIPS_TAB).catch(()=>[]),
       fetchSheet(FORM_TAB).catch(()=>[]),
       fetchSheet(EFP_TAB).catch(()=>[]),
       fetchSheet(SURVIVAL_TAB).catch(()=>[]),
@@ -539,6 +564,7 @@ async function loadAllData(){
     st.draftRecommendations=draft.map(hydrateDraftRow).filter(r=>r.Player);
     st.dailySlate=daily.map(hydrateDailyRow).filter(r=>r.Player_Name);
     st.slipRecommendations=slips.map(hydrateSlipRow).filter(r=>r.Player);
+    st.sameGameSlipRecommendations=sameGameSlips.map(hydrateSameGameSlipRow).filter(r=>r.Player);
     st.playerForm=form.map(hydrateFormRow).filter(r=>r.Player_Name);
     st.playerEfp=efp.map(hydrateEfpRow).filter(r=>r.Player_Name);
     st.teamSurvival=survival.map(hydrateSurvivalRow).filter(r=>r.Team);
@@ -556,6 +582,7 @@ async function loadAllData(){
     st.draftRecommendations=[];
     st.dailySlate=[];
     st.slipRecommendations=[];
+    st.sameGameSlipRecommendations=[];
     st.playerForm=[];
     st.playerEfp=[];
     st.teamSurvival=[];
@@ -1083,12 +1110,54 @@ function groupSlipRecommendations(){
   }).sort((a,b)=>toNum(a.size)-toNum(b.size)||toNum(a.rank)-toNum(b.rank));
 }
 
+function groupSameGameSlipRecommendations(){
+  const groups=new Map();
+  st.sameGameSlipRecommendations.forEach(row=>{
+    const fixture=String(row.Fixture||"").trim();
+    const rank=String(row.Slip_Rank||"").trim();
+    if(!fixture||!rank)return;
+    const key=`${fixture}||${rank}`;
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(row);
+  });
+  return [...groups.entries()].map(([key,rows])=>{
+    rows.sort((a,b)=>toNum(a.Slot_Number)-toNum(b.Slot_Number));
+    const [fixture,rank]=key.split("||");
+    const teams=new Set(rows.map(r=>teamKey(r.Team)).filter(Boolean));
+    return {
+      key,
+      fixture,
+      rank,
+      size:String(rows[0]?.Slip_Size||""),
+      payout:"",
+      avg:toNum(rows[0]?.Avg_Conviction),
+      min:toNum(rows[0]?.Min_Conviction),
+      teams:teams.size,
+      smash:rows[0]?.SMASH_Count||"",
+      generatedAt:rows[0]?.Generated_At||"",
+      narrativeBoost:true,
+      rows
+    };
+  }).sort((a,b)=>a.fixture.localeCompare(b.fixture)||toNum(a.size)-toNum(b.size)||toNum(a.rank)-toNum(b.rank));
+}
+
 function slipsBySize(size){
   return groupSlipRecommendations().filter(group=>String(group.size)===String(size));
 }
 
-function slipCopyText(group){
-  const lines=[`${group.size}-leg WC slip (${group.payout})`, `Avg conviction ${fmtOne(group.avg)} · ${group.teams} teams`];
+function sameGameSlipsByFixture(){
+  const map=new Map();
+  groupSameGameSlipRecommendations().forEach(group=>{
+    if(!map.has(group.fixture))map.set(group.fixture,[]);
+    map.get(group.fixture).push(group);
+  });
+  return [...map.entries()].map(([fixture,groups])=>({fixture,groups}));
+}
+
+function slipCopyText(group, mode="cross"){
+  const header=mode==="same"?`${group.fixture} · ${group.size}-leg same-game slip`:`${group.size}-leg WC slip (${group.payout})`;
+  const meta=mode==="same"?`Avg conviction ${fmtOne(group.avg)} ⚡ · min ${fmtOne(group.min)}`:`Avg conviction ${fmtOne(group.avg)} · ${group.teams} teams`;
+  const lines=[header, meta];
   group.rows.forEach((row,idx)=>{
     lines.push(`${idx+1}. ${row.Player} - ${row.Prop} ${row.Pick} ${row.Line} (${row.Team})`);
   });
@@ -1099,8 +1168,25 @@ function slipCopyText(group){
 function copySlip(rank){
   const group=groupSlipRecommendations().find(g=>String(g.rank)===String(rank));
   if(!group)return;
-  const text=slipCopyText(group);
+  const text=slipCopyText(group,"cross");
   const status=document.getElementById(`copy-status-${rank}`);
+  function markCopied(){
+    if(status){status.textContent="Copied";setTimeout(()=>{status.textContent=""},1600)}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(markCopied).catch(()=>window.prompt("Copy slip",text));
+  }else{
+    window.prompt("Copy slip",text);
+  }
+}
+
+function copySameGameSlip(encodedFixture, rank){
+  const fixture=decodeURIComponent(encodedFixture);
+  const group=groupSameGameSlipRecommendations().find(g=>g.fixture===fixture&&String(g.rank)===String(rank));
+  if(!group)return;
+  const text=slipCopyText(group,"same");
+  const id=`same-${encodedFixture}-${rank}`;
+  const status=document.getElementById(`copy-status-${id}`);
   function markCopied(){
     if(status){status.textContent="Copied";setTimeout(()=>{status.textContent=""},1600)}
   }
@@ -1124,43 +1210,70 @@ function renderSlipLeg(row, group){
   </div>`;
 }
 
-function renderSlipCard(group){
+function renderSlipCard(group, mode="cross"){
+  const same=mode==="same";
+  const copyId=same?`same-${encodeURIComponent(group.fixture)}-${group.rank}`:String(group.rank);
+  const button=same?`copySameGameSlip('${encodeURIComponent(group.fixture)}','${esc(group.rank)}')`:`copySlip('${esc(group.rank)}')`;
   return `<div class="slip-card">
     <div class="slip-head">
       <div>
-        <span class="payout-badge">${esc(group.payout||`${group.size}-leg`)}</span>
-        <div class="small muted" style="margin-top:5px">${esc(group.teams)} teams · ${esc(group.smash)} SMASH</div>
+        <span class="payout-badge">${same?`${esc(group.size)}-leg`:esc(group.payout||`${group.size}-leg`)}</span>
+        <div class="small muted" style="margin-top:5px">${same?`⚡ narrative boost · min ${fmtOne(group.min)}`:`${esc(group.teams)} teams · ${esc(group.smash)} SMASH`}</div>
       </div>
       <div>
-        <div class="conviction-score">${fmtOne(group.avg)}</div>
+        <div class="conviction-score">${same?"⚡ ":""}${fmtOne(group.avg)}</div>
         <div class="tiny muted">avg conviction</div>
       </div>
     </div>
     ${group.rows.map(row=>renderSlipLeg(row,group)).join("")}
     <div class="copy-row">
-      <button class="pill-btn" onclick="copySlip('${esc(group.rank)}')">Copy slip</button>
-      <span class="copy-status" id="copy-status-${esc(group.rank)}"></span>
+      <button class="pill-btn" onclick="${button}">Copy slip</button>
+      <span class="copy-status" id="copy-status-${esc(copyId)}"></span>
     </div>
   </div>`;
 }
 
-function renderSlipsView(){
+function renderCrossGameSlips(){
   const sizes=[3,4,5];
-  return `<div class="section">
-    <div class="card">
-      <div class="card-title">🎫 Slip Recommendations</div>
-      <div class="small muted" style="line-height:1.6">Best 3-, 4-, and 5-leg entries from <strong>Picks_Current</strong>, scored by tier, confidence, and form-data support. Every slip uses at least 2 teams and never repeats a player.</div>
-    </div>
-  </div>
-  ${st.slipRecommendations.length?`<div class="section"><div class="slip-grid">${sizes.map(size=>{
+  return st.slipRecommendations.length?`<div class="section"><div class="slip-grid">${sizes.map(size=>{
     const groups=slipsBySize(size);
     const payout={3:"6x",4:"10x",5:"20x"}[size];
     return `<div class="slip-col">
       <div class="slip-col-title"><span>${size}-Leg</span><span class="payout-badge">${payout}</span></div>
       ${groups.length?groups.map(renderSlipCard).join(""):`<div class="empty">No valid ${size}-leg slips yet.</div>`}
     </div>`;
-  }).join("")}</div></div>`:`<div class="section"><div class="card"><div class="empty">Slip recommendations are not populated yet. Run <strong>WCEntryBuilder.py</strong> after the engine writes <strong>${esc(PICKS_TAB)}</strong>.</div></div></div>`}
-  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(SLIPS_TAB)}</div>`;
+  }).join("")}</div></div>`:`<div class="section"><div class="card"><div class="empty">Cross-game slip recommendations are not populated yet. Run <strong>WCEntryBuilder.py</strong> after the engine writes <strong>${esc(PICKS_TAB)}</strong>.</div></div></div>`;
+}
+
+function renderSameGameSlips(){
+  const fixtures=sameGameSlipsByFixture();
+  return st.sameGameSlipRecommendations.length?`<div class="section"><div class="slip-grid">${fixtures.map(({fixture,groups})=>`
+    <div class="slip-col">
+      <div class="slip-col-title"><span>${esc(fixture)}</span><span class="payout-badge">SGP</span></div>
+      ${[2,3,4].map(size=>{
+        const sizeGroups=groups.filter(g=>String(g.size)===String(size));
+        return `<div style="margin-bottom:10px">
+          <div class="tiny muted" style="font-weight:1000;margin:4px 0 6px">${size}-leg same-game</div>
+          ${sizeGroups.length?sizeGroups.map(g=>renderSlipCard(g,"same")).join(""):`<div class="empty">No valid ${size}-leg slips.</div>`}
+        </div>`;
+      }).join("")}
+    </div>`).join("")}</div></div>`:`<div class="section"><div class="card"><div class="empty">Same-game slip recommendations are not populated yet. Run <strong>WCEntryBuilder.py</strong> after the engine writes <strong>${esc(PICKS_TAB)}</strong>.</div></div></div>`;
+}
+
+function renderSlipsView(){
+  const same=st.slipsMode==="same";
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">🎫 Slip Recommendations</div>
+      <div class="small muted" style="line-height:1.6">${same?`Single-game 2-, 3-, and 4-leg entries grouped by fixture. Avg conviction includes a small narrative boost; min conviction stays raw.`:`Best 3-, 4-, and 5-leg entries from <strong>Picks_Current</strong>, scored by tier, confidence, and form-data support. Every slip uses at least 2 teams and never repeats a player.`}</div>
+      <div class="filter-row" style="margin-top:10px">
+        <button class="filter-pill ${!same?"active":""}" onclick="setSlipsMode('cross')">Cross-Game</button>
+        <button class="filter-pill ${same?"active":""}" onclick="setSlipsMode('same')">Same-Game</button>
+      </div>
+    </div>
+  </div>
+  ${same?renderSameGameSlips():renderCrossGameSlips()}
+  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(same?SAME_GAME_SLIPS_TAB:SLIPS_TAB)}</div>`;
 }
 
 function statusBadge(row){
