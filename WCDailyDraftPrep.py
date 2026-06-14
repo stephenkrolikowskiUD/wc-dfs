@@ -11,8 +11,9 @@ import os
 import re
 import time
 import unicodedata
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -40,6 +41,7 @@ ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
 REQUEST_TIMEOUT = 15
 MAX_RETRIES = 3
 DAILY_SLATE_SHEET_NAME = "Daily_Slate"
+USER_TZ = ZoneInfo("America/New_York")
 DEFAULT_AUTO_SLATE_WINDOW_HOURS = 24
 CONFIRMED_MODE_THRESHOLD_MINUTES = 90
 
@@ -337,11 +339,39 @@ def get_todays_slate(window_hours: int = DEFAULT_AUTO_SLATE_WINDOW_HOURS) -> lis
     odds_api_key = load_secret("ODDS_API_KEY", "🔑 Paste your Odds API Key: ", allow_missing=True)
     if not odds_api_key:
         raise RuntimeError("ODDS_API_KEY is required for --auto-slate")
-    now = datetime.now(timezone.utc)
-    cutoff = now + timedelta(hours=window_hours)
+    now_utc = datetime.now(timezone.utc)
+    now_local = now_utc.astimezone(USER_TZ)
+    end_of_today_local = now_local.replace(hour=23, minute=59, second=59, microsecond=999999)
+    end_of_today_utc = end_of_today_local.astimezone(timezone.utc)
     fixtures = fetch_wc_fixtures(odds_api_key)
-    todays = [f for f in fixtures if now <= f["kickoff"] <= cutoff]
+
+    seen_ids = set()
+    todays = []
+    for fixture in fixtures:
+        fixture_id = fixture.get("id", "")
+        if fixture_id and fixture_id in seen_ids:
+            continue
+        if fixture_id:
+            seen_ids.add(fixture_id)
+        kickoff = fixture["kickoff"]
+        if kickoff <= now_utc:
+            continue
+        if kickoff > end_of_today_utc:
+            continue
+        fixture["kickoff_local"] = kickoff.astimezone(USER_TZ)
+        todays.append(fixture)
     todays.sort(key=lambda f: f["kickoff"])
+
+    print(f"📅 Today's slate (kickoffs in {USER_TZ.key}; --window-hours ignored for today-only mode):")
+    print(f"   Now: {now_local.strftime('%Y-%m-%d %I:%M %p %Z')}")
+    print(f"   End of today: {end_of_today_local.strftime('%Y-%m-%d %I:%M %p %Z')}")
+    print(f"   Fixtures detected: {len(todays)}")
+    for fixture in todays:
+        print(
+            f"   - {fixture['away_abbr']} @ {fixture['home_abbr']} "
+            f"kickoff {fixture['kickoff_local'].strftime('%I:%M %p %Z')} "
+            f"({fixture['kickoff'].isoformat()})"
+        )
     return todays
 
 
@@ -624,12 +654,13 @@ def run(args: argparse.Namespace) -> list[dict]:
         if args.auto_slate:
             fixtures = get_todays_slate(args.window_hours)
             if not fixtures:
-                print(f"⏭️ No WC fixtures in next {args.window_hours} hour(s) — leaving {DAILY_SLATE_SHEET_NAME} unchanged")
+                print(f"⏭️ No WC fixtures remaining today — leaving {DAILY_SLATE_SHEET_NAME} unchanged")
                 return []
             slate = build_slate_string(fixtures)
             print(f"🗓️ Auto-detected slate: {slate}")
             for fixture in fixtures:
-                print(f"   {fixture['away_abbr']}@{fixture['home_abbr']} — {fixture['kickoff'].isoformat()}")
+                local = fixture.get("kickoff_local") or fixture["kickoff"].astimezone(USER_TZ)
+                print(f"   {fixture['away_abbr']}@{fixture['home_abbr']} — {local.strftime('%I:%M %p %Z')} ({fixture['kickoff'].isoformat()})")
             if mode == "auto":
                 mode = auto_select_mode(fixtures)
                 print(f"🧭 Auto-selected mode: {mode}")
@@ -660,7 +691,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare World Cup daily draft slate")
     parser.add_argument("--slate", default="", help='Slate games, e.g. "RSA@MEX,CZE@KOR"')
     parser.add_argument("--auto-slate", action="store_true", help="Auto-detect fixtures kicking off soon from The Odds API.")
-    parser.add_argument("--window-hours", type=int, default=DEFAULT_AUTO_SLATE_WINDOW_HOURS, help="Lookahead window for --auto-slate.")
+    parser.add_argument("--window-hours", type=int, default=DEFAULT_AUTO_SLATE_WINDOW_HOURS, help="Deprecated for --auto-slate; today's remaining local fixtures are used.")
     parser.add_argument("--mode", choices=["auto", "pre-xi", "confirmed"], default="auto")
     parser.add_argument("--dry-run", action="store_true", help="Compute without writing Daily_Slate.")
     parser.add_argument("--sample", action="store_true", help="Use built-in sample rows for offline smoke testing.")
