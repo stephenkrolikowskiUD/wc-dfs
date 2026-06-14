@@ -83,14 +83,30 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .daily-layout{display:grid;gap:12px}
 .daily-status{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
 .daily-badge{display:inline-flex;align-items:center;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;color:var(--accent)}
+.daily-board{display:grid;gap:12px}
+.daily-pane{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.daily-pane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.daily-pane-title{font-size:14px;font-weight:1000;color:var(--accent)}
+.daily-filters{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}
 .daily-columns{display:grid;gap:10px}
 .daily-col{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:10px;box-shadow:var(--shadow)}
 .daily-col-title{display:flex;align-items:center;justify-content:space-between;color:var(--accent);font-size:12px;font-weight:1000;margin-bottom:8px}
-.daily-player{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-top:1px solid rgba(148,163,184,.16);padding:9px 0}
+.daily-tier-band{border:1px solid var(--line);border-radius:10px;margin-bottom:9px;overflow:hidden;background:var(--panel2)}
+.daily-tier-band.tier-1{border-color:rgba(244,196,48,.55);box-shadow:inset 3px 0 0 var(--wc-gold)}
+.daily-tier-head{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;font-size:10px;font-weight:1000;color:var(--accent);background:rgba(42,157,143,.07)}
+.daily-tier-empty .daily-tier-head{color:var(--muted);background:var(--panel2)}
+.daily-player{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;border-top:1px solid rgba(148,163,184,.16);padding:8px}
 .daily-player:first-of-type{border-top:none}
 .daily-player.out{opacity:.42}
+.daily-player.out .daily-name{text-decoration:line-through}
 .daily-name{font-size:12px;font-weight:1000;line-height:1.2;word-break:break-word;overflow-wrap:anywhere}
 .daily-metrics{font-size:9px;color:var(--muted);margin-top:3px;font-weight:800}
+.pos-badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;border-radius:7px;font-size:10px;font-weight:1000}
+.pos-g{background:var(--wc-gold);color:var(--wc-ink)}
+.pos-d{background:var(--wc-pitch);color:#fff}
+.pos-md{background:var(--wc-green);color:#fff}
+.pos-fw{background:var(--wc-red);color:#fff}
+.daily-adj{font-size:14px;font-weight:1000;color:var(--accent);text-align:right;min-width:42px}
 .tier-letter{display:inline-block;min-width:22px;text-align:center;border-radius:7px;padding:3px 5px;font-size:10px;font-weight:1000;margin-right:6px}
 .tier-s{background:var(--wc-gold);color:var(--wc-ink)}
 .tier-a{background:var(--wc-red);color:#fff}
@@ -99,9 +115,14 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .daily-actions{display:flex;gap:5px;justify-content:flex-end}
 .icon-btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:7px;padding:5px 7px;font-size:10px;font-weight:1000;cursor:pointer}
 .icon-btn.primary{background:var(--wc-pitch);border-color:var(--wc-pitch);color:#fff}
+.icon-btn:disabled,.pill-btn:disabled{opacity:.45;cursor:not-allowed}
 .roster-grid{display:grid;gap:7px}
+.roster-panel{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px;margin:8px 0 12px}
 .roster-slot{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px}
 .roster-slot.empty{color:var(--muted)}
+.roster-slot.empty{border-style:dashed}
+.roster-pick-list{display:grid;gap:6px;margin-top:7px;max-height:220px;overflow:auto}
+.roster-pick-option{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:7px;text-align:left;color:var(--text);cursor:pointer}
 .roster-total{font-size:28px;font-weight:1000;color:var(--wc-gold);line-height:1}
 .constraint-line{font-size:10px;color:var(--muted);font-weight:900;line-height:1.6;margin-top:8px}
 .slip-grid{display:grid;gap:12px}
@@ -171,8 +192,9 @@ td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
   .stats-row{grid-template-columns:repeat(4,160px)}
   .draft-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .slip-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .daily-layout{grid-template-columns:minmax(0,1fr) 320px;align-items:start}
-  .daily-columns{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .daily-layout{grid-template-columns:1fr;align-items:start}
+  .daily-board{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);align-items:start}
+  .daily-columns{grid-template-columns:repeat(2,minmax(0,1fr))}
   .lookup-controls{grid-template-columns:2fr 1fr 1fr 1fr;align-items:center}
   .lookup-detail-grid{grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr)}
   .lookup-hero{grid-template-columns:1fr 360px;align-items:center}
@@ -237,6 +259,10 @@ const st = {
   picksHistory: [],
   dailyDrafted: new Set(),
   dailyRoster: [],
+  dailyBestFilter: "all",
+  dailyRosterOpen: false,
+  dailyAddSlot: "",
+  dailyStorageSignature: "",
   slipsMode: "cross",
   activeTab: "picks",
   propFilter: "ALL",
@@ -289,9 +315,50 @@ function toggleLookupInjured(){st.lookupHideInjured=!st.lookupHideInjured;render
 function toggleLookupUnavailable(){st.lookupHideUnavailable=!st.lookupHideUnavailable;render()}
 function setSlipsMode(mode){st.slipsMode=mode;render()}
 function dailyKey(p){return `${p.API_Football_ID||p.Player_Name}|${p.Team}|${p.Position}`}
-function toggleDailyDrafted(key){if(st.dailyDrafted.has(key))st.dailyDrafted.delete(key);else st.dailyDrafted.add(key);st.dailyRoster=st.dailyRoster.filter(k=>k!==key);render()}
-function resetDailyDraft(){st.dailyDrafted=new Set();st.dailyRoster=[];render()}
-function removeFromRoster(key){st.dailyRoster=st.dailyRoster.filter(k=>k!==key);render()}
+function dailySlateSignature(){
+  if(!st.dailySlate.length)return "empty";
+  const updated=st.dailySlate[0]?.Updated_At||"";
+  const games=[...new Set(st.dailySlate.map(p=>[p.Team,p.Opponent,p.Kickoff_Time].join("|")))].sort().join(";");
+  return `${updated}|${games}|${st.dailySlate.length}`;
+}
+function persistDailyDraftState(){
+  try{
+    const signature=dailySlateSignature();
+    sessionStorage.setItem("daily_slate_signature",signature);
+    sessionStorage.setItem("daily_drafted_ids",JSON.stringify([...st.dailyDrafted]));
+    sessionStorage.setItem("daily_my_roster",JSON.stringify(st.dailyRoster));
+  }catch(e){}
+}
+function restoreDailyDraftState(){
+  const signature=dailySlateSignature();
+  st.dailyStorageSignature=signature;
+  const validKeys=new Set(st.dailySlate.map(dailyKey));
+  try{
+    const storedSig=sessionStorage.getItem("daily_slate_signature");
+    if(storedSig!==signature){
+      sessionStorage.setItem("daily_slate_signature",signature);
+      sessionStorage.setItem("daily_drafted_ids","[]");
+      sessionStorage.setItem("daily_my_roster","[]");
+      st.dailyDrafted=new Set();
+      st.dailyRoster=[];
+      return;
+    }
+    const drafted=JSON.parse(sessionStorage.getItem("daily_drafted_ids")||"[]");
+    const roster=JSON.parse(sessionStorage.getItem("daily_my_roster")||"[]");
+    st.dailyDrafted=new Set((Array.isArray(drafted)?drafted:[]).filter(k=>validKeys.has(k)));
+    st.dailyRoster=(Array.isArray(roster)?roster:[]).filter(k=>validKeys.has(k));
+  }catch(e){
+    st.dailyDrafted=new Set([...st.dailyDrafted].filter(k=>validKeys.has(k)));
+    st.dailyRoster=st.dailyRoster.filter(k=>validKeys.has(k));
+  }
+}
+function toggleDailyDrafted(key){if(st.dailyDrafted.has(key))st.dailyDrafted.delete(key);else st.dailyDrafted.add(key);st.dailyRoster=st.dailyRoster.filter(k=>k!==key);persistDailyDraftState();render()}
+function setDailyBestFilter(v){st.dailyBestFilter=v;render()}
+function toggleDailyRosterPanel(){st.dailyRosterOpen=!st.dailyRosterOpen;render()}
+function setDailyAddSlot(slot){st.dailyAddSlot=st.dailyAddSlot===slot?"":slot;render()}
+function resetDailyDraft(){if(!confirm("Reset draft board and clear my roster?"))return;st.dailyDrafted=new Set();st.dailyRoster=[];st.dailyAddSlot="";persistDailyDraftState();render()}
+function removeFromRoster(key){st.dailyRoster=st.dailyRoster.filter(k=>k!==key);persistDailyDraftState();render()}
+function clearDailyRoster(){st.dailyRoster=[];st.dailyAddSlot="";persistDailyDraftState();render()}
 function dailyByKey(){const m=new Map();st.dailySlate.forEach(p=>m.set(dailyKey(p),p));return m}
 function dailyRosterPlayers(){const m=dailyByKey();return st.dailyRoster.map(k=>m.get(k)).filter(Boolean)}
 function dailyRosterCounts(players=dailyRosterPlayers()){return players.reduce((acc,p)=>{acc[p.Position]=(acc[p.Position]||0)+1;return acc},{G:0,D:0,MD:0,FW:0})}
@@ -307,7 +374,7 @@ function canAddDailyPlayer(p){
   if(p.Position==="MD")return counts.MD<2;
   return false;
 }
-function addDailyPlayer(key){const p=dailyByKey().get(key);if(p&&canAddDailyPlayer(p)){st.dailyRoster.push(key);render()}}
+function addDailyPlayer(key){const p=dailyByKey().get(key);if(p&&canAddDailyPlayer(p)){st.dailyRoster.push(key);st.dailyAddSlot="";persistDailyDraftState();render()}}
 function addDailyPlayerEncoded(key){addDailyPlayer(decodeURIComponent(key))}
 function toggleDailyDraftedEncoded(key){toggleDailyDrafted(decodeURIComponent(key))}
 function removeFromRosterEncoded(key){removeFromRoster(decodeURIComponent(key))}
@@ -573,9 +640,7 @@ async function loadAllData(){
     st.playerInjuries=injuries.map(hydrateInjuryRow).filter(r=>r.Player_Name||r.API_Football_ID);
     st.udPlayerPool=udPool.map(hydrateUdPoolRow).filter(r=>r.name&&r.team_abbr);
     st.squadCache=squadCache||{};
-    const validKeys=new Set(st.dailySlate.map(dailyKey));
-    st.dailyDrafted=new Set([...st.dailyDrafted].filter(k=>validKeys.has(k)));
-    st.dailyRoster=st.dailyRoster.filter(k=>validKeys.has(k));
+    restoreDailyDraftState();
     st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
   }catch(e){
     st.error=e.message||String(e);
@@ -972,41 +1037,126 @@ function dailyFreshness(){
   return {text:`Last updated: ${dt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZoneName:"short"})} · ${st.dailySlate[0]?.Source||"mode unknown"}`, stale};
 }
 
-function dailyPositionPlayers(pos){
-  return st.dailySlate
-    .filter(p=>p.Position===pos)
-    .sort((a,b)=>toNum(b.Adjusted_EFP)-toNum(a.Adjusted_EFP)||toNum(b.EFP_Per_Match)-toNum(a.EFP_Per_Match));
+function dailyRankedPlayers(){
+  return [...st.dailySlate].sort((a,b)=>toNum(b.Adjusted_EFP)-toNum(a.Adjusted_EFP)||toNum(b.EFP_Per_Match)-toNum(a.EFP_Per_Match)||String(a.Player_Name).localeCompare(String(b.Player_Name)));
 }
 
-function renderDailyPlayer(p){
+function dailyPlayersWithBoardTiers(){
+  const byPos={G:[],D:[],MD:[],FW:[]};
+  st.dailySlate.forEach(p=>{if(byPos[p.Position])byPos[p.Position].push(p)});
+  const tierMap=new Map();
+  for(const pos of ["G","D","MD","FW"]){
+    byPos[pos].sort((a,b)=>toNum(b.Adjusted_EFP)-toNum(a.Adjusted_EFP)||String(a.Player_Name).localeCompare(String(b.Player_Name)));
+    byPos[pos].forEach((p,idx)=>{
+      const tier=idx<3?1:idx<8?2:idx<18?3:4;
+      tierMap.set(dailyKey(p),tier);
+    });
+  }
+  return tierMap;
+}
+
+function boardTierLabel(tier){
+  return {1:"Elite",2:"Strong",3:"Solid",4:"Depth"}[tier]||"Depth";
+}
+
+function posBadge(pos){
+  const cls=String(pos||"").toLowerCase();
+  return `<span class="pos-badge pos-${esc(cls)}">${esc(pos||"")}</span>`;
+}
+
+function isDailyUnavailable(p){
+  const key=dailyKey(p);
+  return st.dailyDrafted.has(key)||st.dailyRoster.includes(key);
+}
+
+function renderDailyBoardPlayer(p, opts={}){
   const key=dailyKey(p);
   const encoded=encodeURIComponent(key);
-  const unavailable=st.dailyDrafted.has(key)||st.dailyRoster.includes(key);
-  const addable=canAddDailyPlayer(p);
+  const unavailable=isDailyUnavailable(p);
   return `<div class="daily-player ${unavailable?"out":""}">
+    ${posBadge(p.Position)}
     <div>
-      <div class="daily-name"><span class="tier-letter tier-${tierLetter(p.Tier).toLowerCase()}">${esc(tierLetter(p.Tier))}</span>${playerLinkHtml(p.Player_Name,p.Team)} ${injuryBadge(p)}</div>
-      <div class="daily-metrics">${esc(teamWithFlag(p.Team))} · ${esc(fmtOne(p.EFP_Per_Match))} EFP · ${(toNum(p.Start_Prob)*100).toFixed(0)}% start · <strong>${esc(fmtOne(p.Adjusted_EFP))} adj</strong></div>
-      ${p.Notes?`<div class="draft-note">${esc(p.Notes).split(";")[0]}</div>`:""}
+      <div class="daily-name">${playerLinkHtml(p.Player_Name,p.Team)} ${injuryBadge(p)}</div>
+      <div class="daily-metrics">${esc(teamWithFlag(p.Team))} · ${(toNum(p.Start_Prob)*100).toFixed(0)}% start · ${esc(fmtOne(p.EFP_Per_Match))} EFP</div>
     </div>
-    <div class="daily-actions">
-      <button class="icon-btn" onclick="toggleDailyDraftedEncoded('${encoded}')" title="Mark drafted">${st.dailyDrafted.has(key)?"↩":"×"}</button>
-      <button class="icon-btn primary" ${addable?"":"disabled"} onclick="addDailyPlayerEncoded('${encoded}')" title="Add to roster">+</button>
+    <div class="daily-adj">${esc(fmtOne(p.Adjusted_EFP))}</div>
+    <button class="icon-btn" onclick="toggleDailyDraftedEncoded('${encoded}')" title="${unavailable?"Undo drafted":"Mark drafted"}">${st.dailyDrafted.has(key)?"↩":"×"}</button>
+  </div>`;
+}
+
+function renderDailyTierBand(pos,tier,players){
+  if(!players.length)return "";
+  const allGone=players.every(isDailyUnavailable);
+  return `<div class="daily-tier-band tier-${tier} ${allGone?"daily-tier-empty":""}">
+    <div class="daily-tier-head"><span>Tier ${tier} ${esc(pos)} · ${esc(boardTierLabel(tier))} (${players.length})</span><span>${allGone?"gone":players.filter(p=>!isDailyUnavailable(p)).length+" left"}</span></div>
+    ${allGone?"":players.map(p=>renderDailyBoardPlayer(p,{compact:true})).join("")}
+  </div>`;
+}
+
+function renderDailyPositionColumn(pos){
+  const tierMap=dailyPlayersWithBoardTiers();
+  const players=dailyRankedPlayers().filter(p=>p.Position===pos);
+  const tiers=[1,2,3,4].map(tier=>players.filter(p=>tierMap.get(dailyKey(p))===tier));
+  const available=players.filter(p=>!isDailyUnavailable(p)).length;
+  return `<div class="daily-col">
+    <div class="daily-col-title"><span>${esc(pos)}</span><span class="tiny muted">${available}/${players.length}</span></div>
+    ${tiers.map((rows,idx)=>renderDailyTierBand(pos,idx+1,rows)).join("")||`<div class="empty">No ${esc(pos)} loaded.</div>`}
+  </div>`;
+}
+
+function renderPositionTiersPane(){
+  return `<div class="daily-pane">
+    <div class="daily-pane-head">
+      <div>
+        <div class="daily-pane-title">Position Tiers</div>
+        <div class="tiny muted">Static top 3 / next 5 / next 10 / depth by Adjusted EFP</div>
+      </div>
+      <button class="pill-btn" onclick="resetDailyDraft()">Reset draft</button>
+    </div>
+    <div class="daily-columns">
+      ${["G","D","MD","FW"].map(renderDailyPositionColumn).join("")}
     </div>
   </div>`;
 }
 
-function renderDailyColumn(pos,label){
-  const players=dailyPositionPlayers(pos);
-  const available=players.filter(p=>!st.dailyDrafted.has(dailyKey(p))&&!st.dailyRoster.includes(dailyKey(p))).length;
-  return `<div class="daily-col">
-    <div class="daily-col-title"><span>${esc(label)}</span><span class="tiny muted">${available}/${players.length}</span></div>
-    ${players.length?players.map(renderDailyPlayer).join(""):`<div class="empty">No ${esc(label)} loaded.</div>`}
+function bestAvailablePlayers(){
+  const tierMap=dailyPlayersWithBoardTiers();
+  return dailyRankedPlayers().filter(p=>{
+    if(st.dailyBestFilter==="available"&&isDailyUnavailable(p))return false;
+    if(st.dailyBestFilter==="s"&&tierMap.get(dailyKey(p))!==1)return false;
+    return true;
+  });
+}
+
+function renderBestAvailablePane(){
+  const rows=bestAvailablePlayers();
+  return `<div class="daily-pane">
+    <div class="daily-pane-head">
+      <div>
+        <div class="daily-pane-title">Best Available</div>
+        <div class="tiny muted">Overall board sorted by Adjusted EFP</div>
+      </div>
+      <button class="pill-btn" onclick="toggleDailyRosterPanel()">My picks</button>
+    </div>
+    <div class="daily-filters">
+      <button class="filter-pill ${st.dailyBestFilter==="all"?"active":""}" onclick="setDailyBestFilter('all')">All</button>
+      <button class="filter-pill ${st.dailyBestFilter==="available"?"active":""}" onclick="setDailyBestFilter('available')">Available</button>
+      <button class="filter-pill ${st.dailyBestFilter==="s"?"active":""}" onclick="setDailyBestFilter('s')">Tier S only</button>
+    </div>
+    ${st.dailyRosterOpen?renderDailyRoster():""}
+    ${rows.length?rows.map(renderDailyBoardPlayer).join(""):`<div class="empty">No players match this filter.</div>`}
   </div>`;
 }
 
 function rosterSlotPlan(){
-  return ["G","D","MD","FW","FW","FLEX"];
+  return [
+    {id:"G",label:"G",positions:["G"]},
+    {id:"D",label:"D",positions:["D"]},
+    {id:"MD",label:"MD",positions:["MD"]},
+    {id:"FW1",label:"FW",positions:["FW"]},
+    {id:"FW2",label:"FW",positions:["FW"]},
+    {id:"FLEX",label:"FLEX",positions:["D","MD","FW"]},
+  ];
 }
 
 function assignDailyRosterSlots(players){
@@ -1034,7 +1184,7 @@ function renderDailyRoster(){
   const players=dailyRosterPlayers();
   const slots=assignDailyRosterSlots(players);
   const total=players.reduce((sum,p)=>sum+toNum(p.Adjusted_EFP),0);
-  return `<div class="card">
+  return `<div class="roster-panel">
     <div class="draft-head">
       <div>
         <div class="card-title">My Roster</div>
@@ -1046,18 +1196,44 @@ function renderDailyRoster(){
       </div>
     </div>
     <div class="roster-grid">
-      ${slots.map(item=>{
-        const p=item.player;
-        if(!p)return `<div class="roster-slot empty"><div class="slot-badge">${esc(item.slot)}</div><div>Open slot</div><div></div></div>`;
-        const encoded=encodeURIComponent(dailyKey(p));
-        return `<div class="roster-slot">
-          <div class="slot-badge">${esc(item.slot)}</div>
-          <div><div class="draft-name">${playerLinkHtml(p.Player_Name,p.Team)}</div><div class="draft-meta">${esc(teamWithFlag(p.Team))} · ${esc(p.Position)} · ${esc(fmtOne(p.Adjusted_EFP))} adj</div></div>
-          <button class="icon-btn" onclick="removeFromRosterEncoded('${encoded}')">×</button>
-        </div>`;
-      }).join("")}
+      ${slots.map((item,idx)=>renderDailyRosterSlot(rosterSlotPlan()[idx],item.player)).join("")}
     </div>
-    <button class="pill-btn" style="margin-top:10px;width:100%" onclick="resetDailyDraft()">Reset draft</button>
+    <button class="pill-btn" style="margin-top:10px;width:100%" onclick="clearDailyRoster()">Clear my roster</button>
+  </div>`;
+}
+
+function slotCandidatePlayers(slot){
+  return dailyRankedPlayers().filter(p=>
+    slot.positions.includes(p.Position)&&
+    !st.dailyDrafted.has(dailyKey(p))&&
+    !st.dailyRoster.includes(dailyKey(p))&&
+    canAddDailyPlayer(p)
+  );
+}
+
+function renderDailyRosterSlot(slot,p){
+  if(p){
+    const encoded=encodeURIComponent(dailyKey(p));
+    return `<div class="roster-slot">
+      <div class="slot-badge">${esc(slot.label)}</div>
+      <div><div class="draft-name">${playerLinkHtml(p.Player_Name,p.Team)}</div><div class="draft-meta">${esc(teamWithFlag(p.Team))} · ${esc(p.Position)} · ${esc(fmtOne(p.Adjusted_EFP))} adj</div></div>
+      <button class="icon-btn" onclick="removeFromRosterEncoded('${encoded}')">×</button>
+    </div>`;
+  }
+  const open=st.dailyAddSlot===slot.id;
+  const candidates=slotCandidatePlayers(slot);
+  return `<div class="roster-slot empty">
+    <div class="slot-badge">${esc(slot.label)}</div>
+    <div>
+      <button class="pill-btn" onclick="setDailyAddSlot('${esc(slot.id)}')">+ Add player</button>
+      ${open?`<div class="roster-pick-list">
+        ${candidates.length?candidates.slice(0,18).map(c=>{
+          const encoded=encodeURIComponent(dailyKey(c));
+          return `<button class="roster-pick-option" onclick="addDailyPlayerEncoded('${encoded}')"><span>${esc(teamWithFlag(c.Team))} · ${esc(c.Player_Name)}</span><strong>${esc(fmtOne(c.Adjusted_EFP))}</strong></button>`;
+        }).join(""):`<div class="empty">No eligible players.</div>`}
+      </div>`:""}
+    </div>
+    <div></div>
   </div>`;
 }
 
@@ -1075,15 +1251,10 @@ function renderDailyDraftView(){
       </div>
     </div>
   </div>
-  ${st.dailySlate.length?`<div class="section"><div class="daily-layout">
-    <div class="daily-columns">
-      ${renderDailyColumn("G","G")}
-      ${renderDailyColumn("D","D")}
-      ${renderDailyColumn("MD","MD")}
-      ${renderDailyColumn("FW","FW")}
-    </div>
-    ${renderDailyRoster()}
-  </div></div>`:`<div class="section"><div class="card"><div class="empty">Daily draft slate is not populated yet. Run <strong>WCDailyDraftPrep.py --slate "RSA@MEX,CZE@KOR" --mode pre-xi</strong> to create <strong>${esc(DAILY_SLATE_TAB)}</strong>.</div></div></div>`}
+  ${st.dailySlate.length?`<div class="section"><div class="daily-board">
+    ${renderPositionTiersPane()}
+    ${renderBestAvailablePane()}
+  </div></div>`:`<div class="section"><div class="card"><div class="empty">Daily draft slate is not populated yet. Run <strong>WCDailyDraftPrep.py --auto-slate --mode auto</strong> to create <strong>${esc(DAILY_SLATE_TAB)}</strong>.</div></div></div>`}
   <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(DAILY_SLATE_TAB)}</div>`;
 }
 
