@@ -24,6 +24,7 @@ from WCDraftHelper import (
     compute_player_efp_rows,
     get_sheet_rows,
     load_injury_map,
+    load_match_spreads_map,
     load_squad_cache,
     normalize_name,
     safe_float,
@@ -392,7 +393,8 @@ def load_player_pool(slate_games: list[tuple[str, str]]) -> tuple[list[dict], di
     ud_pool_rows = get_sheet_rows(UD_POOL_SHEET_NAME)
     if not ud_pool_rows:
         raise RuntimeError(f"{UD_POOL_SHEET_NAME} is empty or missing. Upload the UD CSV before running Daily Draft.")
-    efp_rows = compute_player_efp_rows(form_rows, squad_by_id, ud_pool_rows)
+    match_spreads = load_match_spreads_map()
+    efp_rows = compute_player_efp_rows(form_rows, squad_by_id, ud_pool_rows, match_spreads)
     slate_teams = set(opponent_map_from_games(slate_games).keys())
     players = []
     for row in efp_rows:
@@ -415,7 +417,7 @@ def load_player_pool(slate_games: list[tuple[str, str]]) -> tuple[list[dict], di
                 "Team": display_team_name(canonical, squad_teams) or team,
                 "Team_Key": canonical,
                 "Position": position,
-                "EFP_Per_Match": safe_float(row.get("EFP_Regressed") or row.get("EFP_Per_Match")),
+                "EFP_Per_Match": safe_float(row.get("EFP_Spread_Adjusted") or row.get("EFP_Regressed") or row.get("EFP_Per_Match")),
                 "EFP_Raw": safe_float(row.get("EFP_Raw")),
                 "Intl_Sample": int(safe_float(row.get("Intl_Sample"))),
                 "Avg_Minutes": avg_minutes,
