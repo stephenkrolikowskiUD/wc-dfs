@@ -88,6 +88,8 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .daily-pane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
 .daily-pane-title{font-size:14px;font-weight:1000;color:var(--accent)}
 .daily-filters{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}
+.best-available-list{display:grid;gap:0;border:1px solid rgba(148,163,184,.14);border-radius:10px;overflow:hidden;background:var(--panel2)}
+.best-available-list .daily-player:first-child{border-top:none}
 .daily-columns{display:grid;gap:10px}
 .daily-col{background:var(--panel);border:1px solid rgba(29,53,87,.12);border-radius:12px;padding:10px;box-shadow:var(--shadow)}
 .daily-col-title{display:flex;align-items:center;justify-content:space-between;color:var(--accent);font-size:12px;font-weight:1000;margin-bottom:8px}
@@ -117,7 +119,7 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 .icon-btn.primary{background:var(--wc-pitch);border-color:var(--wc-pitch);color:#fff}
 .icon-btn:disabled,.pill-btn:disabled{opacity:.45;cursor:not-allowed}
 .roster-grid{display:grid;gap:7px}
-.roster-panel{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px;margin:8px 0 12px}
+.roster-panel{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px;margin:12px 0 0}
 .roster-slot{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px}
 .roster-slot.empty{color:var(--muted)}
 .roster-slot.empty{border-style:dashed}
@@ -1195,21 +1197,24 @@ function bestAvailablePlayers(){
 
 function renderBestAvailablePane(){
   const rows=bestAvailablePlayers();
+  const available=dailyRankedPlayers().filter(p=>!isDailyUnavailable(p)).length;
   return `<div class="daily-pane">
     <div class="daily-pane-head">
       <div>
         <div class="daily-pane-title">Best Available</div>
-        <div class="tiny muted">Overall board sorted by Adjusted EFP</div>
+        <div class="tiny muted">Overall board sorted by Adjusted EFP · ${available}/${st.dailySlate.length} available</div>
       </div>
-      <button class="pill-btn" onclick="toggleDailyRosterPanel()">My picks</button>
+      <button class="pill-btn" onclick="toggleDailyRosterPanel()">${st.dailyRosterOpen?"Hide":"My picks"}</button>
     </div>
     <div class="daily-filters">
       <button class="filter-pill ${st.dailyBestFilter==="all"?"active":""}" onclick="setDailyBestFilter('all')">All</button>
       <button class="filter-pill ${st.dailyBestFilter==="available"?"active":""}" onclick="setDailyBestFilter('available')">Available</button>
       <button class="filter-pill ${st.dailyBestFilter==="s"?"active":""}" onclick="setDailyBestFilter('s')">Tier S only</button>
     </div>
+    <div class="best-available-list">
+      ${rows.length?rows.map(renderDailyBoardPlayer).join(""):`<div class="empty">No players match this filter.</div>`}
+    </div>
     ${st.dailyRosterOpen?renderDailyRoster():""}
-    ${rows.length?rows.map(renderDailyBoardPlayer).join(""):`<div class="empty">No players match this filter.</div>`}
   </div>`;
 }
 
