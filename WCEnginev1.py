@@ -25,7 +25,9 @@ SHEET_ID = "1ZijOHruRgILnyR4H_jJh3pQrU3A9PJepWMLtRf3Ie9g"
 PICKS_HISTORY_SHEET_NAME = "Picks_History"
 PICKS_CURRENT_SHEET_NAME = "Picks_Current"
 INJURY_SHEET_NAME = "Player_Injuries"
+MATCH_SPREADS_SHEET_NAME = "Match_Spreads"
 ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
+MATCH_MARKETS = ["spreads", "totals"]
 PROP_MARKETS_STANDARD = [
     "player_shots",
     "player_shots_on_target",
@@ -80,6 +82,19 @@ PICKS_COLUMNS = [
     "Last_5_Shots",
     "Injury_Status",
     "Injury_Reason",
+]
+
+MATCH_SPREAD_COLUMNS = [
+    "Fixture_ID",
+    "Home_Team",
+    "Away_Team",
+    "Home_Spread",
+    "Away_Spread",
+    "Total_Goals",
+    "Home_Goal_Expectation",
+    "Away_Goal_Expectation",
+    "Book",
+    "Timestamp",
 ]
 
 TIER_NAMES = {"SMASH", "STRONG", "LEAN"}
@@ -638,6 +653,89 @@ def fetch_props(odds_api_key, fixture, market_422_cache=None):
     return dedupe_best_props(rows)
 
 
+def parse_match_markets(fixture, data):
+    if not data:
+        return None
+    book_priority = {"draftkings": 0, "fanduel": 1, "betmgm": 2, "betrivers": 3}
+    home = fixture.get("home_team", "")
+    away = fixture.get("away_team", "")
+    candidates = []
+    for bookmaker in data.get("bookmakers", []) or []:
+        book_key = bookmaker.get("key", "")
+        home_spread = None
+        total_goals = None
+        for market in bookmaker.get("markets", []) or []:
+            market_key = market.get("key", "")
+            outcomes = market.get("outcomes", []) or []
+            if market_key == "spreads":
+                for outcome in outcomes:
+                    name = outcome.get("name", "")
+                    point = safe_float(outcome.get("point"))
+                    if point is None:
+                        continue
+                    if canonical_team_name(name) == canonical_team_name(home):
+                        home_spread = point
+                        break
+            elif market_key == "totals":
+                for outcome in outcomes:
+                    point = safe_float(outcome.get("point"))
+                    if point is not None:
+                        total_goals = point
+                        break
+        if home_spread is None or total_goals is None:
+            continue
+        home_goals = (total_goals - home_spread) / 2
+        away_goals = (total_goals + home_spread) / 2
+        if home_goals < 0 or away_goals < 0:
+            continue
+        candidates.append(
+            (
+                book_priority.get(book_key, 99),
+                {
+                    "Fixture_ID": fixture.get("event_id", ""),
+                    "Home_Team": home,
+                    "Away_Team": away,
+                    "Home_Spread": round(home_spread, 2),
+                    "Away_Spread": round(-home_spread, 2),
+                    "Total_Goals": round(total_goals, 2),
+                    "Home_Goal_Expectation": round(home_goals, 2),
+                    "Away_Goal_Expectation": round(away_goals, 2),
+                    "Book": book_key,
+                    "Timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+        )
+    if not candidates:
+        return None
+    return sorted(candidates, key=lambda item: item[0])[0][1]
+
+
+def fetch_match_markets(odds_api_key, fixture):
+    event_id = fixture["event_id"]
+    try:
+        data = odds_api_get(
+            f"/sports/{ODDS_API_SPORT_KEY}/events/{event_id}/odds",
+            {
+                "apiKey": odds_api_key,
+                "regions": "us",
+                "markets": ",".join(MATCH_MARKETS),
+                "oddsFormat": "american",
+            },
+        )
+    except requests.HTTPError as e:
+        status = getattr(e.response, "status_code", None)
+        if status == 422:
+            print(f"      ℹ️ Match spreads/totals not available for event {event_id}")
+            return None
+        raise
+    row = parse_match_markets(fixture, data)
+    if row:
+        fav = row["Home_Team"] if safe_float(row["Home_Spread"], 0) < 0 else row["Away_Team"]
+        fav_spread = row["Home_Spread"] if fav == row["Home_Team"] else row["Away_Spread"]
+        print(f"      📈 Match context: {fav} {fav_spread} / O {row['Total_Goals']} ({row['Book']})")
+    return row
+
+
 def collapse_props_for_prompt(props):
     grouped = {}
     for row in props:
@@ -1128,6 +1226,19 @@ def write_to_sheet(picks, sheet_name=PICKS_HISTORY_SHEET_NAME, mode="append"):
     print(f"✅ {action} {len(values)} pick row(s) to {sheet_name}")
 
 
+def write_table_to_sheet(sheet_name, columns, rows):
+    gc = get_gspread_client()
+    sh = gc.open_by_key(SHEET_ID)
+    try:
+        ws = sh.worksheet(sheet_name)
+    except gspread.WorksheetNotFound:
+        ws = sh.add_worksheet(title=sheet_name, rows=max(len(rows) + 20, 100), cols=len(columns))
+    ws.clear()
+    payload = [columns] + [[clean_cell(row.get(col, "")) for col in columns] for row in rows]
+    ws.update("A1", payload, value_input_option="USER_ENTERED")
+    print(f"✅ Wrote {len(rows)} row(s) to {sheet_name}")
+
+
 def sample_fixtures_and_props():
     fixtures = [
         {
@@ -1166,6 +1277,23 @@ def sample_fixtures_and_props():
                 }
             )
     return fixtures, props
+
+
+def sample_match_spreads():
+    return [
+        {
+            "Fixture_ID": "sample-1",
+            "Home_Team": "USA",
+            "Away_Team": "FRA",
+            "Home_Spread": 1.5,
+            "Away_Spread": -1.5,
+            "Total_Goals": 3.5,
+            "Home_Goal_Expectation": 1.0,
+            "Away_Goal_Expectation": 2.5,
+            "Book": "sample",
+            "Timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    ]
 
 
 def sample_picks():
@@ -1267,23 +1395,29 @@ def run_engine(args):
     if args.sample:
         print("🧪 Sample mode enabled — no external API calls")
         fixtures, props = sample_fixtures_and_props()
+        match_spreads = sample_match_spreads()
         raw_picks = sample_picks()
     else:
         odds_api_key = load_secret("ODDS_API_KEY", "🔑 Paste your Odds API Key: ", allow_missing=args.dry_run)
         gemini_api_key = load_secret("GEMINI_API_KEY", "🔑 Paste your Gemini API Key: ", allow_missing=args.dry_run)
         if not odds_api_key:
             print("⚠️ No ODDS_API_KEY available — no fixtures or props fetched")
-            fixtures, props, raw_picks = [], [], []
+            fixtures, props, match_spreads, raw_picks = [], [], [], []
         else:
             all_fixtures = fetch_fixtures(odds_api_key)
             fixtures = fixtures_in_window(all_fixtures)
             props = []
+            match_spreads = []
             market_422_cache = load_422_cache()
             for fixture in fixtures:
+                spread_row = fetch_match_markets(odds_api_key, fixture)
+                if spread_row:
+                    match_spreads.append(spread_row)
                 props.extend(fetch_props(odds_api_key, fixture, market_422_cache))
                 time.sleep(0.5)
             save_422_cache(market_422_cache)
             print(f"✅ Parsed {len(props)} prop outcome row(s)")
+            print(f"✅ Parsed {len(match_spreads)} match spread row(s)")
             if fixtures and props and gemini_api_key:
                 raw_picks, props = generate_picks_per_fixture(fixtures, props, gemini_api_key)
             else:
@@ -1294,6 +1428,7 @@ def run_engine(args):
 
     print("\n📊 Pick summary")
     print(f"   Fixtures: {len(fixtures)}")
+    print(f"   Match spread rows: {len(match_spreads)}")
     print(f"   Prop outcome rows: {len(props)}")
     print(f"   Valid picks: {len(picks)}")
     if picks:
@@ -1308,6 +1443,7 @@ def run_engine(args):
     if args.dry_run:
         print("\n🧪 Dry run complete — skipped Google Sheets write")
     else:
+        write_table_to_sheet(MATCH_SPREADS_SHEET_NAME, MATCH_SPREAD_COLUMNS, match_spreads)
         write_to_sheet(picks, sheet_name=PICKS_HISTORY_SHEET_NAME, mode="append")
         write_to_sheet(picks, sheet_name=PICKS_CURRENT_SHEET_NAME, mode="overwrite")
 

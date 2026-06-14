@@ -223,6 +223,7 @@ const EFP_TAB = "Player_EFP";
 const SURVIVAL_TAB = "Team_Survival";
 const INJURY_TAB = "Player_Injuries";
 const UD_POOL_TAB = "UD_Player_Pool";
+const MATCH_SPREADS_TAB = "Match_Spreads";
 const SQUAD_CACHE_URL = "squad_cache.json";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const LOOKUP_STATS = ["Shots","SOT","Tackles","Goals"];
@@ -255,6 +256,7 @@ const st = {
   teamSurvival: [],
   playerInjuries: [],
   udPlayerPool: [],
+  matchSpreads: [],
   squadCache: {},
   picksHistory: [],
   dailyDrafted: new Set(),
@@ -557,18 +559,36 @@ function hydrateFormRow(row){
 }
 
 function hydrateEfpRow(row){
+  const displayEfp = row.EFP_Spread_Adjusted || row.EFP_Per_Match || row.EFP_Regressed || "";
   return {
     Player_Name: row.Player_Name || "",
     API_Football_ID: row.API_Football_ID || "",
     Team: row.Team || "",
     Position: row.Position || "",
-    EFP_Per_Match: row.EFP_Per_Match || row.EFP_Regressed || "",
+    EFP_Per_Match: displayEfp,
     EFP_Raw: row.EFP_Raw || "",
+    EFP_Regressed: row.EFP_Regressed || "",
+    EFP_Spread_Adjusted: row.EFP_Spread_Adjusted || "",
     Intl_Sample: row.Intl_Sample || "",
     UD_Available: row.UD_Available || "",
     UD_Player_ID: row.UD_Player_ID || "",
     UD_Name: row.UD_Name || "",
     Notes: row.Notes || "",
+  };
+}
+
+function hydrateMatchSpreadRow(row){
+  return {
+    Fixture_ID: row.Fixture_ID || "",
+    Home_Team: row.Home_Team || "",
+    Away_Team: row.Away_Team || "",
+    Home_Spread: row.Home_Spread || "",
+    Away_Spread: row.Away_Spread || "",
+    Total_Goals: row.Total_Goals || "",
+    Home_Goal_Expectation: row.Home_Goal_Expectation || "",
+    Away_Goal_Expectation: row.Away_Goal_Expectation || "",
+    Book: row.Book || "",
+    Timestamp: row.Timestamp || "",
   };
 }
 
@@ -614,7 +634,7 @@ function hydrateInjuryRow(row){
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const [picks,draft,daily,slips,sameGameSlips,form,efp,survival,history,injuries,udPool,squadCache]=await Promise.all([
+    const [picks,draft,daily,slips,sameGameSlips,form,efp,survival,history,injuries,udPool,matchSpreads,squadCache]=await Promise.all([
       fetchSheet(PICKS_TAB),
       fetchSheet(DRAFT_TAB).catch(()=>[]),
       fetchSheet(DAILY_SLATE_TAB).catch(()=>[]),
@@ -626,6 +646,7 @@ async function loadAllData(){
       fetchSheet(PICKS_HISTORY_TAB).catch(()=>[]),
       fetchSheet(INJURY_TAB).catch(()=>[]),
       fetchSheet(UD_POOL_TAB).catch(()=>[]),
+      fetchSheet(MATCH_SPREADS_TAB).catch(()=>[]),
       fetchJson(SQUAD_CACHE_URL).catch(()=>({}))
     ]);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
@@ -639,6 +660,7 @@ async function loadAllData(){
     st.picksHistory=history.map(hydratePick).filter(p=>p.Player);
     st.playerInjuries=injuries.map(hydrateInjuryRow).filter(r=>r.Player_Name||r.API_Football_ID);
     st.udPlayerPool=udPool.map(hydrateUdPoolRow).filter(r=>r.name&&r.team_abbr);
+    st.matchSpreads=matchSpreads.map(hydrateMatchSpreadRow).filter(r=>r.Home_Team&&r.Away_Team);
     st.squadCache=squadCache||{};
     restoreDailyDraftState();
     st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
@@ -655,6 +677,7 @@ async function loadAllData(){
     st.picksHistory=[];
     st.playerInjuries=[];
     st.udPlayerPool=[];
+    st.matchSpreads=[];
     st.squadCache={};
   }finally{
     applyHashRoute();
@@ -686,6 +709,42 @@ function teamAbbr(team){
     if(teamKey(name)===norm)return abbr;
   }
   return norm.slice(0,3).toUpperCase();
+}
+function matchSpreadForTeams(teamA,teamB){
+  const a=teamKey(teamA), b=teamKey(teamB);
+  if(!a||!b)return null;
+  return st.matchSpreads.find(row=>{
+    const home=teamKey(row.Home_Team), away=teamKey(row.Away_Team);
+    return (home===a&&away===b)||(home===b&&away===a);
+  })||null;
+}
+function spreadText(row){
+  if(!row)return "";
+  const homeSpread=toNum(row.Home_Spread);
+  const awaySpread=toNum(row.Away_Spread);
+  const favorite=homeSpread<0?row.Home_Team:awaySpread<0?row.Away_Team:"Pick'em";
+  const favSpread=homeSpread<0?homeSpread:awaySpread<0?awaySpread:0;
+  return favorite==="Pick'em"?`PK / O ${fmtOne(row.Total_Goals)}`:`${teamAbbr(favorite)} ${fmtOne(favSpread)} / O ${fmtOne(row.Total_Goals)}`;
+}
+function playerMatchContext(player){
+  const team=player.Team;
+  const daily=st.dailySlate.find(p=>String(p.API_Football_ID||"")&&String(p.API_Football_ID)===String(player.API_Football_ID))||
+    st.dailySlate.find(p=>teamKey(p.Team)===teamKey(team)&&normalizeLookupText(p.Player_Name)===normalizeLookupText(player.Player_Name));
+  const pick=st.picks.find(p=>teamKey(p.Team)===teamKey(team)&&normalizeLookupText(p.Player)===normalizeLookupText(player.Player_Name));
+  const opponent=daily?.Opponent||pick?.Opponent||"";
+  const spread=matchSpreadForTeams(team,opponent);
+  if(!spread)return null;
+  const isHome=teamKey(team)===teamKey(spread.Home_Team);
+  return {
+    opponent,
+    fixture: `${spread.Home_Team} vs ${spread.Away_Team}`,
+    spread: isHome?spread.Home_Spread:spread.Away_Spread,
+    teamXg: isHome?spread.Home_Goal_Expectation:spread.Away_Goal_Expectation,
+    oppXg: isHome?spread.Away_Goal_Expectation:spread.Home_Goal_Expectation,
+    total: spread.Total_Goals,
+    label: spreadText(spread),
+    book: spread.Book,
+  };
 }
 function positionCode(raw){
   const n=normalizeLookupText(raw);
@@ -1014,10 +1073,16 @@ function tierLetter(tier){
 function dailySlateHeader(){
   const games=new Map();
   st.dailySlate.forEach(p=>{
-    const key=[p.Team,p.Opponent,p.Kickoff_Time].join("|");
+    const teams=[p.Team,p.Opponent].sort((a,b)=>teamKey(a).localeCompare(teamKey(b)));
+    const key=[teams[0],teams[1],p.Kickoff_Time].join("|");
     if(!games.has(key))games.set(key,{team:p.Team,opp:p.Opponent,kick:p.Kickoff_Time});
   });
-  const labels=[...games.values()].map(g=>`${teamWithFlag(g.team)} vs ${teamWithFlag(g.opp)}${g.kick?` (${fmtTime(g.kick)})`:""}`);
+  const labels=[...games.values()].map(g=>{
+    const spread=matchSpreadForTeams(g.team,g.opp);
+    const matchup=spread?`${teamWithFlag(spread.Home_Team)} vs ${teamWithFlag(spread.Away_Team)}`:`${teamWithFlag(g.team)} vs ${teamWithFlag(g.opp)}`;
+    const context=spread?` · ${spreadText(spread)}`:"";
+    return `${matchup}${context}${g.kick?` (${fmtTime(g.kick)})`:""}`;
+  });
   return labels.length?labels.join(" · "):"No daily slate loaded";
 }
 
@@ -1582,6 +1647,7 @@ function renderLookupDetail(player){
   const props=playerCurrentProps(player);
   const history=playerHistory(player);
   const teammates=playerIndex().filter(p=>p.Team===player.Team&&p.Lookup_ID!==player.Lookup_ID).sort((a,b)=>toNum(b.EFP_Per_Match)-toNum(a.EFP_Per_Match)).slice(0,18);
+  const matchContext=playerMatchContext(player);
   const status=injuryStatusValue(player);
   const injClass=status<=0?"out":"";
   return `<div class="section">
@@ -1630,6 +1696,17 @@ function renderLookupDetail(player){
       <div class="card-title">⚽ vs Upcoming Opponent</div>
       <div class="empty">Head-to-head data pending v1.1.</div>
     </div>
+    <div class="lookup-card">
+      <div class="card-title">Match Context</div>
+      ${matchContext?`<div class="split-strip">
+        <div class="split-chip">📈 Team xG<br/><strong>${esc(fmtOne(matchContext.teamXg))}</strong></div>
+        <div class="split-chip">🧱 Opp xG<br/><strong>${esc(fmtOne(matchContext.oppXg))}</strong></div>
+        <div class="split-chip">Line<br/><strong>${esc(matchContext.label)}</strong></div>
+        <div class="split-chip">Book<br/><strong>${esc(matchContext.book||"—")}</strong></div>
+      </div><div class="small muted" style="margin-top:8px">${esc(matchContext.fixture)}</div>`:`<div class="empty">Match spread context pending for this player.</div>`}
+    </div>
+  </div></div>
+  <div class="section"><div class="lookup-detail-grid">
     <div class="lookup-card">
       <div class="card-title">📊 Sportsbook Props</div>
       ${props.length?props.map(p=>`<div class="lookup-prop-row"><div><strong>${esc(p.Prop)} ${esc(p.Pick)} ${esc(p.Line)}</strong><div class="small muted">${esc(p.Book||"—")} · ${esc(teamWithFlag(p.Team))} vs ${esc(teamWithFlag(p.Opponent))}</div></div>${tierPill(p.Tier)}</div>`).join(""):`<div class="empty">No current props/picks for this player in Picks_Current.</div>`}

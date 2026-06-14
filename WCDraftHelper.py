@@ -29,6 +29,7 @@ SURVIVAL_SHEET_NAME = "Team_Survival"
 DRAFT_SHEET_NAME = "Draft_Recommendations"
 INJURY_SHEET_NAME = "Player_Injuries"
 UD_POOL_SHEET_NAME = "UD_Player_Pool"
+MATCH_SPREADS_SHEET_NAME = "Match_Spreads"
 SQUAD_CACHE_PATH = "squad_cache.json"
 
 ROSTER_SIZE = 12
@@ -45,6 +46,7 @@ EFP_COLUMNS = [
     "EFP_Raw",
     "EFP_Regressed",
     "EFP_Per_Match",
+    "EFP_Spread_Adjusted",
     "Intl_Sample",
     "UD_Available",
     "UD_Player_ID",
@@ -584,7 +586,80 @@ def compute_position_means(rows: list[dict]) -> dict[str, float]:
     return means
 
 
-def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict], ud_pool_rows: list[dict] | None = None) -> list[dict]:
+def spread_adjusted_efp(
+    base_efp: float,
+    position: str,
+    team_goal_expectation: float,
+    opponent_goal_expectation: float,
+) -> tuple[float, float]:
+    baseline_goals = 1.5
+    team_strength = max(team_goal_expectation, 0.0) / baseline_goals
+    opponent_strength = max(opponent_goal_expectation, 0.0) / baseline_goals
+    if position == "FW":
+        multiplier = 0.6 + (0.4 * team_strength)
+    elif position == "MD":
+        multiplier = 0.75 + (0.25 * team_strength)
+    elif position == "D":
+        cs_factor = max(0.5, 2.0 - opponent_strength)
+        multiplier = 0.7 + (0.3 * cs_factor)
+    elif position == "G":
+        multiplier = max(0.3, 2.0 - opponent_strength * 1.2)
+    else:
+        multiplier = 1.0
+    return round(base_efp * multiplier, 2), round(multiplier, 3)
+
+
+def load_match_spreads_map() -> dict[str, dict]:
+    rows = get_sheet_rows(MATCH_SPREADS_SHEET_NAME)
+    spreads: dict[str, dict] = {}
+    for row in rows:
+        home = row.get("Home_Team", "")
+        away = row.get("Away_Team", "")
+        home_key = canonical_team_name(home)
+        away_key = canonical_team_name(away)
+        if not home_key or not away_key:
+            continue
+        home_xg = safe_float(row.get("Home_Goal_Expectation"))
+        away_xg = safe_float(row.get("Away_Goal_Expectation"))
+        if home_xg is None or away_xg is None:
+            continue
+        common = {
+            "Fixture_ID": row.get("Fixture_ID", ""),
+            "Home_Team": home,
+            "Away_Team": away,
+            "Total_Goals": safe_float(row.get("Total_Goals"), 0.0),
+            "Book": row.get("Book", ""),
+            "Timestamp": row.get("Timestamp", ""),
+        }
+        spreads[home_key] = {
+            **common,
+            "Team": home,
+            "Opponent": away,
+            "Spread": safe_float(row.get("Home_Spread"), 0.0),
+            "Team_Goal_Expectation": home_xg,
+            "Opponent_Goal_Expectation": away_xg,
+        }
+        spreads[away_key] = {
+            **common,
+            "Team": away,
+            "Opponent": home,
+            "Spread": safe_float(row.get("Away_Spread"), 0.0),
+            "Team_Goal_Expectation": away_xg,
+            "Opponent_Goal_Expectation": home_xg,
+        }
+    if spreads:
+        print(f"✅ Loaded match spread context for {len(spreads)} team side(s)")
+    else:
+        print("ℹ️ No Match_Spreads rows loaded; using unadjusted regressed EFP")
+    return spreads
+
+
+def compute_player_efp_rows(
+    form_rows: list[dict],
+    squad_by_id: dict[str, dict],
+    ud_pool_rows: list[dict] | None = None,
+    match_spreads: dict[str, dict] | None = None,
+) -> list[dict]:
     raw_rows = []
     for row in form_rows:
         api_id = str(row.get("API_Football_ID") or "").strip()
@@ -601,6 +676,7 @@ def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict],
                 "EFP_Raw": raw_efp,
                 "EFP_Regressed": raw_efp,
                 "EFP_Per_Match": raw_efp,
+                "EFP_Spread_Adjusted": "",
                 "Intl_Sample": int(safe_float(row.get("Intl_Matches_Last_24mo"))),
                 "UD_Available": "",
                 "UD_Player_ID": "",
@@ -623,7 +699,30 @@ def compute_player_efp_rows(form_rows: list[dict], squad_by_id: dict[str, dict],
         row["EFP_Per_Match"] = regressed
         regression_note = f"EFP regressed: {sample} caps -> {round(weight * 100)}% observed weight"
         row["Notes"] = f"{row.get('Notes', '')}; {regression_note}" if row.get("Notes") else regression_note
-    return sorted(rows, key=lambda r: (canonical_team_name(r.get("Team", "")), r.get("Position", ""), -safe_float(r.get("EFP_Per_Match"))))
+        spread = (match_spreads or {}).get(canonical_team_name(row.get("Team", "")))
+        if spread:
+            adjusted, multiplier = spread_adjusted_efp(
+                regressed,
+                pos,
+                safe_float(spread.get("Team_Goal_Expectation"), 1.5),
+                safe_float(spread.get("Opponent_Goal_Expectation"), 1.5),
+            )
+            row["EFP_Spread_Adjusted"] = adjusted
+            spread_note = (
+                "spread adj: "
+                f"team xG {round(safe_float(spread.get('Team_Goal_Expectation'), 0), 2)}, "
+                f"opp xG {round(safe_float(spread.get('Opponent_Goal_Expectation'), 0), 2)}, "
+                f"{multiplier}x"
+            )
+            row["Notes"] = f"{row.get('Notes', '')}; {spread_note}" if row.get("Notes") else spread_note
+    return sorted(
+        rows,
+        key=lambda r: (
+            canonical_team_name(r.get("Team", "")),
+            r.get("Position", ""),
+            -safe_float(r.get("EFP_Spread_Adjusted") or r.get("EFP_Per_Match")),
+        ),
+    )
 
 
 def expected_matches_for_team(team: str) -> tuple[float, str, str]:
@@ -711,7 +810,7 @@ def candidate_from_efp(row: dict, survival: dict[str, float], injuries: dict[str
     base_expected_matches = survival.get(canonical_team_name(team), 3.2)
     expected_matches = injury_adjusted_matches(base_expected_matches, injury)
     raw_efp = safe_float(row.get("EFP_Raw"))
-    efp = safe_float(row.get("EFP_Regressed") or row.get("EFP_Per_Match"))
+    efp = safe_float(row.get("EFP_Spread_Adjusted") or row.get("EFP_Regressed") or row.get("EFP_Per_Match"))
     note = row.get("Notes", "")
     inj_note = injury_note(injury)
     if inj_note:
@@ -1037,7 +1136,8 @@ def run(args: argparse.Namespace) -> list[dict]:
     if not args.sample and not ud_pool_rows:
         raise RuntimeError(f"{UD_POOL_SHEET_NAME} is empty or missing. Upload the UD CSV before running draft recommendations.")
 
-    efp_rows = compute_player_efp_rows(form_rows, squad_by_id, ud_pool_rows if not args.sample else None)
+    match_spreads = {} if args.sample else load_match_spreads_map()
+    efp_rows = compute_player_efp_rows(form_rows, squad_by_id, ud_pool_rows if not args.sample else None, match_spreads)
     survival_rows = compute_team_survival_rows(squad_teams, efp_rows)
     survival = team_survival_map(survival_rows)
     injuries = {} if args.sample else load_injury_map()
