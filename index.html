@@ -226,6 +226,7 @@ const SURVIVAL_TAB = "Team_Survival";
 const INJURY_TAB = "Player_Injuries";
 const UD_POOL_TAB = "UD_Player_Pool";
 const MATCH_SPREADS_TAB = "Match_Spreads";
+const POST_MORTEM_TAB = "Post_Mortem_Analysis";
 const SQUAD_CACHE_URL = "squad_cache.json";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const LOOKUP_STATS = ["Shots","SOT","Tackles","Goals"];
@@ -259,6 +260,7 @@ const st = {
   playerInjuries: [],
   udPlayerPool: [],
   matchSpreads: [],
+  postMortem: [],
   squadCache: {},
   picksHistory: [],
   dailyDrafted: new Set(),
@@ -594,6 +596,23 @@ function hydrateMatchSpreadRow(row){
   };
 }
 
+function hydratePostMortemRow(row){
+  return {
+    Section: row.Section || "",
+    Rank: row.Rank || "",
+    Player: row.Player || "",
+    Team: row.Team || "",
+    Metric: row.Metric || "",
+    Appearances: row.Appearances || "",
+    My_Avg_EFP: row.My_Avg_EFP || "",
+    My_Avg_Tier: row.My_Avg_Tier || "",
+    Their_Avg_Points: row.Their_Avg_Points || "",
+    Value: row.Value || "",
+    Details: row.Details || "",
+    Generated_At: row.Generated_At || "",
+  };
+}
+
 function hydrateUdPoolRow(row){
   const first=row.first_name||row.First_Name||"";
   const last=row.last_name||row.Last_Name||"";
@@ -636,7 +655,7 @@ function hydrateInjuryRow(row){
 async function loadAllData(){
   st.loading=true;st.error="";render();
   try{
-    const [picks,draft,daily,slips,sameGameSlips,form,efp,survival,history,injuries,udPool,matchSpreads,squadCache]=await Promise.all([
+    const [picks,draft,daily,slips,sameGameSlips,form,efp,survival,history,injuries,udPool,matchSpreads,postMortem,squadCache]=await Promise.all([
       fetchSheet(PICKS_TAB),
       fetchSheet(DRAFT_TAB).catch(()=>[]),
       fetchSheet(DAILY_SLATE_TAB).catch(()=>[]),
@@ -649,6 +668,7 @@ async function loadAllData(){
       fetchSheet(INJURY_TAB).catch(()=>[]),
       fetchSheet(UD_POOL_TAB).catch(()=>[]),
       fetchSheet(MATCH_SPREADS_TAB).catch(()=>[]),
+      fetchSheet(POST_MORTEM_TAB).catch(()=>[]),
       fetchJson(SQUAD_CACHE_URL).catch(()=>({}))
     ]);
     st.picks=picks.map(hydratePick).filter(p=>p.Player);
@@ -663,6 +683,7 @@ async function loadAllData(){
     st.playerInjuries=injuries.map(hydrateInjuryRow).filter(r=>r.Player_Name||r.API_Football_ID);
     st.udPlayerPool=udPool.map(hydrateUdPoolRow).filter(r=>r.name&&r.team_abbr);
     st.matchSpreads=matchSpreads.map(hydrateMatchSpreadRow).filter(r=>r.Home_Team&&r.Away_Team);
+    st.postMortem=postMortem.map(hydratePostMortemRow).filter(r=>r.Section);
     st.squadCache=squadCache||{};
     restoreDailyDraftState();
     st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
@@ -680,6 +701,7 @@ async function loadAllData(){
     st.playerInjuries=[];
     st.udPlayerPool=[];
     st.matchSpreads=[];
+    st.postMortem=[];
     st.squadCache={};
   }finally{
     applyHashRoute();
@@ -1001,6 +1023,65 @@ function renderStatsView(){
       </tbody></table></div>
     </div>
   </div>`;
+}
+
+function postMortemRows(section){
+  return st.postMortem.filter(row=>row.Section===section).sort((a,b)=>toNum(a.Rank)-toNum(b.Rank));
+}
+
+function postMortemSummaryValue(metric){
+  const row=postMortemRows("Summary").find(r=>r.Metric===metric);
+  return row?.Value||row?.Details||"—";
+}
+
+function renderPostMortemPlayerTable(title, rows){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">${esc(title)}</div>
+      ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Player</th><th>Team</th><th>Top 5 Apps</th><th>Model EFP</th><th>Model Tier</th><th>Actual Pts</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td>${playerLinkHtml(r.Player,r.Team)}</td>
+          <td>${esc(teamWithFlag(r.Team))}</td>
+          <td>${esc(r.Appearances||"—")}</td>
+          <td>${esc(r.My_Avg_EFP||"—")}</td>
+          <td>${esc(r.My_Avg_Tier||"—")}</td>
+          <td>${esc(r.Their_Avg_Points||"—")}</td>
+        </tr>`).join("")}
+      </tbody></table></div>`:`<div class="empty">No ${esc(title.toLowerCase())} yet. Add top rosters and run <strong>WCPostMortem.py</strong>.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderPostMortemPatterns(rows){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">Construction Patterns</div>
+      ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Metric</th><th>Value</th><th>Details</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr><td>${esc(r.Metric||"—")}</td><td>${esc(r.Value||"—")}</td><td>${esc(r.Details||"")}</td></tr>`).join("")}
+      </tbody></table></div>`:`<div class="empty">Construction patterns will appear once top roster rows are analyzed.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderPostMortemView(){
+  const misses=postMortemRows("Player Calibration Misses");
+  const hits=postMortemRows("Player Calibration Hits");
+  const patterns=postMortemRows("Construction Patterns");
+  const summary=postMortemRows("Summary");
+  const biggest=summary.find(r=>r.Metric==="Biggest model miss");
+  const generated=st.postMortem.find(r=>r.Generated_At)?.Generated_At||"";
+  return `<div class="section">
+    <div class="stats-row">
+      <div class="stat-box"><div class="val">${esc(postMortemSummaryValue("Contests analyzed"))}</div><div class="lbl">Contests</div></div>
+      <div class="stat-box"><div class="val">${esc(misses.length)}</div><div class="lbl">Miss Rows</div></div>
+      <div class="stat-box"><div class="val">${esc(hits.length)}</div><div class="lbl">Hit Rows</div></div>
+      <div class="stat-box"><div class="val">${esc(biggest?.Player||"—")}</div><div class="lbl">Biggest Miss</div></div>
+    </div>
+  </div>
+  ${renderPostMortemPlayerTable("Player Calibration Misses", misses)}
+  ${renderPostMortemPlayerTable("Player Calibration Hits", hits)}
+  ${renderPostMortemPatterns(patterns)}
+  <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(POST_MORTEM_TAB)}${generated?` · Generated ${esc(fmtDate(generated)||generated)}`:""}</div>`;
 }
 
 function groupDraftRecommendations(){
@@ -1796,6 +1877,7 @@ function render(){
     ["slips","🎫 Slips"],
     ["lookup","🔍 Lookup"],
     ["stats","📊 Stats"],
+    ["postmortem","📋 Post-Mortem"],
     ["entry","📋 Game Entry"],
     ["method","ℹ️ Info"],
   ];
@@ -1813,6 +1895,7 @@ function render(){
   <div class="page ${st.activeTab==="slips"?"active":""}">${renderSlipsView()}</div>
   <div class="page ${st.activeTab==="lookup"?"active":""}">${renderLookupView()}</div>
   <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
+  <div class="page ${st.activeTab==="postmortem"?"active":""}">${renderPostMortemView()}</div>
   <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
   <div class="page ${st.activeTab==="method"?"active":""}">${renderMethodView()}</div>
   <div class="tab-bar">${tabs.map(([id,label])=>`<button class="tab-btn ${st.activeTab===id?"active":""}" onclick="switchTab('${id}')">${label.replace("Game Entry","Entry")}</button>`).join("")}</div>`;
