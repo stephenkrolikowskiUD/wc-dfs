@@ -42,11 +42,16 @@ TOP_ROSTERS_COLUMNS = [
     "my_tier",
     "i_drafted",
     "notes",
+    "slate_archetype",
+    "favorite_team",
+    "is_mine",
 ]
 
 ANALYSIS_COLUMNS = [
     "Section",
     "Rank",
+    "Slate",
+    "Archetype",
     "Player",
     "Team",
     "Metric",
@@ -55,6 +60,13 @@ ANALYSIS_COLUMNS = [
     "My_Avg_Tier",
     "Their_Avg_Points",
     "Value",
+    "N_Slates",
+    "Avg_Winning_Score",
+    "Avg_Max_Stack",
+    "Leverage_Position",
+    "Gap",
+    "Underdog_GK_Pct",
+    "Warning",
     "Details",
     "Generated_At",
 ]
@@ -90,6 +102,9 @@ def normalize_row(row: dict) -> dict:
     lower = {str(k).strip().lower(): v for k, v in row.items()}
     for col in TOP_ROSTERS_COLUMNS:
         out[col] = lower.get(col.lower(), row.get(col, ""))
+    out["slate_archetype"] = str(out.get("slate_archetype") or "").strip() or "unknown"
+    out["favorite_team"] = str(out.get("favorite_team") or "").strip()
+    out["is_mine"] = clean_bool(out.get("is_mine")) or "FALSE"
     return out
 
 
@@ -171,6 +186,11 @@ def ensure_top_rosters_sheet() -> None:
     if not headers:
         ws.update("A1", [TOP_ROSTERS_COLUMNS], value_input_option="USER_ENTERED")
         print(f"✅ Initialized {TOP_ROSTERS_SHEET_NAME} header")
+        return
+    missing = [col for col in TOP_ROSTERS_COLUMNS if col not in headers]
+    if missing:
+        ws.update("A1", [headers + missing], value_input_option="USER_ENTERED")
+        print(f"✅ Added {TOP_ROSTERS_SHEET_NAME} columns: {', '.join(missing)}")
 
 
 def enrich_top_rosters(rows: list[dict]) -> list[dict]:
@@ -255,10 +275,42 @@ def roster_key(row: dict) -> tuple[str, str, str, str]:
     )
 
 
-def analyze_construction(rows: list[dict]) -> list[dict]:
+def slate_key(row: dict) -> tuple[str, str, str]:
+    return (
+        str(row.get("contest_date") or ""),
+        str(row.get("contest_type") or ""),
+        str(row.get("slate") or ""),
+    )
+
+
+def is_mine_row(row: dict) -> bool:
+    return clean_bool(row.get("is_mine")) == "TRUE"
+
+
+def top_finish_rows(rows: list[dict]) -> list[dict]:
+    return [row for row in rows if not is_mine_row(row)]
+
+
+def own_rows(rows: list[dict]) -> list[dict]:
+    return [row for row in rows if is_mine_row(row)]
+
+
+def group_by_roster(rows: list[dict]) -> dict[tuple[str, str, str, str], list[dict]]:
     rosters: dict[tuple[str, str, str, str], list[dict]] = defaultdict(list)
     for row in rows:
         rosters[roster_key(row)].append(row)
+    return rosters
+
+
+def group_by_slate(rows: list[dict]) -> dict[tuple[str, str, str], list[dict]]:
+    slates: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
+    for row in rows:
+        slates[slate_key(row)].append(row)
+    return slates
+
+
+def analyze_construction(rows: list[dict]) -> list[dict]:
+    rosters = group_by_roster(rows)
     if not rosters:
         return []
     max_stack = []
@@ -281,13 +333,212 @@ def analyze_construction(rows: list[dict]) -> list[dict]:
     return rows_out
 
 
+def avg_max_stack(rows: list[dict]) -> float:
+    rosters = group_by_roster(rows)
+    stacks = []
+    for roster in rosters.values():
+        teams = [str(p.get("player_team") or "").strip() for p in roster if p.get("player_team")]
+        counts = Counter(teams)
+        if counts:
+            stacks.append(max(counts.values()))
+    return round(avg(stacks), 2)
+
+
+def avg_winning_score(rows: list[dict]) -> float:
+    scores = {}
+    for row in rows:
+        if str(row.get("finishing_position") or "").strip() != "1":
+            continue
+        key = roster_key(row)
+        score = safe_float(row.get("total_score"))
+        if score is not None:
+            scores[key] = score
+    return round(avg(list(scores.values())), 2)
+
+
+def top_misses(rows: list[dict], n: int = 5) -> list[dict]:
+    groups = player_groups(rows)
+    return sorted(groups, key=lambda g: (-g["appearances"], -g["avg_tier_score"], -g["avg_points"], g["player"]))[:n]
+
+
+def compute_leverage_position(rows: list[dict]) -> tuple[str, float]:
+    by_position: dict[str, list[float]] = defaultdict(list)
+    for row in rows:
+        pos = position_from_slot(row.get("roster_slot", ""))
+        pts = safe_float(row.get("actual_points"))
+        if pos and pts is not None:
+            by_position[pos].append(pts)
+    gaps = {}
+    for pos, points in by_position.items():
+        sorted_pts = sorted(points, reverse=True)
+        if len(sorted_pts) >= 3:
+            gaps[pos] = round(sorted_pts[0] - sorted_pts[2], 2)
+    if not gaps:
+        return "", 0.0
+    pos = max(gaps, key=gaps.get)
+    return pos, gaps[pos]
+
+
+def leverage_rows(rows: list[dict], generated: str) -> list[dict]:
+    out = []
+    for rank, (key, slate_rows) in enumerate(sorted(group_by_slate(rows).items()), start=1):
+        pos, gap = compute_leverage_position(slate_rows)
+        contest_date, contest_type, slate = key
+        out.append(
+            {
+                "Section": "Leverage Position Per Slate",
+                "Rank": rank,
+                "Slate": slate,
+                "Metric": contest_type,
+                "Value": contest_date,
+                "Leverage_Position": pos,
+                "Gap": gap,
+                "Details": "Actual-points gap between #1 and #3 top-five player at the position",
+                "Generated_At": generated,
+            }
+        )
+    return out
+
+
+def analyze_by_archetype(rows: list[dict], generated: str) -> list[dict]:
+    out = []
+    by_archetype: dict[str, list[dict]] = defaultdict(list)
+    for row in rows:
+        archetype = str(row.get("slate_archetype") or "unknown").strip() or "unknown"
+        by_archetype[archetype].append(row)
+    for rank, (archetype, archetype_rows) in enumerate(sorted(by_archetype.items()), start=1):
+        slate_count = len(group_by_slate(archetype_rows))
+        leverage = [compute_leverage_position(slate_rows)[0] for slate_rows in group_by_slate(archetype_rows).values()]
+        dominant = Counter([pos for pos in leverage if pos]).most_common(1)
+        misses = top_misses(archetype_rows, 1)
+        out.append(
+            {
+                "Section": "Slate Archetype Breakdown",
+                "Rank": rank,
+                "Archetype": archetype,
+                "N_Slates": slate_count,
+                "Avg_Winning_Score": avg_winning_score(archetype_rows),
+                "Avg_Max_Stack": avg_max_stack(archetype_rows),
+                "Leverage_Position": dominant[0][0] if dominant else "",
+                "Player": misses[0]["player"] if misses else "",
+                "Team": misses[0]["team"] if misses else "",
+                "Details": "sample_top_miss",
+                "Generated_At": generated,
+            }
+        )
+    return out
+
+
+def player_exposure(rows: list[dict]) -> Counter:
+    return Counter(str(row.get("player_name") or "").strip() for row in rows if row.get("player_name"))
+
+
+def portfolio_concentration_stats(rows: list[dict]) -> dict:
+    rosters = group_by_roster(rows)
+    n_rosters = len(rosters)
+    appearances = player_exposure(rows)
+    top_three = appearances.most_common(3)
+    denominator = max(n_rosters * 3, 1)
+    concentration = sum(count for _, count in top_three) / denominator
+    return {
+        "n_rosters": n_rosters,
+        "top_3_player_exposure_pct": concentration,
+        "n_unique_players_used": len(appearances),
+        "top_players": ", ".join(f"{player} ({count})" for player, count in top_three),
+    }
+
+
+def portfolio_rows(rows: list[dict], generated: str) -> list[dict]:
+    out = []
+    top_by_contest = group_by_slate(top_finish_rows(rows))
+    mine_by_contest = group_by_slate(own_rows(rows))
+    rank = 1
+    for key, my_contest_rows in sorted(mine_by_contest.items()):
+        my_stats = portfolio_concentration_stats(my_contest_rows)
+        top_stats = portfolio_concentration_stats(top_by_contest.get(key, []))
+        warning = my_stats["top_3_player_exposure_pct"] + 0.15 < top_stats["top_3_player_exposure_pct"]
+        contest_date, contest_type, slate = key
+        out.append(
+            {
+                "Section": "Portfolio Concentration",
+                "Rank": rank,
+                "Slate": slate,
+                "Metric": contest_type,
+                "Value": contest_date,
+                "Appearances": my_stats["n_rosters"],
+                "My_Avg_EFP": round(my_stats["top_3_player_exposure_pct"], 3),
+                "Their_Avg_Points": round(top_stats["top_3_player_exposure_pct"], 3),
+                "Warning": "LOW_CONCENTRATION" if warning else "",
+                "Details": (
+                    f"mine_unique={my_stats['n_unique_players_used']}; "
+                    f"top5_unique={top_stats['n_unique_players_used']}; "
+                    f"mine_top={my_stats['top_players']}; top5_top={top_stats['top_players']}"
+                ),
+                "Generated_At": generated,
+            }
+        )
+        rank += 1
+    return out
+
+
+def underdog_gk_rows(rows: list[dict], generated: str) -> list[dict]:
+    slate_signals = []
+    out = []
+    for key, slate_rows in sorted(group_by_slate(rows).items()):
+        gks = [
+            r
+            for r in slate_rows
+            if position_from_slot(r.get("roster_slot", "")) == "G" and str(r.get("favorite_team") or "").strip()
+        ]
+        if not gks:
+            continue
+        underdog = [r for r in gks if normalize_name(r.get("player_team", "")) != normalize_name(r.get("favorite_team", ""))]
+        pct = len(underdog) / len(gks)
+        slate_signals.append(pct)
+        contest_date, contest_type, slate = key
+        out.append(
+            {
+                "Section": "Underdog GK Pattern",
+                "Rank": len(out) + 2,
+                "Slate": slate,
+                "Metric": contest_type,
+                "Value": contest_date,
+                "Appearances": len(gks),
+                "Underdog_GK_Pct": round(pct, 3),
+                "Details": f"{len(underdog)} of {len(gks)} top-five GK rows were underdogs",
+                "Generated_At": generated,
+            }
+        )
+    if slate_signals:
+        hit_slates = sum(1 for pct in slate_signals if pct > 0)
+        avg_pct = avg(slate_signals)
+        confirmed = len(slate_signals) >= 5 and avg_pct >= 0.6
+        out.insert(
+            0,
+            {
+                "Section": "Underdog GK Pattern",
+                "Rank": 1,
+                "Metric": "Underdog GK win rate",
+                "Value": f"{hit_slates} of {len(slate_signals)} slates",
+                "Underdog_GK_Pct": round(avg_pct, 3),
+                "Warning": "CONFIRMED_EDGE" if confirmed else "",
+                "Details": "Slate counted when at least one top-five GK was from the underdog team",
+                "Generated_At": generated,
+            },
+        )
+    return out
+
+
 def analysis_rows(rows: list[dict]) -> list[dict]:
     generated = timestamp_utc()
-    groups = player_groups(rows)
-    contests = {tuple(k[:3]) for k in [roster_key(r) for r in rows]}
-    rosters = {roster_key(r) for r in rows}
+    top_rows = top_finish_rows(rows)
+    groups = player_groups(top_rows)
+    contests = {tuple(k[:3]) for k in [roster_key(r) for r in top_rows]}
+    rosters = {roster_key(r) for r in top_rows}
     misses = sorted(groups, key=lambda g: (-g["appearances"], -g["avg_tier_score"], -g["avg_points"], g["player"]))[:25]
     hits = sorted(groups, key=lambda g: (-g["avg_efp"], -g["appearances"], -g["avg_points"], g["player"]))[:25]
+    underdog_rows = underdog_gk_rows(top_rows, generated)
+    underdog_summary = underdog_rows[0] if underdog_rows else {}
     out = [
         {
             "Section": "Summary",
@@ -306,12 +557,21 @@ def analysis_rows(rows: list[dict]) -> list[dict]:
             "Value": f"{misses[0]['appearances']} appearance(s), Tier {misses[0]['avg_tier']}" if misses else "",
             "Generated_At": generated,
         },
+        {
+            "Section": "Summary",
+            "Rank": 3,
+            "Metric": "Underdog GK win rate",
+            "Value": underdog_summary.get("Value", "—"),
+            "Underdog_GK_Pct": underdog_summary.get("Underdog_GK_Pct", ""),
+            "Warning": underdog_summary.get("Warning", ""),
+            "Generated_At": generated,
+        },
     ]
     for rank, item in enumerate(misses, start=1):
         out.append(format_player_row("Player Calibration Misses", rank, item, generated))
     for rank, item in enumerate(hits, start=1):
         out.append(format_player_row("Player Calibration Hits", rank, item, generated))
-    for rank, (metric, value, details) in enumerate(analyze_construction(rows), start=1):
+    for rank, (metric, value, details) in enumerate(analyze_construction(top_rows), start=1):
         out.append(
             {
                 "Section": "Construction Patterns",
@@ -322,6 +582,10 @@ def analysis_rows(rows: list[dict]) -> list[dict]:
                 "Generated_At": generated,
             }
         )
+    out.extend(analyze_by_archetype(top_rows, generated))
+    out.extend(leverage_rows(top_rows, generated))
+    out.extend(portfolio_rows(rows, generated))
+    out.extend(underdog_rows)
     return out
 
 
