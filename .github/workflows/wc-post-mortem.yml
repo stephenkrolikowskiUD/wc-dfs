@@ -1,0 +1,31 @@
+name: World Cup Post-Mortem
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Analyze contests on/after YYYY-MM-DD (optional)'
+        required: false
+        default: ''
+      contest:
+        description: 'Contest type filter, e.g. Match Day Mania (optional)'
+        required: false
+        default: ''
+
+jobs:
+  run-world-cup-post-mortem:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install gspread google-auth
+      - name: Analyze top rosters
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python -u WCPostMortem.py --since "${{ github.event.inputs.since }}" --contest "${{ github.event.inputs.contest }}"
