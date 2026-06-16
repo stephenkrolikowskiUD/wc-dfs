@@ -600,6 +600,8 @@ function hydratePostMortemRow(row){
   return {
     Section: row.Section || "",
     Rank: row.Rank || "",
+    Slate: row.Slate || "",
+    Archetype: row.Archetype || "",
     Player: row.Player || "",
     Team: row.Team || "",
     Metric: row.Metric || "",
@@ -608,6 +610,13 @@ function hydratePostMortemRow(row){
     My_Avg_Tier: row.My_Avg_Tier || "",
     Their_Avg_Points: row.Their_Avg_Points || "",
     Value: row.Value || "",
+    N_Slates: row.N_Slates || "",
+    Avg_Winning_Score: row.Avg_Winning_Score || "",
+    Avg_Max_Stack: row.Avg_Max_Stack || "",
+    Leverage_Position: row.Leverage_Position || "",
+    Gap: row.Gap || "",
+    Underdog_GK_Pct: row.Underdog_GK_Pct || "",
+    Warning: row.Warning || "",
     Details: row.Details || "",
     Generated_At: row.Generated_At || "",
   };
@@ -1063,24 +1072,104 @@ function renderPostMortemPatterns(rows){
   </div>`;
 }
 
+function renderSlateArchetypes(rows){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">Slate Archetype Breakdown</div>
+      ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Archetype</th><th>Slates</th><th>Avg Win</th><th>Max Stack</th><th>Leverage</th><th>Sample Miss</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td>${esc(r.Archetype||"unknown")}</td>
+          <td>${esc(r.N_Slates||"—")}</td>
+          <td>${esc(r.Avg_Winning_Score||"—")}</td>
+          <td>${esc(r.Avg_Max_Stack||"—")}</td>
+          <td>${esc(r.Leverage_Position||"—")}</td>
+          <td>${r.Player?playerLinkHtml(r.Player,r.Team):"—"}</td>
+        </tr>`).join("")}
+      </tbody></table></div>`:`<div class="empty">Slate archetype rows appear after <strong>slate_archetype</strong> is populated in Top_Rosters.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderPortfolioConcentration(rows){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">Your Portfolio Concentration</div>
+      ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Slate</th><th>My Rosters</th><th>My Top-3 Exposure</th><th>Winner Top-3 Exposure</th><th>Flag</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td>${esc(r.Value||"—")}</td>
+          <td>${esc(r.Slate||"—")}</td>
+          <td>${esc(r.Appearances||"—")}</td>
+          <td>${esc(fmtRate(r.My_Avg_EFP))}</td>
+          <td>${esc(fmtRate(r.Their_Avg_Points))}</td>
+          <td>${r.Warning?`<span class="injury-badge out">${esc(r.Warning)}</span>`:`<span class="status-dot status-healthy">OK</span>`}</td>
+        </tr>`).join("")}
+      </tbody></table></div>`:`<div class="empty">Mark your own roster rows with <strong>is_mine = TRUE</strong> to populate this section.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderLeveragePositions(rows){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">Leverage Position Per Slate</div>
+      ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Slate</th><th>Position</th><th>Gap</th><th>Details</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td>${esc(r.Value||"—")}</td>
+          <td>${esc(r.Slate||"—")}</td>
+          <td>${esc(r.Leverage_Position||"—")}</td>
+          <td>${esc(r.Gap||"—")}</td>
+          <td>${esc(r.Details||"")}</td>
+        </tr>`).join("")}
+      </tbody></table></div>`:`<div class="empty">Leverage position needs at least three top-five players with points at a position.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderUnderdogGk(rows){
+  return `<div class="section">
+    <div class="card">
+      <div class="card-title">Underdog GK Pattern Tracker</div>
+      ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Slate</th><th>Metric</th><th>Value</th><th>Underdog GK %</th><th>Signal</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td>${esc(r.Slate||"All")}</td>
+          <td>${esc(r.Metric||"—")}</td>
+          <td>${esc(r.Value||"—")}</td>
+          <td>${esc(fmtRate(r.Underdog_GK_Pct))}</td>
+          <td>${r.Warning?`<span class="injury-badge questionable">${esc(r.Warning)}</span>`:"—"}</td>
+        </tr>`).join("")}
+      </tbody></table></div>`:`<div class="empty">Populate <strong>favorite_team</strong> for GK rows to track the underdog GK signal.</div>`}
+    </div>
+  </div>`;
+}
+
 function renderPostMortemView(){
   const misses=postMortemRows("Player Calibration Misses");
   const hits=postMortemRows("Player Calibration Hits");
   const patterns=postMortemRows("Construction Patterns");
+  const archetypes=postMortemRows("Slate Archetype Breakdown");
+  const portfolio=postMortemRows("Portfolio Concentration");
+  const leverage=postMortemRows("Leverage Position Per Slate");
+  const underdogGk=postMortemRows("Underdog GK Pattern");
   const summary=postMortemRows("Summary");
   const biggest=summary.find(r=>r.Metric==="Biggest model miss");
+  const underdog=summary.find(r=>r.Metric==="Underdog GK win rate");
   const generated=st.postMortem.find(r=>r.Generated_At)?.Generated_At||"";
   return `<div class="section">
     <div class="stats-row">
       <div class="stat-box"><div class="val">${esc(postMortemSummaryValue("Contests analyzed"))}</div><div class="lbl">Contests</div></div>
       <div class="stat-box"><div class="val">${esc(misses.length)}</div><div class="lbl">Miss Rows</div></div>
       <div class="stat-box"><div class="val">${esc(hits.length)}</div><div class="lbl">Hit Rows</div></div>
-      <div class="stat-box"><div class="val">${esc(biggest?.Player||"—")}</div><div class="lbl">Biggest Miss</div></div>
+      <div class="stat-box"><div class="val">${esc(underdog?.Value||"—")}</div><div class="lbl">Underdog GK</div></div>
     </div>
   </div>
+  <div class="section"><div class="card"><div class="card-title">Biggest Model Miss</div><div class="small muted" style="line-height:1.7">${biggest?.Player?`${playerLinkHtml(biggest.Player,biggest.Team)} · ${esc(biggest.Value||"")}`:"No model miss summary yet."}</div></div></div>
   ${renderPostMortemPlayerTable("Player Calibration Misses", misses)}
   ${renderPostMortemPlayerTable("Player Calibration Hits", hits)}
   ${renderPostMortemPatterns(patterns)}
+  ${renderSlateArchetypes(archetypes)}
+  ${renderPortfolioConcentration(portfolio)}
+  ${renderLeveragePositions(leverage)}
+  ${renderUnderdogGk(underdogGk)}
   <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(POST_MORTEM_TAB)}${generated?` · Generated ${esc(fmtDate(generated)||generated)}`:""}</div>`;
 }
 
