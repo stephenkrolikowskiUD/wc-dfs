@@ -179,6 +179,9 @@ body.dark-theme .pill-btn{background:var(--panel2)}
 table{width:100%;border-collapse:collapse;font-size:11px;min-width:440px}
 th{color:var(--accent);text-align:left;border-bottom:1px solid var(--line);padding:8px 6px;background:var(--panel)}
 td{border-bottom:1px solid rgba(148,163,184,.14);padding:8px 6px}
+.hl{color:var(--accent);font-weight:1000}
+.stats-title{color:var(--accent);font-size:18px;font-weight:1000;letter-spacing:-.2px}
+.stats-sub{color:var(--muted);font-size:11px;font-weight:800;margin-top:3px}
 @media(min-width:768px){
   body{max-width:1400px;padding-bottom:0}
   .header{padding:14px 32px;display:flex;align-items:center;gap:22px}
@@ -231,7 +234,6 @@ const SQUAD_CACHE_URL = "squad_cache.json";
 const PROP_TYPES = ["Shots","SOT","Tackles","Goal Scorer","Goals"];
 const LOOKUP_STATS = ["Shots","SOT","Tackles","Goals"];
 const STORAGE_THEME = "wc-dashboard-theme";
-const STATS_PLACEHOLDER = "Stats reads from Picks_History — grader populates Result + Actual columns after each WC match completes. Aggregate hit rate / ROI shown here after the first matches finish (June 11 onward).";
 const TEAM_FLAG = {
   "Algeria":"🇩🇿","Argentina":"🇦🇷","Australia":"🇦🇺","Austria":"🇦🇹","Belgium":"🇧🇪","Bosnia Herzegovina":"🇧🇦","Brazil":"🇧🇷","Canada":"🇨🇦","Chile":"🇨🇱","Colombia":"🇨🇴","Costa Rica":"🇨🇷","Croatia":"🇭🇷","Czech Republic":"🇨🇿","Czechia":"🇨🇿","Denmark":"🇩🇰","Ecuador":"🇪🇨","Egypt":"🇪🇬","England":"🏴","France":"🇫🇷","Germany":"🇩🇪","Ghana":"🇬🇭","Greece":"🇬🇷","Iran":"🇮🇷","IR Iran":"🇮🇷","Italy":"🇮🇹","Ivory Coast":"🇨🇮","Cote d'Ivoire":"🇨🇮","Japan":"🇯🇵","Korea Republic":"🇰🇷","South Korea":"🇰🇷","Mexico":"🇲🇽","Morocco":"🇲🇦","Netherlands":"🇳🇱","New Zealand":"🇳🇿","Nigeria":"🇳🇬","Norway":"🇳🇴","Panama":"🇵🇦","Paraguay":"🇵🇾","Peru":"🇵🇪","Poland":"🇵🇱","Portugal":"🇵🇹","Qatar":"🇶🇦","Saudi Arabia":"🇸🇦","Scotland":"🏴","Senegal":"🇸🇳","Serbia":"🇷🇸","Slovakia":"🇸🇰","Slovenia":"🇸🇮","South Africa":"🇿🇦","Spain":"🇪🇸","Sweden":"🇸🇪","Switzerland":"🇨🇭","Tunisia":"🇹🇳","Turkey":"🇹🇷","Türkiye":"🇹🇷","Ukraine":"🇺🇦","United States":"🇺🇸","USA":"🇺🇸","Uruguay":"🇺🇾","Wales":"🏴"
 };
@@ -416,6 +418,9 @@ function fmtDate(raw){
   if(!Number.isFinite(ms))return "";
   return new Date(ms).toLocaleDateString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric"});
 }
+function fmtNowEastern(){
+  return new Date().toLocaleString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
+}
 function flagForTeam(team){return TEAM_FLAG[String(team||"").trim()]||""}
 function teamWithFlag(team){const flag=flagForTeam(team);return `${flag?flag+" ":""}${team||"Team"}`}
 function firstPickDate(){
@@ -440,6 +445,8 @@ function getGames(){
 function hydratePick(row, idx=0){
   return {
     rank: idx+1,
+    DATE: row.DATE || row.Date || row.date || row.Timestamp || "",
+    RUN_NUMBER: row.RUN_NUMBER || row.run_number || "",
     Player: row.Player || row.player || "",
     Team: row.Team || row.team || "",
     Opponent: row.Opponent || row.opponent || "",
@@ -451,9 +458,11 @@ function hydratePick(row, idx=0){
     Reasoning: row.Reasoning || row.rationale || "",
     Game_Time: row.Game_Time || row.game_time || "",
     Book: row.Book || row.book || "",
-    Result: row.Result || "",
-    Actual: row.Actual || "",
-    Timestamp: row.Timestamp || "",
+    Result: row.Result || row.HIT || row.hit || "",
+    HIT: row.HIT || row.hit || row.Result || "",
+    Actual: row.Actual || row.ACTUAL_STAT || row.actual_stat || "",
+    ACTUAL_STAT: row.ACTUAL_STAT || row.actual_stat || row.Actual || "",
+    Timestamp: row.Timestamp || row.DATE || row.Date || row.date || "",
     Intl_Sample: row.Intl_Sample || row.Intl_Matches_Last_24mo || "",
     Avg_Shots: row.Avg_Shots || "",
     Avg_SOT: row.Avg_SOT || "",
@@ -696,6 +705,7 @@ async function loadAllData(){
     st.squadCache=squadCache||{};
     restoreDailyDraftState();
     st.loadedAt=new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
+    console.log(`✅ WC dashboard loaded — Picks_Current: ${st.picks.length}, Picks_History: ${st.picksHistory.length}`);
   }catch(e){
     st.error=e.message||String(e);
     st.picks=[];
@@ -1016,22 +1026,156 @@ function renderPicksView(){
   <div class="timestamp">Loaded: ${esc(st.loadedAt||"—")} · Sheet: ${esc(PICKS_TAB)}</div>`;
 }
 
+function resultState(v){
+  const u=String(v||"").trim().toUpperCase();
+  if(u==="YES"||u==="TRUE"||u==="HIT")return "hit";
+  if(u==="NO"||u==="FALSE"||u==="MISS")return "miss";
+  if(u==="PUSH")return "push";
+  return "";
+}
+
+function statsPickKey(row){
+  return [
+    row.Game_Time||row.DATE||"",
+    normalizeLookupText(row.Player),
+    normalizeLookupText(row.Team),
+    normalizeLookupText(row.Opponent),
+    normalizeProp(row.Prop),
+    String(row.Line||"").trim(),
+    normalizePick(row.Pick).toUpperCase(),
+  ].join("|");
+}
+
+function latestTimestampMs(row){
+  const ms=Date.parse(row.Timestamp||row.DATE||row.Game_Time||"");
+  return Number.isFinite(ms)?ms:0;
+}
+
+function getEngineStats(){
+  const gradedRows=(st.picksHistory||[]).filter(p=>{
+    const state=resultState(p.HIT||p.Result);
+    return state==="hit"||state==="miss";
+  });
+  const unique=new Map();
+  for(const row of gradedRows){
+    const key=statsPickKey(row);
+    const prev=unique.get(key);
+    if(!prev||latestTimestampMs(row)>=latestTimestampMs(prev))unique.set(key,row);
+  }
+  const rows=[...unique.values()];
+  if(!rows.length)return null;
+
+  const total=rows.length;
+  const hits=rows.filter(r=>resultState(r.HIT||r.Result)==="hit").length;
+  const overall=hits/total;
+
+  const tiers=["SMASH","STRONG","LEAN"];
+  const byTier=tiers.map(t=>{
+    const tRows=rows.filter(r=>normalizeTier(r.Tier||r.confidence)===t);
+    const tHits=tRows.filter(r=>resultState(r.HIT||r.Result)==="hit").length;
+    return {tier:t,n:tRows.length,hits:tHits,rate:tRows.length?tHits/tRows.length:0};
+  });
+
+  const propMap={};
+  for(const r of rows){
+    const m=normalizeProp(r.Prop||r.prop_type||"");
+    if(!m)continue;
+    if(!propMap[m])propMap[m]={market:m,n:0,hits:0};
+    propMap[m].n++;
+    if(resultState(r.HIT||r.Result)==="hit")propMap[m].hits++;
+  }
+  const byMarket=Object.values(propMap)
+    .map(m=>({...m,rate:m.n?m.hits/m.n:0}))
+    .sort((a,b)=>b.n-a.n||b.rate-a.rate);
+
+  const leans=["OVER","UNDER"];
+  const byLean=leans.map(l=>{
+    const lRows=rows.filter(r=>normalizePick(r.Pick||r.lean).toUpperCase()===l);
+    const lHits=lRows.filter(r=>resultState(r.HIT||r.Result)==="hit").length;
+    return {lean:l,n:lRows.length,hits:lHits,rate:lRows.length?lHits/lRows.length:0};
+  });
+
+  const cutoff=new Date();
+  cutoff.setDate(cutoff.getDate()-14);
+  const recent=rows.filter(r=>{
+    const d=new Date(r.DATE||r.Timestamp||r.Game_Time);
+    return !isNaN(d)&&d>=cutoff;
+  });
+  const recentHits=recent.filter(r=>resultState(r.HIT||r.Result)==="hit").length;
+  const recentRate=recent.length?recentHits/recent.length:0;
+
+  return {total,hits,overall,rawTotal:gradedRows.length,deduped:Math.max(0,gradedRows.length-total),byTier,byMarket,byLean,recent:{n:recent.length,hits:recentHits,rate:recentRate}};
+}
+
 function renderStatsView(){
-  const msg=STATS_PLACEHOLDER.replace("{first_pick_date}",firstPickDate());
-  return `<div class="section">
-    <div class="card">
-      <div class="card-title">📊 Pick Performance</div>
-      <div class="empty" style="padding:18px 8px">${esc(msg)}</div>
+  const s=getEngineStats();
+  if(!s){
+    return `<div class="section">
+      <div class="card">
+        <div class="empty" style="padding:60px 20px;font-size:14px;text-align:center">
+          📊 No graded picks yet. The Stats page activates after the grader writes results to Picks_History.
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const overallPct=(s.overall*100).toFixed(1);
+  const recentPct=(s.recent.rate*100).toFixed(1);
+  const tierRows=s.byTier.map(t=>`
+    <tr>
+      <td>${tierPill(t.tier)}</td>
+      <td>${t.n}</td>
+      <td>${t.hits}</td>
+      <td class="hl">${t.n?(t.rate*100).toFixed(1):"—"}%</td>
+    </tr>`).join("");
+  const mktRows=s.byMarket.slice(0,10).map(m=>`
+    <tr>
+      <td>${esc(m.market)}</td>
+      <td>${m.n}</td>
+      <td>${m.hits}</td>
+      <td class="hl">${(m.rate*100).toFixed(1)}%</td>
+    </tr>`).join("");
+  const leanRows=s.byLean.map(l=>`
+    <tr>
+      <td>${l.lean}</td>
+      <td>${l.n}</td>
+      <td>${l.hits}</td>
+      <td class="hl">${l.n?(l.rate*100).toFixed(1):"—"}%</td>
+    </tr>`).join("");
+
+  return `<div style="padding:16px">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:28px;margin-bottom:4px">⚽</div>
+      <div class="stats-title">Engine Performance</div>
+      <div class="stats-sub">Unique graded picks from Picks_History · ${s.deduped} duplicate history row(s) collapsed</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">📈 Overall</div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="val">${overallPct}%</div><div class="lbl">Hit rate</div></div>
+        <div class="stat-box"><div class="val">${s.hits}/${s.total}</div><div class="lbl">Decisive</div></div>
+        <div class="stat-box"><div class="val">${recentPct}%</div><div class="lbl">Last 14d</div></div>
+        <div class="stat-box"><div class="val">${s.rawTotal}</div><div class="lbl">Raw Rows</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">🎯 By Confidence Tier</div>
+      <div class="table-wrap"><table><thead><tr><th>Tier</th><th>N</th><th>Hits</th><th>Rate</th></tr></thead><tbody>${tierRows}</tbody></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">🎲 By Market</div>
+      <div class="table-wrap"><table><thead><tr><th>Prop</th><th>N</th><th>Hits</th><th>Rate</th></tr></thead><tbody>${mktRows}</tbody></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">↕️ By Lean</div>
+      <div class="table-wrap"><table><thead><tr><th>Lean</th><th>N</th><th>Hits</th><th>Rate</th></tr></thead><tbody>${leanRows}</tbody></table></div>
     </div>
   </div>
-  <div class="section">
-    <div class="card">
-      <div class="card-title">Reserved Soccer Prop Schema</div>
-      <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Hit Rate</th><th>n</th><th>ROI</th><th>Wilson LB</th></tr></thead><tbody>
-        ${PROP_TYPES.map(p=>`<tr><td>${p}</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`).join("")}
-      </tbody></table></div>
-    </div>
-  </div>`;
+  <div class="timestamp">As of: ${fmtNowEastern()} · Data: Picks_History</div>`;
 }
 
 function postMortemRows(section){
@@ -1924,32 +2068,74 @@ function renderEntryView(){
   </div>`:""}`;
 }
 
-function renderMethodView(){
-  return `<div class="section">
-    <div class="card">
-      <div class="card-title">🌎 How This Dashboard Works</div>
+function renderInfoView(){
+  return `<div style="padding:16px">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:28px;margin-bottom:4px">⚽</div>
+      <div class="stats-title">How This Dashboard Works</div>
+      <div class="stats-sub">Under the hood of the WC DFS Engine</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">📡 Data Sources</div>
+      <div class="small muted" style="line-height:1.6">
+        <div style="margin-bottom:6px"><strong>The Odds API</strong> — Player props, fixtures, and futures for <code>soccer_fifa_world_cup</code>. 48-hour fixture gate keeps credit burn controlled.</div>
+        <div style="margin-bottom:6px"><strong>API-Football Pro</strong> — International stats per player, squad rosters for all 48 teams, live lineups 1hr before kickoff, injury reports.</div>
+        <div><strong>Google Sheets</strong> — Central warehouse. Engine writes Picks_Current / Picks_History / Player_Form / Player_EFP / Team_Survival / Draft_Recommendations / Daily_Slate / Slip_Recommendations / Player_Injuries.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">⚙️ Pipelines</div>
+      <div class="small muted" style="line-height:1.6">
+        <strong>WCEnginev1</strong> — Pulls odds, sends context to Gemini, writes ranked picks.<br/>
+        <strong>WCFormPull</strong> — Pulls intl stats per player via squad-cache join.<br/>
+        <strong>WCGrader_v1</strong> — Scores picks against /fixtures/players results.<br/>
+        <strong>WCDraftHelper</strong> — Tournament-long World Pup recommendations using EFP + survival, Monte Carlo, greedy+swap.<br/>
+        <strong>WCDailyDraftPrep</strong> — Match Day Mania snake-draft helper in Pre-XI and Confirmed modes.<br/>
+        <strong>WCEntryBuilder</strong> — 3/4/5-leg slip combos with conviction scoring.<br/>
+        <strong>WCInjuriesPull</strong> — Per-team injury feed → 🟢/🟡/🔴 badges on cards.
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">🧮 Player_EFP — Expected Fantasy Points</div>
+      <div class="small muted" style="line-height:1.6">
+        Bayesian regression toward position-mean (K=10) corrects small-sample misfires. Without it, a player with 1 match × 2 goals looks like a superstar.
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">🤖 AI Picks — Gemini</div>
+      <div class="small muted" style="line-height:1.6">
+        Gemini receives daily slate context with player form, odds, fixtures, and injuries. It returns ranked picks with SMASH / STRONG / LEAN tiers. Props-only anchoring is applied after the response.
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">📖 Abbreviations</div>
       <div class="small muted" style="line-height:1.7">
-        <strong style="color:var(--accent)">WCEnginev1.py</strong> pulls World Cup fixtures and player props from The Odds API, sends the slate context to Gemini, validates the JSON picks, appends to <strong>Picks_History</strong>, and overwrites <strong>Picks_Current</strong>. This dashboard reads <strong>Picks_Current</strong> through Google Sheets gviz CSV.
+        EFP — Expected Fantasy Points · UD_FP — Underdog Fantasy Points<br/>
+        GK — Goalkeeper · DEF — Defender · MID — Midfielder · FWD — Forward<br/>
+        XG — Expected Goals · CS — Clean Sheet · SOG — Shots on Goal<br/>
+        SMASH / STRONG / LEAN — AI confidence tiers<br/>
+        EV% — Expected Value (hit rate minus implied odds)<br/>
+        L5 — Last 5 international matches · K=10 — Bayesian regression strength
       </div>
     </div>
-  </div>
-  <div class="section">
-    <div class="card">
-      <div class="card-title">📖 Prop Glossary</div>
-      <div class="small muted" style="line-height:1.8">
-        <strong>Shots</strong> — total shot attempts<br/>
-        <strong>SOT</strong> — shots on target<br/>
-        <strong>Tackles</strong> — alternate milestone tackle lines<br/>
-        <strong>Goal Scorer</strong> — anytime scorer, represented as Over 0.5 goals<br/>
-        <strong>Goals</strong> — alternate milestone goal lines<br/>
-        <strong>SMASH / STRONG / LEAN</strong> — cross-sport confidence tiers
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">🛠️ Stack</div>
+      <div class="small muted" style="line-height:1.6">
+        Python engines · Google Sheets storage · Gemini AI · The Odds API · API-Football · GitHub Pages · GitHub Actions cron · Vanilla HTML/JS dashboard.
       </div>
     </div>
-  </div>
-  <div class="section">
-    <div class="card">
-      <div class="card-title">🔐 Safe To Share</div>
-      <div class="small muted" style="line-height:1.7">This HTML contains no private API keys. It only uses the public Google Sheet ID and gviz URLs. For entertainment and research purposes only.</div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">👤 Built By</div>
+      <div class="small muted" style="line-height:1.6">
+        S. Krolikowski w/ Claude · 2026 · github.com/stephenkrolikowskiUD/wc-dfs
+      </div>
     </div>
   </div>`;
 }
@@ -1966,9 +2152,8 @@ function render(){
     ["slips","🎫 Slips"],
     ["lookup","🔍 Lookup"],
     ["stats","📊 Stats"],
-    ["postmortem","📋 Post-Mortem"],
     ["entry","📋 Game Entry"],
-    ["method","ℹ️ Info"],
+    ["info","ℹ️ Info"],
   ];
   app.innerHTML=`<div class="header">
     <div class="header-top">
@@ -1984,9 +2169,8 @@ function render(){
   <div class="page ${st.activeTab==="slips"?"active":""}">${renderSlipsView()}</div>
   <div class="page ${st.activeTab==="lookup"?"active":""}">${renderLookupView()}</div>
   <div class="page ${st.activeTab==="stats"?"active":""}">${renderStatsView()}</div>
-  <div class="page ${st.activeTab==="postmortem"?"active":""}">${renderPostMortemView()}</div>
   <div class="page ${st.activeTab==="entry"?"active":""}">${renderEntryView()}</div>
-  <div class="page ${st.activeTab==="method"?"active":""}">${renderMethodView()}</div>
+  <div class="page ${st.activeTab==="info"?"active":""}">${renderInfoView()}</div>
   <div class="tab-bar">${tabs.map(([id,label])=>`<button class="tab-btn ${st.activeTab===id?"active":""}" onclick="switchTab('${id}')">${label.replace("Game Entry","Entry")}</button>`).join("")}</div>`;
 }
 
