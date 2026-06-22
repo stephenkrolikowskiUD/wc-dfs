@@ -1034,11 +1034,35 @@ function resultState(v){
   return "";
 }
 
+function statsPickKey(row){
+  return [
+    row.Game_Time||row.DATE||"",
+    normalizeLookupText(row.Player),
+    normalizeLookupText(row.Team),
+    normalizeLookupText(row.Opponent),
+    normalizeProp(row.Prop),
+    String(row.Line||"").trim(),
+    normalizePick(row.Pick).toUpperCase(),
+  ].join("|");
+}
+
+function latestTimestampMs(row){
+  const ms=Date.parse(row.Timestamp||row.DATE||row.Game_Time||"");
+  return Number.isFinite(ms)?ms:0;
+}
+
 function getEngineStats(){
-  const rows=(st.picksHistory||[]).filter(p=>{
+  const gradedRows=(st.picksHistory||[]).filter(p=>{
     const state=resultState(p.HIT||p.Result);
     return state==="hit"||state==="miss";
   });
+  const unique=new Map();
+  for(const row of gradedRows){
+    const key=statsPickKey(row);
+    const prev=unique.get(key);
+    if(!prev||latestTimestampMs(row)>=latestTimestampMs(prev))unique.set(key,row);
+  }
+  const rows=[...unique.values()];
   if(!rows.length)return null;
 
   const total=rows.length;
@@ -1080,7 +1104,7 @@ function getEngineStats(){
   const recentHits=recent.filter(r=>resultState(r.HIT||r.Result)==="hit").length;
   const recentRate=recent.length?recentHits/recent.length:0;
 
-  return {total,hits,overall,byTier,byMarket,byLean,recent:{n:recent.length,hits:recentHits,rate:recentRate}};
+  return {total,hits,overall,rawTotal:gradedRows.length,deduped:Math.max(0,gradedRows.length-total),byTier,byMarket,byLean,recent:{n:recent.length,hits:recentHits,rate:recentRate}};
 }
 
 function renderStatsView(){
@@ -1123,7 +1147,7 @@ function renderStatsView(){
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:28px;margin-bottom:4px">⚽</div>
       <div class="stats-title">Engine Performance</div>
-      <div class="stats-sub">All graded picks from Picks_History</div>
+      <div class="stats-sub">Unique graded picks from Picks_History · ${s.deduped} duplicate history row(s) collapsed</div>
     </div>
 
     <div class="card" style="margin-bottom:10px">
@@ -1132,7 +1156,7 @@ function renderStatsView(){
         <div class="stat-box"><div class="val">${overallPct}%</div><div class="lbl">Hit rate</div></div>
         <div class="stat-box"><div class="val">${s.hits}/${s.total}</div><div class="lbl">Decisive</div></div>
         <div class="stat-box"><div class="val">${recentPct}%</div><div class="lbl">Last 14d</div></div>
-        <div class="stat-box"><div class="val">${s.recent.hits}/${s.recent.n}</div><div class="lbl">Recent</div></div>
+        <div class="stat-box"><div class="val">${s.rawTotal}</div><div class="lbl">Raw Rows</div></div>
       </div>
     </div>
 
