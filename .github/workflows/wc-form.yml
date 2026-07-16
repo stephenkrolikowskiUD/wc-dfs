@@ -4,9 +4,7 @@ permissions:
   contents: write
 
 on:
-  schedule:
-    # Daily during tournament window; refreshes only players already present in Picks.
-    - cron: '30 9 * * *'
+  # Tournament complete; keep manual dispatch for archival/backfill runs only.
   workflow_dispatch:
     inputs:
       mode:

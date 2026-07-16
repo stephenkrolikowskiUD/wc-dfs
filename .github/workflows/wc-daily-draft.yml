@@ -21,8 +21,6 @@ on:
         required: true
         default: '24'
         type: string
-  schedule:
-    - cron: '0 12,16,20,0 * * *'
 
 jobs:
   run-world-cup-daily-draft-prep:

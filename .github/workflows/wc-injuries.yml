@@ -1,9 +1,7 @@
 name: World Cup Injuries
 
 on:
-  schedule:
-    # Daily injury refresh during tournament window.
-    - cron: '0 11 * * *'
+  # Tournament complete; keep manual dispatch for archival/backfill runs only.
   workflow_dispatch:
 
 jobs:
