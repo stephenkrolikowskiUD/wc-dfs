@@ -26,6 +26,7 @@ PICKS_HISTORY_SHEET_NAME = "Picks_History"
 PICKS_CURRENT_SHEET_NAME = "Picks_Current"
 INJURY_SHEET_NAME = "Player_Injuries"
 MATCH_SPREADS_SHEET_NAME = "Match_Spreads"
+RUN_LOG_SHEET_NAME = "Run_Log"
 ODDS_API_SPORT_KEY = "soccer_fifa_world_cup"
 MATCH_MARKETS = ["spreads", "totals"]
 PROP_MARKETS_STANDARD = [
@@ -107,6 +108,21 @@ SQUAD_CACHE_PATH = "squad_cache.json"
 PROP_LOOKAHEAD_HOURS = 48
 MARKET_422_CACHE_PATH = "market_422_cache.json"
 MARKET_422_CACHE_TTL_SECONDS = 6 * 3600
+_last_odds_credits_remaining = None
+
+RUN_LOG_COLUMNS = [
+    "RUN_ID",
+    "SPORT",
+    "KIND",
+    "STARTED_AT",
+    "FINISHED_AT",
+    "DURATION_SEC",
+    "STATUS",
+    "PICKS_GENERATED",
+    "ROWS_WRITTEN",
+    "ODDS_CREDITS_REMAINING",
+    "ERROR",
+]
 
 TEAM_NAME_ALIASES = {
     "argentina": "argentina",
@@ -393,6 +409,7 @@ def parse_gemini_json_array(raw):
 
 
 def odds_api_get(path, params, max_retries=MAX_API_RETRIES):
+    global _last_odds_credits_remaining
     url = f"{ODDS_API_BASE}{path}"
     for attempt in range(max_retries):
         try:
@@ -412,6 +429,8 @@ def odds_api_get(path, params, max_retries=MAX_API_RETRIES):
             resp.raise_for_status()
             remaining = resp.headers.get("x-requests-remaining")
             used = resp.headers.get("x-requests-used")
+            if remaining is not None:
+                _last_odds_credits_remaining = remaining
             if remaining or used:
                 print(f"   📊 Odds API quota remaining: {remaining or '?'} / used: {used or '?'}")
             return resp.json()
@@ -1239,6 +1258,40 @@ def write_table_to_sheet(sheet_name, columns, rows):
     print(f"✅ Wrote {len(rows)} row(s) to {sheet_name}")
 
 
+def write_run_log(started_at, status, picks_generated=0, rows_written=0, error=""):
+    gc = get_gspread_client()
+    sh = gc.open_by_key(SHEET_ID)
+    try:
+        ws = sh.worksheet(RUN_LOG_SHEET_NAME)
+        existing_headers = ws.row_values(1)
+        missing_headers = [h for h in RUN_LOG_COLUMNS if h not in existing_headers]
+        if missing_headers:
+            existing_headers = existing_headers + missing_headers
+            ws.update("A1", [existing_headers])
+    except gspread.WorksheetNotFound:
+        ws = sh.add_worksheet(title=RUN_LOG_SHEET_NAME, rows=1000, cols=len(RUN_LOG_COLUMNS))
+        existing_headers = RUN_LOG_COLUMNS
+        ws.update("A1", [existing_headers])
+
+    finished_at = datetime.now(timezone.utc)
+    run_id = f"WC-engine-{finished_at.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+    row = {
+        "RUN_ID": run_id,
+        "SPORT": "WC",
+        "KIND": "engine",
+        "STARTED_AT": started_at.isoformat(),
+        "FINISHED_AT": finished_at.isoformat(),
+        "DURATION_SEC": round((finished_at - started_at).total_seconds(), 1),
+        "STATUS": status,
+        "PICKS_GENERATED": picks_generated,
+        "ROWS_WRITTEN": rows_written,
+        "ODDS_CREDITS_REMAINING": _last_odds_credits_remaining or "",
+        "ERROR": error,
+    }
+    ws.append_row([clean_cell(row.get(col, "")) for col in existing_headers], value_input_option="USER_ENTERED")
+    print(f"📝 Run_Log: {status} — credits remaining {_last_odds_credits_remaining or '?'}")
+
+
 def sample_fixtures_and_props():
     fixtures = [
         {
@@ -1386,6 +1439,7 @@ def sample_picks():
 
 
 def run_engine(args):
+    started_at = datetime.now(timezone.utc)
     print("=" * 60)
     print("🌎 WORLD CUP DFS PICK ENGINE v1")
     print("=" * 60)
@@ -1446,6 +1500,7 @@ def run_engine(args):
         write_table_to_sheet(MATCH_SPREADS_SHEET_NAME, MATCH_SPREAD_COLUMNS, match_spreads)
         write_to_sheet(picks, sheet_name=PICKS_HISTORY_SHEET_NAME, mode="append")
         write_to_sheet(picks, sheet_name=PICKS_CURRENT_SHEET_NAME, mode="overwrite")
+        write_run_log(started_at, "OK", picks_generated=len(picks), rows_written=len(picks))
 
     print("\n" + "=" * 60)
     print("✅ WORLD CUP DFS PICK ENGINE COMPLETE")
