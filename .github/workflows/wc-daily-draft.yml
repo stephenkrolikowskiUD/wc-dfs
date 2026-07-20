@@ -24,6 +24,8 @@ on:
 
 jobs:
   run-world-cup-daily-draft-prep:
+    # Archived: the World Cup tournament is complete. Keep the workflow file for history, but never execute it.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
